@@ -14,12 +14,55 @@ import {
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import { useNavigation } from '@react-navigation/native';
+import api from '../../../utils/api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LoginScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const navigation = useNavigation();
+
+  // Handle Login
+  const handleLogin = async () => {
+    try {
+      if (!email || !password) {
+        return Alert.alert('Message', 'All fields are required...!!');
+      }
+
+      if (!email.includes('@')) {
+        return Alert.alert(
+          'Message',
+          'Please enter a valid email address...!!',
+        );
+      }
+
+      if (password.length < 6) {
+        return Alert.alert(
+          'message',
+          'Password must be atleast 6 characters...!!',
+        );
+      }
+
+      // Payload
+      const payload = { email: email.trim(), password: password.trim() };
+
+      const response = await api.post(`/user/login`, payload);
+      const data = response.data;
+
+      if (data.success) {
+        Alert.alert('Success', 'Login successful...!!');
+        await AsyncStorage.setItem('token', data.token);
+        console.log('Token has been saved successfully...!!' + data.token);
+        navigation.navigate('otp');
+      } else {
+        Alert.alert('Error', 'Invalid email or password...!!');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      Alert.alert('Error', 'Login failed. Please try again later...!!');
+    }
+  };
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <View style={styles.container}>
@@ -82,10 +125,7 @@ const LoginScreen = () => {
             </Pressable>
           </View>
 
-          <Pressable
-            style={styles.signInButton}
-            onPress={() => navigation.navigate('otp')}
-          >
+          <Pressable style={styles.signInButton} onPress={handleLogin}>
             <Text style={styles.signInButtonText}>Sign in</Text>
           </Pressable>
 
