@@ -1,0 +1,509 @@
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Pressable,
+  Image,
+  Dimensions,
+  Modal,
+  StatusBar,
+  SafeAreaView,
+} from 'react-native';
+import {
+  ChevronLeft,
+  ClipboardList,
+  Edit,
+  FileText,
+  Pencil,
+  Settings,
+} from 'lucide-react-native';
+const ReportDetailScreen = () => {
+  const [showPopup, setShowPopup] = useState(false);
+  const [ShowDeleteReport, setShowDeleteReport] = useState(false);
+  const [ShowSuccessReport, setShowSuccessReport] = useState(false);
+  // const handleFooterPress = (route: any) => {
+  //   router.push(route);
+  // };
+  return (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <Pressable style={styles.backButton}>
+          <ChevronLeft color="#141b41" size={24} />
+        </Pressable>
+        <Text style={styles.headerTitle}>Daily Report</Text>
+      </View>
+
+      <ScrollView
+        style={styles.content}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
+        {/* // Inside the ScrollView > top_section */}
+        <View style={styles.top_section}>
+          <Text style={styles.date}>Friday 14 July 2025</Text>
+
+          <View style={{ position: 'relative' }}>
+            <Pressable
+              onPress={() => setShowPopup(!showPopup)}
+              style={styles.edit}
+            >
+              <Text style={styles.edit_text}>Edit</Text>
+              <Pencil size={16} />
+            </Pressable>
+
+            {showPopup && (
+              <View style={styles.popupMenu}>
+                <Pressable
+                  style={styles.popupItem}
+                  onPress={() => {
+                    // setShowDeleteReport(true)
+                  }}
+                >
+                  <Settings size={18} color="#000" style={styles.popupIcon} />
+                  <Text style={styles.popupTextBold}>Edit log</Text>
+                </Pressable>
+
+                <Pressable
+                  style={styles.popupItem}
+                  onPress={() => {
+                    console.log('Delete');
+                    setShowDeleteReport(true);
+                  }}
+                >
+                  <Settings size={18} color="#000" style={styles.popupIcon} />
+                  <Text style={styles.popupTextBold}>Delete</Text>
+                </Pressable>
+
+                <Pressable
+                  onPress={() => setShowPopup(false)}
+                  style={styles.cancelButton}
+                >
+                  <Text style={styles.cancelText}>Cancel</Text>
+                </Pressable>
+              </View>
+            )}
+          </View>
+        </View>
+
+        {/* Image Slider */}
+        {/* Image Slider */}
+        <View style={styles.sliderContainer}>
+          <ScrollView
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.sliderContent}
+          >
+            {[
+              'https://images.pexels.com/photos/2219024/pexels-photo-2219024.jpeg',
+              'https://images.pexels.com/photos/159306/construction-site-build-construction-work-159306.jpeg',
+              'https://images.pexels.com/photos/2219024/pexels-photo-2219024.jpeg',
+              'https://images.pexels.com/photos/159306/construction-site-build-construction-work-159306.jpeg',
+            ].map((uri, index) => (
+              <Image
+                key={index}
+                source={{ uri }}
+                style={styles.sliderImage}
+                resizeMode="cover"
+              />
+            ))}
+          </ScrollView>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Progress report</Text>
+          <View style={styles.textBox}>
+            <Text style={styles.reportText}>
+              Track Monitor Readings Deliver & Install GF5 Material - x Wagons
+              (2 wagons spread the rest was stock piled due to weather
+              conditions) Vibration testing cable ducted.
+            </Text>
+          </View>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Weather</Text>
+          <View style={styles.textBox_}>
+            <Text style={styles.reportText}>Rain</Text>
+          </View>
+        </View>
+      </ScrollView>
+
+      <View style={styles.footer}>
+        <View style={styles.footerContent}>
+          <Pressable
+            style={styles.footerTab}
+            // onPress={() => handleFooterPress('/dashboard')}
+          >
+            <ClipboardList size={20} color="#93a5b1" />
+            <Text style={styles.footerTabText}>Tasks</Text>
+          </Pressable>
+
+          <Pressable
+            style={[styles.footerTab, styles.footerTabActive]}
+            // onPress={() => handleFooterPress('/past-reports')}
+          >
+            <FileText size={20} color="#141b41" />
+            <Text style={[styles.footerTabText, styles.footerTabTextActive]}>
+              Past Reports
+            </Text>
+          </Pressable>
+
+          <Pressable
+            style={styles.footerTab}
+            // onPress={() => handleFooterPress('/settings')}
+          >
+            <Settings size={20} color="#93a5b1" />
+            <Text style={styles.footerTabText}>Settings</Text>
+          </Pressable>
+        </View>
+      </View>
+
+      <Modal
+        visible={ShowDeleteReport}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowDeleteReport(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <Pressable
+            style={styles.modalBackdrop}
+            onPress={() => setShowDeleteReport(false)}
+          />
+          <View style={styles.deleteModalBox}>
+            <Text style={styles.deleteTitle}>
+              Are you sure you want to delete?{' '}
+            </Text>
+            <Text style={styles.deleteMessage}>
+              This report will be lost for this day. You will not be able to
+              undo.
+            </Text>
+
+            <View
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                flexDirection: 'row',
+                gap: 10,
+              }}
+            >
+              <Pressable
+                style={styles.deleteButton}
+                onPress={() => setShowSuccessReport(true)}
+              >
+                <Text style={styles.deleteButtonText}>Delete Report</Text>
+              </Pressable>
+              <Pressable
+                style={styles.cancelButton_}
+                onPress={() => setShowDeleteReport(false)}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal
+        visible={ShowSuccessReport}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowSuccessReport(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <Pressable
+            style={styles.modalBackdrop}
+            onPress={() => setShowSuccessReport(false)}
+          />
+          <View style={styles.deleteModalBox}>
+            <Text style={styles.deleteTitle}>Report deleted</Text>
+            <Text style={styles.deleteMessage}>
+              Reports was removed Successfully
+            </Text>
+
+            {/* <View> */}
+            <Pressable
+              style={styles.okButton}
+              onPress={() => setShowSuccessReport(false)}
+            >
+              <Text style={styles.deleteButtonText}>Okay</Text>
+            </Pressable>
+
+            {/* </View> */}
+          </View>
+        </View>
+      </Modal>
+    </SafeAreaView>
+  );
+};
+
+export default ReportDetailScreen;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingTop: 60,
+    paddingHorizontal: 24,
+    paddingBottom: 20,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(230, 230, 230, 1)',
+  },
+  backButton: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 8,
+  },
+  headerTitle: {
+    flex: 1,
+    fontFamily: 'Inter-Medium',
+    fontSize: 14,
+    color: 'rgba(0, 11, 35, 1)',
+    textAlign: 'center',
+    marginLeft: -24,
+  },
+  content: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 100,
+  },
+  date: {
+    fontFamily: 'Inter-Bold',
+    fontSize: 24,
+    color: 'rgba(50, 49, 49, 1)',
+    // marginHorizontal: 24,
+    // marginTop: 24,
+    // marginBottom: 24,
+    fontWeight: 'bold',
+  },
+
+  // Slider Styles
+  sliderContainer: {
+    marginBottom: 24,
+    height: 380,
+  },
+  sliderContent: {
+    paddingLeft: 24,
+    paddingRight: 12,
+  },
+  sliderImage: {
+    width: Dimensions.get('window').width - 100,
+    height: 380,
+    borderRadius: 12,
+    marginRight: 12,
+    resizeMode: 'cover',
+  },
+
+  section: {
+    paddingHorizontal: 24,
+    marginBottom: 24,
+  },
+  sectionTitle: {
+    fontFamily: 'Inter-Regular',
+    fontSize: 12,
+    color: 'rgba(0, 0, 0, 0.6)',
+    marginBottom: 5,
+  },
+  edit: {
+    backgroundColor: '#fff',
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderWidth: 1,
+    borderColor: 'rgba(175, 175, 175, 1)',
+    display: 'flex',
+    gap: 5,
+    flexDirection: 'row',
+  },
+  top_section: {
+    display: 'flex',
+    gap: 5,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 24,
+  },
+  edit_text: {
+    fontFamily: 'Inter-Regular',
+    fontSize: 14,
+    color: 'rgba(0, 0, 0, 1)',
+    // lineHeight: 24,
+  },
+  textBox: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(175, 175, 175, 1)',
+  },
+  textBox_: {
+    backgroundColor: '#fff',
+    borderRadius: 50,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(175, 175, 175, 1)',
+  },
+  reportText: {
+    fontFamily: 'Inter-Regular',
+    fontSize: 14,
+    color: 'rgba(0, 0, 0, 1)',
+    lineHeight: 24,
+  },
+  footer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderTopColor: '#e5e7eb',
+  },
+  footerContent: {
+    flexDirection: 'row',
+    height: 60,
+    alignItems: 'center',
+    justifyContent: 'space-around',
+  },
+  footerTab: {
+    alignItems: 'center',
+  },
+  footerTabActive: {
+    borderTopWidth: 2,
+    borderTopColor: '#141b41',
+    paddingTop: 10,
+  },
+  footerTabText: {
+    fontFamily: 'Inter-Regular',
+    fontSize: 12,
+    color: '#93a5b1',
+    marginTop: 4,
+  },
+  footerTabTextActive: {
+    color: '#141b41',
+    fontFamily: 'Inter-Medium',
+  },
+  popupMenu: {
+    position: 'absolute',
+    right: 0,
+    top: 40,
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    width: 180,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 5,
+    zIndex: 100,
+  },
+  popupItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+  },
+  popupIcon: {
+    marginRight: 12,
+  },
+  popupTextBold: {
+    fontFamily: 'Inter-Bold',
+    fontSize: 14,
+    color: 'rgba(0, 11, 35, 1)',
+  },
+  cancelButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+  },
+  cancelText: {
+    fontFamily: 'Inter-Bold',
+    fontSize: 14,
+    color: 'rgba(0, 11, 35, 1)',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalBackdrop: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
+  deleteModalBox: {
+    backgroundColor: '#fff',
+    paddingVertical: 24,
+    paddingHorizontal: 20,
+    borderRadius: 16,
+    width: 300,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 5,
+    alignItems: 'center',
+  },
+  deleteTitle: {
+    fontFamily: 'Inter-Bold',
+    fontSize: 18,
+    color: '#1a1447',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  deleteMessage: {
+    fontFamily: 'Inter-Regular',
+    fontSize: 16,
+    color: 'rgba(0, 0, 0, 1)',
+    textAlign: 'center',
+    marginBottom: 20,
+    lineHeight: 20,
+  },
+  deleteButton: {
+    backgroundColor: 'rgba(24, 20, 70, 1)',
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    borderRadius: 50,
+    // width: '100%',
+    alignItems: 'center',
+    // marginBottom: 12,
+  },
+  deleteButtonText: {
+    color: '#fff',
+    fontFamily: 'Inter-Medium',
+    fontSize: 14,
+  },
+  cancelButton_: {
+    paddingVertical: 14,
+    paddingHorizontal: 10,
+    borderRadius: 50,
+    alignItems: 'center',
+  },
+  cancelButtonText: {
+    fontFamily: 'Inter-Regular',
+    fontSize: 14,
+    color: '#1a1447',
+    fontWeight: 'bold',
+  },
+  okButton: {
+    backgroundColor: 'rgba(24, 20, 70, 1)',
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    borderRadius: 24,
+    width: '100%',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+});
