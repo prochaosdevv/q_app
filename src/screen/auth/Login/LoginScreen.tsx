@@ -17,6 +17,22 @@ import { useNavigation } from '@react-navigation/native';
 import api from '../../../utils/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+// Google sign in
+import {
+  GoogleSignin,
+  GoogleSigninButton,
+  isErrorWithCode,
+  isNoSavedCredentialFoundResponse,
+  isSuccessResponse,
+  statusCodes,
+} from '@react-native-google-signin/google-signin';
+GoogleSignin.configure({
+  webClientId:
+    '65469867457-5lidjejs2imrmfmmsgkoh7uvhr2s6lff.apps.googleusercontent.com',
+  offlineAccess: true,
+});
+
+// Google sign in end
 const LoginScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -47,12 +63,9 @@ const LoginScreen = () => {
       // Payload
       const payload = { email: email.trim(), password: password.trim() };
 
-      
       const response = await api.post(`/user/login`, payload);
       const data = response.data;
 
-
-      
       if (data.success) {
         Alert.alert('Success', 'Login successful...!!');
         await AsyncStorage.setItem('token', data.token);
@@ -64,6 +77,35 @@ const LoginScreen = () => {
     } catch (error) {
       console.error('Login error:', error);
       Alert.alert('Error', 'Login failed. Please try again later...!!');
+    }
+  };
+
+  // Google sign in
+  const handleGoogleSignIn = async () => {
+    try {
+      await GoogleSignin.hasPlayServices();
+      const response = await GoogleSignin.signIn();
+      if (isSuccessResponse(response)) {
+        console.log(response.data.idToken);
+        navigation.navigate('projects');
+      } else {
+        console.log('Sign in was cancelled by user...!!');
+      }
+    } catch (error) {
+      if (isErrorWithCode(error)) {
+        switch (error.code) {
+          case statusCodes.IN_PROGRESS:
+            Alert.alert('Sign in is in progress...!!');
+            break;
+          case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
+            Alert.alert('Play services not available...!!');
+            break;
+          default:
+            console.log('Google Sign-In error code:', error.code);
+        }
+      } else {
+        Alert.alert('Error', 'Google sign-in error...!!');
+      }
     }
   };
   return (
@@ -132,7 +174,10 @@ const LoginScreen = () => {
             <Text style={styles.signInButtonText}>Sign in</Text>
           </Pressable>
 
-          <Pressable style={styles.socialButton}>
+          <Pressable
+            style={styles.socialButton}
+            onPress={() => handleGoogleSignIn()}
+          >
             <Text style={styles.socialButtonText}>Sign up with Google</Text>
           </Pressable>
 
