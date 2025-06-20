@@ -30,7 +30,6 @@ import { useAuthStore } from '../../../zustand/store/authStore';
 GoogleSignin.configure({
   webClientId:
     '65469867457-5lidjejs2imrmfmmsgkoh7uvhr2s6lff.apps.googleusercontent.com',
-  offlineAccess: true,
 });
 
 // Google sign in end
@@ -89,8 +88,8 @@ const LoginScreen = () => {
       await GoogleSignin.hasPlayServices();
       const response = await GoogleSignin.signIn();
       if (isSuccessResponse(response)) {
-        console.log(response.data.idToken);
-        navigation.navigate('projects');
+        console.log(response.data);
+        // navigation.navigate('projects');
       } else {
         console.log('Sign in was cancelled by user...!!');
       }

@@ -8,16 +8,84 @@ import {
   ScrollView,
   Alert,
 } from 'react-native';
-import { Check } from 'lucide-react-native';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
+import api from '../../../utils/api';
+import { useNavigation } from '@react-navigation/native';
 
 const SignupScreen = () => {
+  const [fullname, setFullname] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [rememberMe, setRememberMe] = useState(false);
+  const navigation = useNavigation();
+
+  const handleSignUp = async () => {
+    try {
+      if (!fullname || !email || !password) {
+        return Alert.alert('Message', 'All fields are required...!!');
+      }
+
+      if (!email.includes('@')) {
+        return Alert.alert(
+          'Message',
+          'Please enter a valid email address...!!',
+        );
+      }
+
+      if (password.length < 6) {
+        return Alert.alert(
+          'Message',
+          'Password must be at least 6 characters...!!',
+        );
+      }
+
+      // Payload
+      const payload = {
+        fullname: fullname.trim(),
+        email: email.trim().toLowerCase(),
+        password: password.trim(),
+      };
+
+      const response = await api.post('user/register', payload);
+      const data = response.data;
+
+      if (data.success) {
+        Alert.alert('Success', 'User registration successful...!!', [
+          {
+            text: 'OK',
+            onPress: () => navigation.navigate('login'),
+          },
+        ]);
+      } else {
+        if (
+          data.message &&
+          data.message.toLowerCase().includes('Email already exists...!!')
+        ) {
+          Alert.alert('Error', 'Email already exists. Please try another...!!');
+        } else {
+          Alert.alert('Error', 'User registration failed...!!');
+        }
+      }
+    } catch (error) {
+      console.error('Signup Error:', error);
+
+      // Handle if server sends specific error response
+      if (error.response && error.response.data?.message) {
+        const serverMessage = error.response.data.message.toLowerCase();
+
+        if (serverMessage.includes('email already exists')) {
+          return Alert.alert(
+            'Error',
+            'Email already exists. Please try another...!!',
+          );
+        }
+        return Alert.alert('Error', error.response.data.message);
+      }
+      Alert.alert('Error', 'Signup failed. Please try again...!!');
+    }
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
@@ -25,18 +93,29 @@ const SignupScreen = () => {
         <View style={styles.topSpace} />
 
         <View style={styles.header}>
-          <Text style={styles.title}>Sign in</Text>
+          <Text style={styles.title}>Join JSW 2025 project management</Text>
           <Text style={styles.subtitle}>
-            Welcome back! Please enter your details
+            Our project management app brings better visibility to your projects
+            progress
           </Text>
         </View>
 
         <View style={styles.form}>
           <View style={styles.inputGroup}>
+            <Text style={styles.label}>Full name </Text>
+            <TextInput
+              style={styles.input}
+              placeholder="John Johnson"
+              placeholderTextColor="#93a5b1"
+              value={fullname}
+              onChangeText={setFullname}
+            />
+          </View>
+          <View style={styles.inputGroup}>
             <Text style={styles.label}>Email</Text>
             <TextInput
               style={styles.input}
-              placeholder="Enter your email address"
+              placeholder="email@gmail.com"
               placeholderTextColor="#93a5b1"
               keyboardType="email-address"
               autoCapitalize="none"
@@ -56,33 +135,13 @@ const SignupScreen = () => {
               onChangeText={setPassword}
             />
           </View>
-
-          <View style={styles.options}>
-            <Pressable
-              style={styles.checkbox}
-              onPress={() => setRememberMe(!rememberMe)}
-            >
-              <View
-                style={[
-                  styles.checkboxBox,
-                  rememberMe && styles.checkboxChecked,
-                ]}
-              >
-                {rememberMe && <Check size={wp('3.5%')} color="#fff" />}
-              </View>
-              <Text style={styles.checkboxLabel}>Remember me</Text>
-            </Pressable>
-
-            <Pressable style={styles.forgotPassword}>
-              <Text style={styles.forgotPasswordText}>Forgot Password</Text>
-            </Pressable>
-          </View>
-
-          <Pressable
-            style={styles.signInButton}
-            onPress={() => Alert.alert('Signing in...')}
-          >
-            <Text style={styles.signInButtonText}>Sign in</Text>
+          <Text style={styles.termsText}>
+            By signing up, you agree to our{' '}
+            <Text style={styles.link}>Terms of service</Text> and{' '}
+            <Text style={styles.link}>Privacy Policy</Text>.
+          </Text>
+          <Pressable style={styles.signInButton} onPress={handleSignUp}>
+            <Text style={styles.signInButtonText}>Sign Up</Text>
           </Pressable>
 
           <Pressable style={styles.socialButton}>
@@ -91,13 +150,6 @@ const SignupScreen = () => {
 
           <Pressable style={styles.socialButton}>
             <Text style={styles.socialButtonText}>Sign up with Apple</Text>
-          </Pressable>
-        </View>
-
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>Don't have an account? </Text>
-          <Pressable>
-            <Text style={styles.footerLink}>Sign Up</Text>
           </Pressable>
         </View>
       </View>
@@ -132,8 +184,9 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontFamily: 'Inter-Regular',
-    fontSize: wp('4.1%'),
+    fontSize: wp('4%'),
     color: '#000',
+    lineHeight: hp('2.5%'),
   },
   form: {
     flex: 1,
@@ -156,51 +209,16 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Regular',
     fontSize: wp('4%'),
     color: '#333',
+    borderWidth: 1,
   },
-  options: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: hp('3%'),
-    marginTop: hp('8%'),
-  },
-  checkbox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  checkboxBox: {
-    width: wp('5%'),
-    height: wp('5%'),
-    borderWidth: 2,
-    borderColor: '#737373',
-    marginRight: wp('2%'),
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  checkboxChecked: {
-    backgroundColor: '#141b41',
-    borderColor: '#141b41',
-  },
-  checkboxLabel: {
-    fontFamily: 'Inter-Regular',
-    fontSize: wp('4%'),
-    color: '#333',
-  },
-  forgotPassword: {
-    marginLeft: 'auto',
-  },
-  forgotPasswordText: {
-    fontFamily: 'Inter-Medium',
-    fontSize: wp('4%'),
-    color: 'rgba(214, 55, 57, 1)',
-  },
+
   signInButton: {
     backgroundColor: 'rgba(24, 20, 70, 1)',
     height: hp('6.8%'),
     borderRadius: wp('10%'),
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: hp('3%'),
+    marginBottom: hp('2%'),
   },
   signInButtonText: {
     fontFamily: 'Inter-Medium',
@@ -225,19 +243,16 @@ const styles = StyleSheet.create({
     color: 'rgba(24, 20, 70, 1)',
     fontWeight: '700',
   },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  footerText: {
+  termsText: {
     fontFamily: 'Inter-Regular',
-    fontSize: wp('3.8%'),
-    color: '#000',
+    fontSize: 14,
+    color: 'rgba(133, 133, 133, 1)',
+    marginBottom: 24,
+    lineHeight: 20,
+    marginTop: hp('4%'),
   },
-  footerLink: {
-    fontFamily: 'Inter-Medium',
-    fontSize: wp('3.8%'),
+  link: {
     color: 'rgba(51, 128, 215, 1)',
+    fontWeight: 'bold',
   },
 });
