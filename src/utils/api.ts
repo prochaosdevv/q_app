@@ -1,10 +1,9 @@
 import axios from 'axios';
+import { API_URL } from '@env';
 import { getAccessToken } from './tokenSetting';
-import dotenv from 'dotenv';
-dotenv.config();
 
 const api = axios.create({
-  baseURL: process.env.API_URL,
+  baseURL: API_URL,
   withCredentials: true,
 });
 

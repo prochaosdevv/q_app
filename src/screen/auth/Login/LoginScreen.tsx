@@ -47,9 +47,12 @@ const LoginScreen = () => {
       // Payload
       const payload = { email: email.trim(), password: password.trim() };
 
+      
       const response = await api.post(`/user/login`, payload);
       const data = response.data;
 
+
+      
       if (data.success) {
         Alert.alert('Success', 'Login successful...!!');
         await AsyncStorage.setItem('token', data.token);
