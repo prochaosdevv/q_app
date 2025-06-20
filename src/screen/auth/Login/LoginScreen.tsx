@@ -26,6 +26,7 @@ import {
   isSuccessResponse,
   statusCodes,
 } from '@react-native-google-signin/google-signin';
+import { useAuthStore } from '../../../zustand/store/authStore';
 GoogleSignin.configure({
   webClientId:
     '65469867457-5lidjejs2imrmfmmsgkoh7uvhr2s6lff.apps.googleusercontent.com',
@@ -38,7 +39,7 @@ const LoginScreen = () => {
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const navigation = useNavigation();
-
+  const { setUser, setToken } = useAuthStore.getState();
   // Handle Login
   const handleLogin = async () => {
     try {
@@ -68,8 +69,10 @@ const LoginScreen = () => {
 
       if (data.success) {
         Alert.alert('Success', 'Login successful...!!');
-        await AsyncStorage.setItem('token', data.token);
-        console.log('Token has been saved successfully...!!' + data.token);
+        setToken(data.token);
+        setUser(data.user);
+        console.log('Token has been saved successfully...!! ' + data.token);
+        console.log('Welcome ' + data.user.fullname);
         navigation.navigate('otp');
       } else {
         Alert.alert('Error', 'Invalid email or password...!!');

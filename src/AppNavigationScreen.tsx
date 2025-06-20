@@ -1,14 +1,17 @@
 import { View, Text } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
+// Screens
 import SplashScreen from './screen/auth/Splash/SplashScreen';
 import OnBoardingScreen from './screen/auth/OnBoarding/OnBoardingScreen';
 import LoginScreen from './screen/auth/Login/LoginScreen';
 import SignupScreen from './screen/auth/Signup/SignupScreen';
 import OtpScreen from './screen/auth/OtpVerification/OtpScreen';
-import DrawerNavigationScreen from './navigation/drawernavigation/DrawerNavigationScreen';
 import ForgotPasswordScreen from './screen/auth/ForgotPassword/ForgotPasswordScreen';
+
+// Main Screens
 import ProjectScreen from './screen/main/Project/ProjectScreen';
 import DashboardScreen from './screen/main/Project/DashboardScreen';
 import CreateNewProject from './screen/main/Project/CreateNewProject';
@@ -19,15 +22,28 @@ import PastReportScreen from './screen/main/Project/PastReportScreen';
 import ReportViewScreen from './screen/main/Project/ReportViewScreen';
 import ReportDetailScreen from './screen/main/Project/ReportDetailScreen';
 import SettingScreen from './screen/main/Project/SettingScreen';
+
+// Navigation Screen
 import BottomNavigationScreen from './navigation/bottomnavigation/BottomNavigationScreen';
+import DrawerNavigationScreen from './navigation/drawernavigation/DrawerNavigationScreen';
+
+// Zustand
+import { useAuthStore } from './zustand/store/authStore';
 const Stack = createNativeStackNavigator();
 const AppNavigationScreen = () => {
-  const [showSplashScreen, setshowSplashScreen] = useState(true);
+  const [showSplashScreen, setShowSplashScreen] = useState(true);
+  const userId = useAuthStore(state => state.user?.id);
+  const rehydrate = useAuthStore(state => state.rehydrate);
   useEffect(() => {
-    setTimeout(() => {
-      setshowSplashScreen(false);
-    }, 2000);
+    const initialize = async () => {
+      await rehydrate();
+      setTimeout(() => {
+        setShowSplashScreen(false);
+      }, 1000);
+    };
+    initialize();
   }, []);
+
   return (
     <NavigationContainer>
       <Stack.Navigator
@@ -43,11 +59,21 @@ const AppNavigationScreen = () => {
             options={{ headerShown: false }}
           />
         ) : null}
-        <Stack.Screen
-          name="onboarding"
-          component={OnBoardingScreen}
-          options={{ headerShown: false }}
-        />
+
+        {userId ? (
+          <Stack.Screen
+            name="projects"
+            component={ProjectScreen}
+            options={{ headerShown: false }}
+          />
+        ) : (
+          <Stack.Screen
+            name="onboarding"
+            component={OnBoardingScreen}
+            options={{ headerShown: false }}
+          />
+        )}
+
         <Stack.Screen
           name="login"
           component={LoginScreen}
@@ -68,11 +94,7 @@ const AppNavigationScreen = () => {
           component={ForgotPasswordScreen}
           options={{ headerShown: false }}
         />
-        <Stack.Screen
-          name="projects"
-          component={ProjectScreen}
-          options={{ headerShown: false }}
-        />
+
         <Stack.Screen
           name="dashboard"
           component={DashboardScreen}

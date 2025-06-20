@@ -21,6 +21,7 @@ import {
 import jsw from '../../../assets/images/jsw_icon.png';
 import BottomNavigationScreen from '../../../navigation/bottomnavigation/BottomNavigationScreen';
 import { useNavigation } from '@react-navigation/native';
+import { useAuthStore } from '../../../zustand/store/authStore';
 
 const SettingScreen = () => {
   const navigation = useNavigation();
@@ -37,26 +38,49 @@ const SettingScreen = () => {
     },
   ];
 
-  const handleLogout = async () => {
-    // try {
-    //   // await clearAccessToken();
-    //   // Sign out from google
-    //   try {
-    //     await GoogleSignin.signOut();
-    //     console.log('Google sign-out successful');
-    //   } catch (googleError) {
-    //     console.warn(
-    //       'Google Sign-Out failed (maybe not signed in):',
-    //       googleError,
-    //     );
-    //   }
-    //   // router.replace('/auth/sign-in');
-    //   Alert.alert('Logged Out', 'You have been signed out successfully!');
-    // } catch (error) {
-    //   console.log('Logout Error:', error);
-    //   Alert.alert('Error', 'Something went wrong while logging out!');
-    // }
+  const handleLogout = () => {
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to logout?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: async () => {
+            const logout = useAuthStore.getState().logout;
+            await logout();
+            navigation.navigate('login');
+          },
+        },
+      ],
+      { cancelable: true },
+    );
   };
+
+  // const handleLogout = async () => {
+  //   // try {
+  //   //   // await clearAccessToken();
+  //   //   // Sign out from google
+  //   //   try {
+  //   //     await GoogleSignin.signOut();
+  //   //     console.log('Google sign-out successful');
+  //   //   } catch (googleError) {
+  //   //     console.warn(
+  //   //       'Google Sign-Out failed (maybe not signed in):',
+  //   //       googleError,
+  //   //     );
+  //   //   }
+  //   //   // router.replace('/auth/sign-in');
+  //   //   Alert.alert('Logged Out', 'You have been signed out successfully!');
+  //   // } catch (error) {
+  //   //   console.log('Logout Error:', error);
+  //   //   Alert.alert('Error', 'Something went wrong while logging out!');
+  //   // }
+  // };
 
   return (
     <SafeAreaView style={styles.container}>

@@ -1,4 +1,5 @@
-import React from 'react';
+import { useNavigation } from '@react-navigation/native';
+import React, { useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import {
   widthPercentageToDP as wp,
