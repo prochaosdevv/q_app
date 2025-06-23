@@ -22,6 +22,7 @@ import jsw from '../../../assets/images/jsw_icon.png';
 import BottomNavigationScreen from '../../../navigation/bottomnavigation/BottomNavigationScreen';
 import { useNavigation } from '@react-navigation/native';
 import { useAuthStore } from '../../../zustand/store/authStore';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
 const SettingScreen = () => {
   const navigation = useNavigation();
@@ -51,36 +52,33 @@ const SettingScreen = () => {
           text: 'Logout',
           style: 'destructive',
           onPress: async () => {
-            const logout = useAuthStore.getState().logout;
-            await logout();
-            navigation.navigate('login');
+            try {
+              const logout = useAuthStore.getState().logout;
+              await logout();
+
+              // Sign out from Google
+              try {
+                await GoogleSignin.signOut();
+                console.log('✅ Google sign-out successful...!!');
+              } catch (googleError) {
+                console.warn('⚠️ Google Sign-Out failed:', googleError);
+              }
+
+              // Navigate to login screen
+              navigation.navigate('login');
+            } catch (error) {
+              console.log('❌ Logout Error:', error);
+              Alert.alert(
+                'Error',
+                'Something went wrong while logging out...!!',
+              );
+            }
           },
         },
       ],
       { cancelable: true },
     );
   };
-
-  // const handleLogout = async () => {
-  //   // try {
-  //   //   // await clearAccessToken();
-  //   //   // Sign out from google
-  //   //   try {
-  //   //     await GoogleSignin.signOut();
-  //   //     console.log('Google sign-out successful');
-  //   //   } catch (googleError) {
-  //   //     console.warn(
-  //   //       'Google Sign-Out failed (maybe not signed in):',
-  //   //       googleError,
-  //   //     );
-  //   //   }
-  //   //   // router.replace('/auth/sign-in');
-  //   //   Alert.alert('Logged Out', 'You have been signed out successfully!');
-  //   // } catch (error) {
-  //   //   console.log('Logout Error:', error);
-  //   //   Alert.alert('Error', 'Something went wrong while logging out!');
-  //   // }
-  // };
 
   return (
     <SafeAreaView style={styles.container}>

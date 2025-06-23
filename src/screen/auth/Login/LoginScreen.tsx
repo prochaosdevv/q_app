@@ -15,24 +15,9 @@ import {
 } from 'react-native-responsive-screen';
 import { useNavigation } from '@react-navigation/native';
 import api from '../../../utils/api';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-// Google sign in
-import {
-  GoogleSignin,
-  GoogleSigninButton,
-  isErrorWithCode,
-  isNoSavedCredentialFoundResponse,
-  isSuccessResponse,
-  statusCodes,
-} from '@react-native-google-signin/google-signin';
 import { useAuthStore } from '../../../zustand/store/authStore';
-GoogleSignin.configure({
-  webClientId:
-    '65469867457-5lidjejs2imrmfmmsgkoh7uvhr2s6lff.apps.googleusercontent.com',
-});
+import signInWithGoogle from '../../../utils/signInWithGoogle';
 
-// Google sign in end
 const LoginScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -82,34 +67,6 @@ const LoginScreen = () => {
     }
   };
 
-  // Google sign in
-  const handleGoogleSignIn = async () => {
-    try {
-      await GoogleSignin.hasPlayServices();
-      const response = await GoogleSignin.signIn();
-      if (isSuccessResponse(response)) {
-        console.log(response.data);
-        // navigation.navigate('projects');
-      } else {
-        console.log('Sign in was cancelled by user...!!');
-      }
-    } catch (error) {
-      if (isErrorWithCode(error)) {
-        switch (error.code) {
-          case statusCodes.IN_PROGRESS:
-            Alert.alert('Sign in is in progress...!!');
-            break;
-          case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
-            Alert.alert('Play services not available...!!');
-            break;
-          default:
-            console.log('Google Sign-In error code:', error.code);
-        }
-      } else {
-        Alert.alert('Error', 'Google sign-in error...!!');
-      }
-    }
-  };
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <View style={styles.container}>
@@ -176,10 +133,7 @@ const LoginScreen = () => {
             <Text style={styles.signInButtonText}>Sign in</Text>
           </Pressable>
 
-          <Pressable
-            style={styles.socialButton}
-            onPress={() => handleGoogleSignIn()}
-          >
+          <Pressable style={styles.socialButton} onPress={()=>signInWithGoogle({navigation})}>
             <Text style={styles.socialButtonText}>Sign up with Google</Text>
           </Pressable>
 

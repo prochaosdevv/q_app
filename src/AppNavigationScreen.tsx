@@ -32,7 +32,7 @@ import { useAuthStore } from './zustand/store/authStore';
 const Stack = createNativeStackNavigator();
 const AppNavigationScreen = () => {
   const [showSplashScreen, setShowSplashScreen] = useState(true);
-  const userId = useAuthStore(state => state.user?.id);
+  const userEmail = useAuthStore(state => state.user?.email);
   const rehydrate = useAuthStore(state => state.rehydrate);
   useEffect(() => {
     const initialize = async () => {
@@ -60,7 +60,7 @@ const AppNavigationScreen = () => {
           />
         ) : null}
 
-        {userId ? (
+        {userEmail ? (
           <Stack.Screen
             name="projects"
             component={ProjectScreen}
