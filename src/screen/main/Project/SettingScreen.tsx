@@ -17,6 +17,7 @@ import {
   CircleHelp as HelpCircle,
   LogOut,
   ClipboardList,
+  FilePen,
 } from 'lucide-react-native';
 import jsw from '../../../assets/images/jsw_icon.png';
 import BottomNavigationScreen from '../../../navigation/bottomnavigation/BottomNavigationScreen';
@@ -82,6 +83,7 @@ const SettingScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar backgroundColor="white" />
       <View style={styles.header}>
         <Text style={styles.title}>Settings</Text>
       </View>
@@ -95,7 +97,7 @@ const SettingScreen = () => {
             navigation.navigate('create-new-project');
           }}
         >
-          <FileText size={20} color="#141b41" />
+          <FilePen size={20} color="#141b41" />
           <Text style={styles.menuText}>Create New Project</Text>
         </Pressable>
 
@@ -169,14 +171,16 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   header: {
-    paddingTop: 60,
     paddingHorizontal: 24,
-    paddingBottom: 24,
+    backgroundColor: '#14274A',
+    paddingTop: 60,
+    paddingBottom: 30,
   },
   title: {
     fontFamily: 'Inter-Bold',
     fontSize: 24,
-    color: 'rgba(0, 11, 35, 1)',
+    color: 'white',
+    fontWeight: '800',
   },
   content: {
     flex: 1,
@@ -187,7 +191,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'rgba(0, 11, 35, 1)',
     paddingHorizontal: 24,
-    marginBottom: 8,
+    marginTop: 20,
   },
   menuItem: {
     flexDirection: 'row',

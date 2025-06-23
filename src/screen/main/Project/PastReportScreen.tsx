@@ -6,13 +6,14 @@ import {
   Pressable,
   StatusBar,
   SafeAreaView,
+  Image,
 } from 'react-native';
 
 import { ReportListItem } from '../../../components/ReportListItem';
 import { ClipboardList, FileText, Settings } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import BottomNavigationScreen from '../../../navigation/bottomnavigation/BottomNavigationScreen';
-
+import jsw from '../../../assets/images/jsw_icon.png';
 const PastReportScreen = () => {
   const navigation = useNavigation();
   const reports = [
@@ -47,10 +48,17 @@ const PastReportScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar backgroundColor="white"/>
       <View style={styles.header}>
-        <Text style={styles.title}>Past Reports</Text>
+        <Text style={styles.greeting}>Hi, John Doe</Text>
+        <View style={styles.img_container}>
+          <Image
+            source={typeof jsw === 'string' ? { uri: jsw } : jsw}
+            style={styles.companyLogo}
+            resizeMode="cover"
+          />
+        </View>
       </View>
-
       <ScrollView
         style={styles.content}
         showsVerticalScrollIndicator={false}
@@ -80,17 +88,36 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   header: {
+    paddingHorizontal: 20,
+    backgroundColor: '#14274A',
     paddingTop: 60,
-    paddingHorizontal: 24,
-    paddingBottom: 15,
-    backgroundColor: '#fff',
-    // borderBottomWidth: 1,
-    // borderBottomColor: '#e5e7eb',
+    paddingBottom: 24,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
-  title: {
-    fontFamily: 'Inter-Bold',
-    fontSize: 24,
-    color: 'rgba(50, 49, 49, 1)',
+
+  greeting: {
+    fontFamily: 'Inter-Regular',
+    fontSize: 28,
+    fontWeight: '800',
+    color: 'white',
+  },
+
+  img_container: {
+    width: 60,
+    height: 60,
+    borderRadius: 12,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E8E9EA',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  companyLogo: {
+    width: 48,
+    height: 22,
+    resizeMode: 'contain',
   },
   content: {
     flex: 1,

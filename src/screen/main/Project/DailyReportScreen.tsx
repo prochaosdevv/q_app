@@ -51,7 +51,7 @@ const DailyReportScreen = () => {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#f2f2f2" />
+      <StatusBar backgroundColor="white" />
       <View style={styles.header}>
         <Pressable
           style={styles.backButton}
@@ -59,7 +59,7 @@ const DailyReportScreen = () => {
             navigation.goBack();
           }}
         >
-          <ChevronLeft color="rgba(0, 11, 35, 1)" size={24} />
+          <ChevronLeft color="white" size={24} />
         </Pressable>
         <Text style={styles.headerTitle}>Complete Daily Report</Text>
       </View>
@@ -272,11 +272,12 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingTop: 60,
     paddingHorizontal: 24,
-    paddingBottom: 20,
     borderBottomWidth: 1,
     borderBottomColor: '#e5e7eb',
+    backgroundColor: '#14274A',
+    paddingTop: 60,
+    paddingBottom: 30,
   },
   backButton: {
     // width: 40,
@@ -291,7 +292,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontFamily: 'Inter-Medium',
     fontSize: 14,
-    color: 'rgba(0, 11, 35, 1)',
+    color: 'white',
     flex: 1,
     textAlign: 'center',
     marginLeft: -24,

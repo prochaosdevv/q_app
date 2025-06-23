@@ -36,20 +36,19 @@ const DashboardScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar backgroundColor="white" />
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.header}>
-          <View style={styles.userInfo}>
-            <Text style={styles.greeting}>Hi, John Doe</Text>
-            <View style={styles.img_container}>
-              <Image
-                source={typeof jsw === 'string' ? { uri: jsw } : jsw}
-                style={styles.companyLogo}
-                resizeMode="cover"
-              />
-            </View>
+          <Text style={styles.greeting}>Hi, John Doe</Text>
+          <View style={styles.img_container}>
+            <Image
+              source={typeof jsw === 'string' ? { uri: jsw } : jsw}
+              style={styles.companyLogo}
+              resizeMode="cover"
+            />
           </View>
         </View>
 
@@ -198,42 +197,44 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
+    paddingHorizontal: 20,
+    backgroundColor: '#14274A',
     paddingTop: 60,
-    paddingHorizontal: 24,
     paddingBottom: 24,
-  },
-  userInfo: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
+    alignItems: 'center',
   },
+
   greeting: {
     fontFamily: 'Inter-Regular',
-    fontSize: 32,
-    color: 'rgba(37, 36, 36, 1)',
-    fontWeight: '300',
+    fontSize: 28,
+    fontWeight: '800',
+    color: 'white',
   },
-  companyLogo: {
-    width: 55,
-    height: 26,
-  },
+
   img_container: {
+    width: 60,
+    height: 60,
+    borderRadius: 12,
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: 'rgba(232, 233, 234, 1)',
-    width: 76,
-    height: 66,
-    backgroundColor: 'rgba(255, 255, 255, 1)',
-    borderRadius: 20,
-    padding: 2,
-    marginBottom: 64,
-    display: 'flex',
+    borderColor: '#E8E9EA',
     justifyContent: 'center',
     alignItems: 'center',
   },
+
+  companyLogo: {
+    width: 48,
+    height: 22,
+    resizeMode: 'contain',
+  },
+
   content: {
     flex: 1,
     paddingHorizontal: 24,
     paddingBottom: 100,
+    paddingTop: 30,
   },
   sectionTitle: {
     fontFamily: 'Inter-Regular',
@@ -408,7 +409,7 @@ const styles = StyleSheet.create({
   },
   floatingButton: {
     position: 'absolute',
-    bottom: 84,
+    bottom: 130,
     right: 24,
     width: 56,
     height: 56,

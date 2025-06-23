@@ -59,7 +59,7 @@ const OnBoardingScreen = () => {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#f2f2f2" />
+      <StatusBar barStyle="dark-content" backgroundColor="black" />
       <FlatList
         ref={flatListRef}
         data={slides}

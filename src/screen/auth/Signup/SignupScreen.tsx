@@ -7,6 +7,7 @@ import {
   Pressable,
   ScrollView,
   Alert,
+  StatusBar,
 } from 'react-native';
 import {
   widthPercentageToDP as wp,
@@ -89,6 +90,7 @@ const SignupScreen = () => {
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
+     <StatusBar barStyle="dark-content" backgroundColor="#f2f2f2" />
       <View style={styles.container}>
         <View style={styles.topSpace} />
 

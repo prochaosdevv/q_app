@@ -11,6 +11,7 @@ import {
   Keyboard,
   Modal,
   SafeAreaView,
+  StatusBar,
 } from 'react-native';
 import { Check } from 'lucide-react-native';
 import {
@@ -85,6 +86,7 @@ const OtpScreen = () => {
   const isComplete = otp.every(digit => digit !== '');
   return (
     <SafeAreaView style={styles.scrollContainer}>
+      <StatusBar barStyle="dark-content" backgroundColor="#f2f2f2" />
       <View style={styles.container}>
         <View style={styles.topSpace} />
 

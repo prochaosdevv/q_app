@@ -7,6 +7,7 @@ import {
   Pressable,
   ScrollView,
   Alert,
+  StatusBar,
 } from 'react-native';
 import { Check } from 'lucide-react-native';
 import {
@@ -69,6 +70,7 @@ const LoginScreen = () => {
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <StatusBar barStyle="dark-content" backgroundColor="black" />
       <View style={styles.container}>
         <View style={styles.topSpace} />
 
@@ -133,7 +135,10 @@ const LoginScreen = () => {
             <Text style={styles.signInButtonText}>Sign in</Text>
           </Pressable>
 
-          <Pressable style={styles.socialButton} onPress={()=>signInWithGoogle({navigation})}>
+          <Pressable
+            style={styles.socialButton}
+            onPress={() => signInWithGoogle({ navigation })}
+          >
             <Text style={styles.socialButtonText}>Sign up with Google</Text>
           </Pressable>
 

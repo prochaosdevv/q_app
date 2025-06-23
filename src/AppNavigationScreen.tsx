@@ -39,24 +39,19 @@ const AppNavigationScreen = () => {
       await rehydrate();
       setTimeout(() => {
         setShowSplashScreen(false);
-      }, 1000);
+      }, 2000);
     };
     initialize();
   }, []);
 
   return (
     <NavigationContainer>
-      <Stack.Navigator
-        screenOptions={{
-          statusBarHidden: false,
-          statusBarStyle: 'dark',
-        }}
-      >
+      <Stack.Navigator>
         {showSplashScreen ? (
           <Stack.Screen
             name="splash"
             component={SplashScreen}
-            options={{ headerShown: false }}
+            options={{ headerShown: false, statusBarStyle: 'dark' }}
           />
         ) : null}
 
@@ -64,30 +59,30 @@ const AppNavigationScreen = () => {
           <Stack.Screen
             name="projects"
             component={ProjectScreen}
-            options={{ headerShown: false }}
+            options={{ headerShown: false, statusBarStyle: 'dark' }}
           />
         ) : (
           <Stack.Screen
             name="onboarding"
             component={OnBoardingScreen}
-            options={{ headerShown: false }}
+            options={{ headerShown: false, statusBarStyle: 'dark' }}
           />
         )}
 
         <Stack.Screen
           name="login"
           component={LoginScreen}
-          options={{ headerShown: false }}
+          options={{ headerShown: false, statusBarStyle: 'dark' }}
         />
         <Stack.Screen
           name="signup"
           component={SignupScreen}
-          options={{ headerShown: false }}
+          options={{ headerShown: false, statusBarStyle: 'dark' }}
         />
         <Stack.Screen
           name="otp"
           component={OtpScreen}
-          options={{ headerShown: false }}
+          options={{ headerShown: false, statusBarStyle: 'dark' }}
         />
         <Stack.Screen
           name="forgot-password"
@@ -138,7 +133,7 @@ const AppNavigationScreen = () => {
         <Stack.Screen
           name="settings"
           component={SettingScreen}
-          options={{ headerShown: false }}
+          options={{ headerShown: false, statusBarStyle: 'light' }}
         />
         <Stack.Screen name="drawernav" component={DrawerNavigationScreen} />
         <Stack.Screen name="bottomnav" component={BottomNavigationScreen} />

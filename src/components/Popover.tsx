@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
   },
   cancelText: {
     fontFamily: 'Inter-Medium',
-    fontSize: 16,
+    fontSize: 14,
     color: 'rgba(24, 20, 70, 1)',
     fontWeight: '700',
   },

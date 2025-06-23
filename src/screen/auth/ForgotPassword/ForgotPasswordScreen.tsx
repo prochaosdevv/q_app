@@ -7,6 +7,7 @@ import {
   Pressable,
   ScrollView,
   Alert,
+  StatusBar,
 } from 'react-native';
 import {
   widthPercentageToDP as wp,
@@ -18,6 +19,7 @@ const ForgotPasswordScreen = () => {
   const navigation = useNavigation();
   return (
     <ScrollView style={styles.scrollContainer}>
+      <StatusBar barStyle="dark-content" backgroundColor="#000000" />
       <View style={styles.container}>
         <View style={styles.topSpace} />
         <View style={styles.header}>

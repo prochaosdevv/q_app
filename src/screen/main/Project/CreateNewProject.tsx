@@ -8,6 +8,7 @@ import {
   ScrollView,
   StatusBar,
   SafeAreaView,
+  Alert,
 } from 'react-native';
 import {
   ChevronLeft,
@@ -19,6 +20,7 @@ import {
 import { useState } from 'react';
 import jsw from '../../../assets/images/jsw_icon.png';
 import { useNavigation } from '@react-navigation/native';
+import api from '../../../utils/api';
 
 const CreateNewProject = () => {
   const [projectName, setProjectName] = useState('');
@@ -30,32 +32,71 @@ const CreateNewProject = () => {
     { email: 'name@email.com', role: 'can view' },
   ]);
 
-  const handleAddContributor = () => {
-    setContributors([...contributors, '']);
-  };
-
   const handleContributorChange = (text: string, index: number) => {
     const newContributors = [...contributors];
     newContributors[index] = text;
     setContributors(newContributors);
   };
 
-  const handleFooterPress = (route: any) => {
-    // router.push(route);
-  };
+  const handleCreateProject = async () => {
+    if (!projectName || !description || !contributors) {
+      Alert.alert('Validation', 'Please fill all required fields...!!');
+      return;
+    }
 
-  const handleCreateProject = () => {
-    // router.back();
+    try {
+      const imageUri = Image.resolveAssetSource(jsw).uri;
+      const formData = new FormData();
+      formData.append('name', projectName);
+      formData.append('description', description);
+      formData.append('image', {
+        uri: imageUri,
+        name: 'project-image.jpg',
+        type: 'image/jpeg',
+      });
+
+      contributors.forEach((contributor, index) => {
+        formData.append(`contributors[${index}]`, contributor);
+      });
+
+      const response = await api.post('/project/create', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      if (response.data?.success) {
+        Alert.alert('Success', 'Project created successfully!');
+        [
+          {
+            text: 'OK',
+            onPress: () => navigation.navigate('dashboard'),
+          },
+        ];
+      } else {
+        Alert.alert(
+          'Error',
+          response.data?.message || 'Unknown error occurred',
+        );
+      }
+    } catch (error) {
+      console.log('API Error:', error);
+      Alert.alert(
+        'Error',
+        'Something went wrong while creating the project....!!',
+      );
+    }
   };
 
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar backgroundColor="white"/>
       <View style={styles.header}>
         <Pressable
           style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
-          <ChevronLeft color="#141b41" size={24} />
+          <ChevronLeft color="white" size={24} />
         </Pressable>
         <Text style={styles.headerTitle}>Create New Project</Text>
       </View>
@@ -137,7 +178,6 @@ const CreateNewProject = () => {
           <Text style={styles.createButtonText}>Create Project</Text>
         </Pressable>
       </View>
-
     </SafeAreaView>
   );
 };
@@ -152,11 +192,12 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingTop: 60,
     paddingHorizontal: 24,
-    paddingBottom: 20,
     borderBottomWidth: 1,
     borderBottomColor: '#e5e7eb',
+    backgroundColor: '#14274A',
+    paddingTop: 60,
+    paddingBottom: 30,
   },
   backButton: {
     // width: 40,
@@ -170,7 +211,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontFamily: 'Inter-Medium',
     fontSize: 16,
-    color: '#141b41',
+    color: 'white',
     textAlign: 'center',
     flex: 1,
     marginLeft: -24,
@@ -335,5 +376,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#fff',
   },
-  
 });

@@ -1,82 +1,108 @@
-import { View, Text, Pressable, StyleSheet } from 'react-native';
 import React from 'react';
-import { ClipboardList, FileText, Settings2 } from 'lucide-react-native';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { ClipboardList, History, Settings } from 'lucide-react-native';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 const BottomNavigationScreen = () => {
-  const navigate = useNavigation();
+  const navigation = useNavigation();
+  const route = useRoute();
+
+  const getActiveTab = () => {
+    switch (route.name) {
+      case 'dashboard':
+        return 'Tasks';
+      case 'past-reports':
+        return 'Past Reports';
+      case 'settings':
+        return 'Settings';
+      default:
+        return '';
+    }
+  };
+
+  const activeTab = getActiveTab();
+
+  const tabs = [
+    { name: 'Tasks', icon: ClipboardList },
+    { name: 'Past Reports', icon: History },
+    { name: 'Settings', icon: Settings },
+  ];
+
+  const handlePress = tab => {
+    switch (tab) {
+      case 'Tasks':
+        navigation.navigate('dashboard');
+        break;
+      case 'Past Reports':
+        navigation.navigate('past-reports');
+        break;
+      case 'Settings':
+        navigation.navigate('settings');
+        break;
+      default:
+        break;
+    }
+  };
+
   return (
-    <View style={styles.footer}>
-      <View style={styles.footerContent}>
-        <Pressable
-          style={[styles.footerTab, styles.footerTabActive]}
-          onPress={() => navigate.navigate('dashboard')}
-        >
-          <ClipboardList size={wp('5%')} color="#141b41" />
-          <Text style={[styles.footerTabText, styles.footerTabTextActive]}>
-            Tasks
-          </Text>
-        </Pressable>
-
-        <Pressable
-          style={styles.footerTab}
-          onPress={() => navigate.navigate('past-reports')}
-        >
-          <FileText size={wp('5%')} color="#93a5b1" />
-          <Text style={styles.footerTabText}>Past Reports</Text>
-        </Pressable>
-
-        <Pressable
-          style={styles.footerTab}
-          onPress={() => navigate.navigate('settings')}
-        >
-          <Settings2 size={wp('5%')} color="#93a5b1" />
-          <Text style={styles.footerTabText}>Settings</Text>
-        </Pressable>
-      </View>
+    <View style={styles.container}>
+      {tabs.map((tab, index) => {
+        const Icon = tab.icon;
+        const isActive = activeTab === tab.name;
+        return (
+          <Pressable
+            key={index}
+            style={styles.tab}
+            onPress={() => handlePress(tab.name)}
+          >
+            <Icon color="#0A2342" size={hp('3%')} strokeWidth={2} />
+            <Text style={[styles.label, isActive && styles.activeLabel]}>
+              {tab.name}
+            </Text>
+            {isActive && <View style={styles.underline} />}
+          </Pressable>
+        );
+      })}
     </View>
   );
 };
 
-export default BottomNavigationScreen;
-
 const styles = StyleSheet.create({
-  footer: {
-    position: 'absolute',
-    bottom: hp('2%'), // gap from bottom
-    left: 0,
-    right: 0,
-    backgroundColor: '#fff',
-    borderTopWidth: 1,
-    borderTopColor: '#e5e7eb',
-  },
-  footerContent: {
+  container: {
     flexDirection: 'row',
-    height: hp('8%'),
-    alignItems: 'center',
+    height: hp('9%'),
+    backgroundColor: '#fff',
     justifyContent: 'space-around',
-    paddingBottom: hp('2%'),
-  },
-  footerTab: {
     alignItems: 'center',
+    borderTopWidth: 0.5,
+    borderColor: '#ddd',
+    paddingHorizontal: 20,
+    marginBottom: 50,
   },
-  footerTabActive: {
-    borderTopWidth: 2,
-    borderTopColor: '#141b41',
-    paddingTop: hp('1%'),
+  tab: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  footerTabText: {
-    fontFamily: 'Inter-Regular',
-    fontSize: wp('3.2%'),
-    color: '#93a5b1',
+  label: {
+    fontSize: hp('1.6%'),
+    color: '#0A2342',
     marginTop: hp('0.5%'),
+    fontWeight: '400',
   },
-  footerTabTextActive: {
-    color: '#141b41',
-    fontFamily: 'Inter-Medium',
+  activeLabel: {
+    fontWeight: '700',
+  },
+  underline: {
+    height: 2,
+    backgroundColor: '#0A2342',
+    width: wp('8%'),
+    marginTop: hp('0.3%'),
+    borderRadius: 2,
   },
 });
+
+export default BottomNavigationScreen;

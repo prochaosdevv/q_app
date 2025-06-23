@@ -48,12 +48,13 @@ const ManageMembers = () => {
   };
   return (
     <SafeAreaView style={styles.container}>
+     <StatusBar backgroundColor="white" />
       <View style={styles.header}>
         <Pressable
           style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
-          <ChevronLeft color="#141b41" size={24} />
+          <ChevronLeft color="white" size={24} />
         </Pressable>
         <Text style={styles.headerTitle}>Project members</Text>
       </View>
@@ -135,25 +136,21 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingTop: 60,
     paddingHorizontal: 24,
-    paddingBottom: 20,
     borderBottomWidth: 1,
     borderBottomColor: '#e5e7eb',
+    backgroundColor: '#14274A',
+    paddingTop: 60,
+    paddingBottom: 30,
   },
   backButton: {
-    // width: 40,
-    // height: 40,
-    // justifyContent: 'center',
-    // alignItems: 'center',
-    // marginRight: 8,
     position: 'relative',
     zIndex: 1,
   },
   headerTitle: {
     fontFamily: 'Inter-Medium',
     fontSize: 14,
-    color: 'rgba(0, 11, 35, 1)',
+    color: 'white',
     flex: 1,
     textAlign: 'center',
     marginLeft: -24,
