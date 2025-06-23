@@ -16,24 +16,29 @@ import {
   Settings,
   Sun,
 } from 'lucide-react-native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 const ReportViewScreen = () => {
-  const handleFooterPress = (route: any) => {
-    // router.push(route);
-  };
+  const navigation = useNavigation();
+  const route = useRoute();
+  const { dateRange, title, description } = route.params;
 
-  const handleViewReport = (date: string) => {
-    // router.push({
-    //   pathname: '/report-details',
-    //   params: { date },
-    // });
+  const handleViewReport = date => {
+    navigation.navigate('report-details', {
+      date,
+    });
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Pressable style={styles.backButton}>
-          <ChevronLeft color="#141b41" size={24} />
+        <Pressable
+          style={styles.backButton}
+          onPress={() => {
+            navigation.goBack();
+          }}
+        >
+          <ChevronLeft color="white" size={24} />
         </Pressable>
 
         <Text style={styles.headerTitle}>Week View</Text>
@@ -47,12 +52,12 @@ const ReportViewScreen = () => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {/* <Text style={styles.dateRange}>{dateRange}</Text> */}
+        <Text style={styles.dateRange}>{dateRange}</Text>
 
         <View style={styles.weekGoal}>
           <Text style={styles.sectionTitle}>Weeks goal</Text>
-          {/* <Text style={styles.goalTitle}>{title}</Text> */}
-          {/* <Text style={styles.goalDescription}>{description}</Text> */}
+          <Text style={styles.goalTitle}>{title}</Text>
+          <Text style={styles.goalDescription}>{description}</Text>
         </View>
 
         <View style={styles.reportCard}>
@@ -77,7 +82,7 @@ const ReportViewScreen = () => {
               <Sun size={16} color="#666" />
             </View>
             <View style={styles.stat}>
-              {/* <Pound size={16} color="#666" /> */}
+              <Pound size={16} color="#666" />
               <Text style={styles.statText}>£0 extra costs</Text>
             </View>
           </View>
@@ -126,36 +131,6 @@ const ReportViewScreen = () => {
           </Pressable>
         </View>
       </ScrollView>
-
-      <View style={styles.footer}>
-        <View style={styles.footerContent}>
-          <Pressable
-            style={styles.footerTab}
-            onPress={() => handleFooterPress('/dashboard')}
-          >
-            <ClipboardList size={20} color="#93a5b1" />
-            <Text style={styles.footerTabText}>Tasks</Text>
-          </Pressable>
-
-          <Pressable
-            style={[styles.footerTab, styles.footerTabActive]}
-            onPress={() => handleFooterPress('/past-reports')}
-          >
-            <FileText size={20} color="#141b41" />
-            <Text style={[styles.footerTabText, styles.footerTabTextActive]}>
-              Past Reports
-            </Text>
-          </Pressable>
-
-          <Pressable
-            style={styles.footerTab}
-            onPress={() => handleFooterPress('/settings')}
-          >
-            <Settings size={20} color="#93a5b1" />
-            <Text style={styles.footerTabText}>Settings</Text>
-          </Pressable>
-        </View>
-      </View>
     </SafeAreaView>
   );
 };
@@ -171,11 +146,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingTop: 60,
     paddingHorizontal: 24,
-    paddingBottom: 20,
     borderBottomWidth: 1,
     borderBottomColor: '#e5e7eb',
+    backgroundColor: '#14274A',
+    paddingTop: 60,
+    paddingBottom: 30,
   },
   backButton: {
     // width: 40,
@@ -188,7 +164,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontFamily: 'Inter-Regular',
     fontSize: 14,
-    color: 'rgba(0, 11, 35, 1)',
+    color: 'white',
     textAlign: 'center',
     flex: 1,
     marginLeft: -24,
@@ -302,38 +278,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: 'rgba(24, 20, 70, 1)',
     fontWeight: 'bold',
-  },
-  footer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: '#fff',
-    borderTopWidth: 1,
-    borderTopColor: '#e5e7eb',
-  },
-  footerContent: {
-    flexDirection: 'row',
-    height: 60,
-    alignItems: 'center',
-    justifyContent: 'space-around',
-  },
-  footerTab: {
-    alignItems: 'center',
-  },
-  footerTabActive: {
-    borderTopWidth: 2,
-    borderTopColor: '#141b41',
-    paddingTop: 10,
-  },
-  footerTabText: {
-    fontFamily: 'Inter-Regular',
-    fontSize: 12,
-    color: '#93a5b1',
-    marginTop: 4,
-  },
-  footerTabTextActive: {
-    color: '#141b41',
-    fontFamily: 'Inter-Medium',
   },
 });

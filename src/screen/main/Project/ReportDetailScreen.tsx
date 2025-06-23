@@ -19,18 +19,28 @@ import {
   Pencil,
   Settings,
 } from 'lucide-react-native';
-const ReportDetailScreen = () => {
+import { useNavigation } from '@react-navigation/native';
+const ReportDetailScreen = ({ date }) => {
   const [showPopup, setShowPopup] = useState(false);
   const [ShowDeleteReport, setShowDeleteReport] = useState(false);
   const [ShowSuccessReport, setShowSuccessReport] = useState(false);
-  // const handleFooterPress = (route: any) => {
-  //   router.push(route);
-  // };
+  const navigation = useNavigation();
+  const images = [
+    'https://images.pexels.com/photos/2219024/pexels-photo-2219024.jpeg',
+    'https://images.pexels.com/photos/159306/construction-site-build-construction-work-159306.jpeg',
+    'https://images.pexels.com/photos/2219024/pexels-photo-2219024.jpeg',
+    'https://images.pexels.com/photos/159306/construction-site-build-construction-work-159306.jpeg',
+  ];
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Pressable style={styles.backButton}>
-          <ChevronLeft color="#141b41" size={24} />
+        <Pressable
+          style={styles.backButton}
+          onPress={() => {
+            navigation.goBack();
+          }}
+        >
+          <ChevronLeft color="white" size={24} />
         </Pressable>
         <Text style={styles.headerTitle}>Daily Report</Text>
       </View>
@@ -42,7 +52,7 @@ const ReportDetailScreen = () => {
       >
         {/* // Inside the ScrollView > top_section */}
         <View style={styles.top_section}>
-          <Text style={styles.date}>Friday 14 July 2025</Text>
+          <Text style={styles.date}>Friday 14 July 2025 </Text>
 
           <View style={{ position: 'relative' }}>
             <Pressable
@@ -58,10 +68,9 @@ const ReportDetailScreen = () => {
                 <Pressable
                   style={styles.popupItem}
                   onPress={() => {
-                    // setShowDeleteReport(true)
+                    setShowDeleteReport(true);
                   }}
                 >
-                  <Settings size={18} color="#000" style={styles.popupIcon} />
                   <Text style={styles.popupTextBold}>Edit log</Text>
                 </Pressable>
 
@@ -72,7 +81,6 @@ const ReportDetailScreen = () => {
                     setShowDeleteReport(true);
                   }}
                 >
-                  <Settings size={18} color="#000" style={styles.popupIcon} />
                   <Text style={styles.popupTextBold}>Delete</Text>
                 </Pressable>
 
@@ -87,21 +95,17 @@ const ReportDetailScreen = () => {
           </View>
         </View>
 
-        {/* Image Slider */}
-        {/* Image Slider */}
         <View style={styles.sliderContainer}>
           <ScrollView
             horizontal
             pagingEnabled
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.sliderContent}
+            snapToAlignment="center"
+            decelerationRate="fast"
+            snapToInterval={Dimensions.get('window').width - 48}
+            contentContainerStyle={{ paddingHorizontal: 24 }}
           >
-            {[
-              'https://images.pexels.com/photos/2219024/pexels-photo-2219024.jpeg',
-              'https://images.pexels.com/photos/159306/construction-site-build-construction-work-159306.jpeg',
-              'https://images.pexels.com/photos/2219024/pexels-photo-2219024.jpeg',
-              'https://images.pexels.com/photos/159306/construction-site-build-construction-work-159306.jpeg',
-            ].map((uri, index) => (
+            {images.map((uri, index) => (
               <Image
                 key={index}
                 source={{ uri }}
@@ -130,36 +134,6 @@ const ReportDetailScreen = () => {
           </View>
         </View>
       </ScrollView>
-
-      <View style={styles.footer}>
-        <View style={styles.footerContent}>
-          <Pressable
-            style={styles.footerTab}
-            // onPress={() => handleFooterPress('/dashboard')}
-          >
-            <ClipboardList size={20} color="#93a5b1" />
-            <Text style={styles.footerTabText}>Tasks</Text>
-          </Pressable>
-
-          <Pressable
-            style={[styles.footerTab, styles.footerTabActive]}
-            // onPress={() => handleFooterPress('/past-reports')}
-          >
-            <FileText size={20} color="#141b41" />
-            <Text style={[styles.footerTabText, styles.footerTabTextActive]}>
-              Past Reports
-            </Text>
-          </Pressable>
-
-          <Pressable
-            style={styles.footerTab}
-            // onPress={() => handleFooterPress('/settings')}
-          >
-            <Settings size={20} color="#93a5b1" />
-            <Text style={styles.footerTabText}>Settings</Text>
-          </Pressable>
-        </View>
-      </View>
 
       <Modal
         visible={ShowDeleteReport}
@@ -249,12 +223,12 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingTop: 60,
     paddingHorizontal: 24,
-    paddingBottom: 20,
-    backgroundColor: '#fff',
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(230, 230, 230, 1)',
+    backgroundColor: '#14274A',
+    paddingTop: 60,
+    paddingBottom: 30,
   },
   backButton: {
     justifyContent: 'center',
@@ -265,7 +239,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontFamily: 'Inter-Medium',
     fontSize: 14,
-    color: 'rgba(0, 11, 35, 1)',
+    color: 'white',
     textAlign: 'center',
     marginLeft: -24,
   },
@@ -295,11 +269,10 @@ const styles = StyleSheet.create({
     paddingRight: 12,
   },
   sliderImage: {
-    width: Dimensions.get('window').width - 100,
+    width: Dimensions.get('window').width - 48,
     height: 380,
     borderRadius: 12,
     marginRight: 12,
-    resizeMode: 'cover',
   },
 
   section: {
@@ -358,39 +331,7 @@ const styles = StyleSheet.create({
     color: 'rgba(0, 0, 0, 1)',
     lineHeight: 24,
   },
-  footer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: '#fff',
-    borderTopWidth: 1,
-    borderTopColor: '#e5e7eb',
-  },
-  footerContent: {
-    flexDirection: 'row',
-    height: 60,
-    alignItems: 'center',
-    justifyContent: 'space-around',
-  },
-  footerTab: {
-    alignItems: 'center',
-  },
-  footerTabActive: {
-    borderTopWidth: 2,
-    borderTopColor: '#141b41',
-    paddingTop: 10,
-  },
-  footerTabText: {
-    fontFamily: 'Inter-Regular',
-    fontSize: 12,
-    color: '#93a5b1',
-    marginTop: 4,
-  },
-  footerTabTextActive: {
-    color: '#141b41',
-    fontFamily: 'Inter-Medium',
-  },
+
   popupMenu: {
     position: 'absolute',
     right: 0,
@@ -420,6 +361,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Bold',
     fontSize: 14,
     color: 'rgba(0, 11, 35, 1)',
+    fontWeight: '800',
   },
   cancelButton: {
     paddingVertical: 10,

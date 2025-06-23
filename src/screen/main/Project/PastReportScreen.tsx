@@ -41,14 +41,16 @@ const PastReportScreen = () => {
   ];
 
   const handleReportPress = report => {
-    console.log('Data', report);
-
-    navigation.navigate('/report-view');
+    navigation.navigate('report-view', {
+      dateRange: report.dateRange,
+      title: report.title,
+      description: report.description,
+    });
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar backgroundColor="white"/>
+      <StatusBar backgroundColor="white" />
       <View style={styles.header}>
         <Text style={styles.greeting}>Hi, John Doe</Text>
         <View style={styles.img_container}>
