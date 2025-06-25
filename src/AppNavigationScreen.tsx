@@ -44,6 +44,8 @@ const AppNavigationScreen = () => {
     initialize();
   }, []);
 
+  console.log('Data', userEmail);
+
   return (
     <NavigationContainer>
       <Stack.Navigator>
@@ -88,7 +90,7 @@ const AppNavigationScreen = () => {
           component={ForgotPasswordScreen}
           options={{ headerShown: false }}
         />
-       
+
         <Stack.Screen
           name="bottom"
           component={BottomNavigationScreen}

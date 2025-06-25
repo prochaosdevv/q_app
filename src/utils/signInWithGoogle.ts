@@ -16,8 +16,7 @@ GoogleSignin.configure({
 
 const sendUserDataToServer = async ({ email, name, id, photo, navigation }) => {
   try {
-    const setToken = useAuthStore.getState().setToken;
-
+    const { setUser, setToken } = useAuthStore.getState();
     const response = await api.post('/user/auth/social', {
       email,
       provider: 'google',
@@ -26,10 +25,19 @@ const sendUserDataToServer = async ({ email, name, id, photo, navigation }) => {
       image: photo,
     });
     const data = response.data;
+
+    setToken(data.token);
+    setUser(data.user);
+    console.log('Token has been saved successfully...!! ' + data.token);
+    console.log('Welcome ' + data.user.fullname);
+
     if (data.success) {
-      Alert.alert('Success', 'Login successful...!!');
-      setToken(data.token);
-      navigation.navigate('bottom');
+      Alert.alert('Success', 'Login successful...!!', [
+        {
+          text: 'OK',
+          onPress: () => navigation.navigate('projects'),
+        },
+      ]);
     } else {
       Alert.alert('Error', 'Invalid email or password...!!');
     }

@@ -15,6 +15,7 @@ import {
 } from 'react-native-responsive-screen';
 import api from '../../../utils/api';
 import { useNavigation } from '@react-navigation/native';
+import signInWithGoogle from '../../../utils/signInWithGoogle';
 
 const SignupScreen = () => {
   const [fullname, setFullname] = useState('');
@@ -146,7 +147,10 @@ const SignupScreen = () => {
             <Text style={styles.signInButtonText}>Sign Up</Text>
           </Pressable>
 
-          <Pressable style={styles.socialButton}>
+          <Pressable
+            style={styles.socialButton}
+            onPress={() => signInWithGoogle({ navigation })}
+          >
             <Text style={styles.socialButtonText}>Sign up with Google</Text>
           </Pressable>
 
