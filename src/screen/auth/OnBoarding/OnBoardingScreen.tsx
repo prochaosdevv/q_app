@@ -112,10 +112,11 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    paddingHorizontal: wp('6%'), // 6% of screen width
-    paddingBottom: hp('6%'), // 6% of screen height
-    paddingTop: hp('3%'), // 3% of screen height
+    paddingHorizontal: wp('6%'),
+    paddingBottom: hp('6%'),
+    paddingTop: hp('3%'),
     backgroundColor: '#fff',
+    marginTop: hp('2%'),
   },
 
   pagination: {

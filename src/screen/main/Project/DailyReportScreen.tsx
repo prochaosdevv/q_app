@@ -38,6 +38,8 @@ const weatherOptions = [
 const DailyReportScreen = () => {
   const [selectedWeather, setSelectedWeather] = useState('');
   const [showWeatherDropdown, setShowWeatherDropdown] = useState(false);
+  const [selectedDealy, setSelectedDealy] = useState('');
+  const [showDealyDropdown, setShowDealyDropdown] = useState(false);
   const [showPhotoModal, setShowPhotoModal] = useState(false);
   const navigation = useNavigation();
   const handleFooterPress = (route: any) => {
@@ -99,14 +101,20 @@ const DailyReportScreen = () => {
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Delays</Text>
-          <TextInput
-            style={styles.textArea}
-            placeholder="Enter any delays..."
-            placeholderTextColor="rgba(0, 0, 0, 1)"
-            multiline
-            numberOfLines={4}
-            textAlignVertical="top"
-          />
+          <Pressable
+            style={styles.select}
+            onPress={() => setShowDealyDropdown(true)}
+          >
+            <Text
+              style={[
+                styles.selectText,
+                selectedDealy && styles.selectTextSelected,
+              ]}
+            >
+              {selectedDealy || '0 hours'}
+            </Text>
+            <ChevronDown color="rgba(0, 0, 0, 1)" size={20} />
+          </Pressable>
         </View>
 
         <View style={styles.section}>

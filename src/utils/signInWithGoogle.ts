@@ -29,7 +29,7 @@ const sendUserDataToServer = async ({ email, name, id, photo, navigation }) => {
     if (data.success) {
       Alert.alert('Success', 'Login successful...!!');
       setToken(data.token);
-      navigation.navigate('dashboard');
+      navigation.navigate('bottom');
     } else {
       Alert.alert('Error', 'Invalid email or password...!!');
     }

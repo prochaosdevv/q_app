@@ -90,7 +90,7 @@ const CreateNewProject = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar backgroundColor="white"/>
+     
       <View style={styles.header}>
         <Pressable
           style={styles.backButton}

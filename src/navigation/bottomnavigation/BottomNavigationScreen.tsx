@@ -1,69 +1,79 @@
 import React from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
-import { ClipboardList, History, Settings } from 'lucide-react-native';
+import {
+  View,
+  Text,
+  Pressable,
+  StyleSheet,
+  StatusBar,
+  Image,
+} from 'react-native';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
-const BottomNavigationScreen = () => {
-  const navigation = useNavigation();
-  const route = useRoute();
+import DashboardScreen from '../../screen/main/Project/DashboardScreen';
+import PastReportScreen from '../../screen/main/Project/PastReportScreen';
+import SettingScreen from '../../screen/main/Project/SettingScreen';
 
-  const getActiveTab = () => {
-    switch (route.name) {
-      case 'dashboard':
-        return 'Tasks';
-      case 'past-reports':
-        return 'Past Reports';
-      case 'settings':
-        return 'Settings';
-      default:
-        return '';
-    }
-  };
+import clipActive from '../../assets/images/icons/clipActive.png';
+import reportActive from '../../assets/images/icons/reportActive.png';
+import settingActive from '../../assets/images/icons/settingActive.png';
 
-  const activeTab = getActiveTab();
+import clipNormal from '../../assets/images/icons/clipRegular.png';
+import reportNormal from '../../assets/images/icons/reportRegular.png';
+import settingNormal from '../../assets/images/icons/settingRegular.png';
 
+const Tab = createBottomTabNavigator();
+
+// ✅ Custom Bottom Tab Bar using image icons
+const CustomTabBar = ({ state, descriptors, navigation }) => {
   const tabs = [
-    { name: 'Tasks', icon: ClipboardList },
-    { name: 'Past Reports', icon: History },
-    { name: 'Settings', icon: Settings },
+    {
+      name: 'dashboard',
+      label: 'Tasks',
+      activeIcon: clipActive,
+      inactiveIcon: clipNormal,
+    },
+    {
+      name: 'past-report',
+      label: 'Past Reports',
+      activeIcon: reportActive,
+      inactiveIcon: reportNormal,
+    },
+    {
+      name: 'setting',
+      label: 'Settings',
+      activeIcon: settingActive,
+      inactiveIcon: settingNormal,
+    },
   ];
-
-  const handlePress = tab => {
-    switch (tab) {
-      case 'Tasks':
-        navigation.navigate('dashboard');
-        break;
-      case 'Past Reports':
-        navigation.navigate('past-reports');
-        break;
-      case 'Settings':
-        navigation.navigate('settings');
-        break;
-      default:
-        break;
-    }
-  };
 
   return (
     <View style={styles.container}>
       {tabs.map((tab, index) => {
-        const Icon = tab.icon;
-        const isActive = activeTab === tab.name;
+        const isFocused = state.index === index;
+        const iconSource = isFocused ? tab.activeIcon : tab.inactiveIcon;
+
         return (
           <Pressable
             key={index}
+            onPress={() => navigation.navigate(tab.name)}
             style={styles.tab}
-            onPress={() => handlePress(tab.name)}
           >
-            <Icon color="#0A2342" size={hp('3%')} strokeWidth={2} />
-            <Text style={[styles.label, isActive && styles.activeLabel]}>
-              {tab.name}
+            <Image
+              source={iconSource}
+              style={[
+                styles.icon,
+                isFocused && styles.activeIcon, // Apply larger size when active
+              ]}
+              resizeMode="contain"
+            />
+            <Text style={[styles.label, isFocused && styles.activeLabel]}>
+              {tab.label}
             </Text>
-            {isActive && <View style={styles.underline} />}
+            {isFocused && <View style={styles.underline} />}
           </Pressable>
         );
       })}
@@ -71,21 +81,46 @@ const BottomNavigationScreen = () => {
   );
 };
 
+// ✅ Main Bottom Tab Navigation
+const BottomNavigationScreen = () => {
+  return (
+    <>
+      <StatusBar barStyle="light-content" backgroundColor="#0A2342" />
+
+      <Tab.Navigator
+        screenOptions={{ headerShown: false }}
+        tabBar={props => <CustomTabBar {...props} />}
+      >
+        <Tab.Screen name="dashboard" component={DashboardScreen} />
+        <Tab.Screen name="past-report" component={PastReportScreen} />
+        <Tab.Screen name="setting" component={SettingScreen} />
+      </Tab.Navigator>
+    </>
+  );
+};
+
+export default BottomNavigationScreen;
+
+// ✅ Styles
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    height: hp('9%'),
+    height: hp('12%'),
     backgroundColor: '#fff',
     justifyContent: 'space-around',
     alignItems: 'center',
     borderTopWidth: 0.5,
     borderColor: '#ddd',
-    paddingHorizontal: 20,
-    marginBottom: 50,
+    paddingHorizontal: hp('5%'),
+    paddingBottom: hp('2%'),
   },
   tab: {
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  icon: {
+    width: wp('6.5%'),
+    height: hp('4%'),
   },
   label: {
     fontSize: hp('1.6%'),
@@ -103,6 +138,8 @@ const styles = StyleSheet.create({
     marginTop: hp('0.3%'),
     borderRadius: 2,
   },
+  activeIcon: {
+    width: wp('7.5%'),
+    height: hp('5%'),
+  },
 });
-
-export default BottomNavigationScreen;

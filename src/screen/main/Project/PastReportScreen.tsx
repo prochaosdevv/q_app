@@ -12,7 +12,6 @@ import {
 import { ReportListItem } from '../../../components/ReportListItem';
 import { ClipboardList, FileText, Settings } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
-import BottomNavigationScreen from '../../../navigation/bottomnavigation/BottomNavigationScreen';
 import jsw from '../../../assets/images/jsw_icon.png';
 const PastReportScreen = () => {
   const navigation = useNavigation();
@@ -50,7 +49,8 @@ const PastReportScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar backgroundColor="white" />
+      <StatusBar barStyle="light-content" backgroundColor="#0A2342" />
+
       <View style={styles.header}>
         <Text style={styles.greeting}>Hi, John Doe</Text>
         <View style={styles.img_container}>
@@ -77,7 +77,6 @@ const PastReportScreen = () => {
           </View>
         ))}
       </ScrollView>
-      <BottomNavigationScreen />
     </SafeAreaView>
   );
 };

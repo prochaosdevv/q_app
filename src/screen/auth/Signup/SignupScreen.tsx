@@ -90,7 +90,7 @@ const SignupScreen = () => {
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
-     <StatusBar barStyle="dark-content" backgroundColor="#f2f2f2" />
+      <StatusBar barStyle="dark-content" backgroundColor="#f2f2f2" />
       <View style={styles.container}>
         <View style={styles.topSpace} />
 

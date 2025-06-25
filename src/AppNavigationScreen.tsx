@@ -25,7 +25,7 @@ import SettingScreen from './screen/main/Project/SettingScreen';
 
 // Navigation Screen
 import BottomNavigationScreen from './navigation/bottomnavigation/BottomNavigationScreen';
-import DrawerNavigationScreen from './navigation/drawernavigation/DrawerNavigationScreen';
+// import DrawerNavigationScreen from './navigation/drawernavigation/DrawerNavigationScreen';
 
 // Zustand
 import { useAuthStore } from './zustand/store/authStore';
@@ -39,7 +39,7 @@ const AppNavigationScreen = () => {
       await rehydrate();
       setTimeout(() => {
         setShowSplashScreen(false);
-      }, 2000);
+      }, 4000);
     };
     initialize();
   }, []);
@@ -54,7 +54,6 @@ const AppNavigationScreen = () => {
             options={{ headerShown: false, statusBarStyle: 'dark' }}
           />
         ) : null}
-
         {userEmail ? (
           <Stack.Screen
             name="projects"
@@ -89,12 +88,13 @@ const AppNavigationScreen = () => {
           component={ForgotPasswordScreen}
           options={{ headerShown: false }}
         />
-
+       
         <Stack.Screen
-          name="dashboard"
-          component={DashboardScreen}
+          name="bottom"
+          component={BottomNavigationScreen}
           options={{ headerShown: false }}
         />
+
         <Stack.Screen
           name="daily-report"
           component={DailyReportScreen}
@@ -108,18 +108,14 @@ const AppNavigationScreen = () => {
         <Stack.Screen
           name="create-new-project"
           component={CreateNewProject}
-          options={{ headerShown: false }}
+          options={{ headerShown: false, statusBarStyle: 'light' }}
         />
         <Stack.Screen
           name="manage-members"
           component={ManageMemberScreen}
           options={{ headerShown: false }}
         />
-        <Stack.Screen
-          name="past-reports"
-          component={PastReportScreen}
-          options={{ headerShown: false }}
-        />
+
         <Stack.Screen
           name="report-view"
           component={ReportViewScreen}
@@ -130,12 +126,8 @@ const AppNavigationScreen = () => {
           component={ReportDetailScreen}
           options={{ headerShown: false }}
         />
-        <Stack.Screen
-          name="settings"
-          component={SettingScreen}
-          options={{ headerShown: false, statusBarStyle: 'light' }}
-        />
-        <Stack.Screen name="drawernav" component={DrawerNavigationScreen} />
+
+        {/* <Stack.Screen name="drawernav" component={DrawerNavigationScreen} /> */}
         <Stack.Screen name="bottomnav" component={BottomNavigationScreen} />
       </Stack.Navigator>
     </NavigationContainer>

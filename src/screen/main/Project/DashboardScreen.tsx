@@ -24,7 +24,7 @@ import { Popover } from '../../../components/Popover';
 import jsw from '../../../assets/images/jsw_icon.png';
 import { LinearGradient } from 'react-native-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
-import BottomNavigationScreen from '../../../navigation/bottomnavigation/BottomNavigationScreen';
+import WeeklyReport from '../../../components/WeeklyReport';
 const DashboardScreen = () => {
   const navigation = useNavigation();
   const [isPopoverVisible, setIsPopoverVisible] = useState(false);
@@ -36,7 +36,8 @@ const DashboardScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar backgroundColor="white" />
+      <StatusBar barStyle="light-content" backgroundColor="#0A2342" />
+
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
@@ -133,38 +134,7 @@ const DashboardScreen = () => {
 
           <Text style={styles.sectionTitle}>Submissions this week</Text>
 
-          <View style={styles.submissionCard}>
-            <View style={styles.submissionHeader}>
-              <Text style={styles.submissionDate}>Weds 13 Jan</Text>
-              <View style={styles.submissionStatus}>
-                <Text style={styles.submissionStatusText}>submitted</Text>
-              </View>
-            </View>
-
-            <Text style={styles.submissionDescription}>
-              Finish main infrastructure of the kitchen alongside finishing
-              bathroom
-            </Text>
-
-            <View style={styles.submissionStats}>
-              <View style={styles.statItem}>
-                <Clock size={16} color="#666" />
-                <Text style={styles.statText}>0</Text>
-              </View>
-              <View style={styles.statItem}>
-                <Clock size={16} color="#666" />
-                <Text style={styles.statText}>0</Text>
-              </View>
-              <View style={styles.statItem}>
-                <Pound size={16} color="#666" />
-                <Text style={styles.statText}>£0 extra costs</Text>
-              </View>
-            </View>
-
-            <Pressable style={styles.viewButton}>
-              <Text style={styles.viewButtonText}>View</Text>
-            </Pressable>
-          </View>
+          <WeeklyReport />
         </View>
       </ScrollView>
 
@@ -180,8 +150,6 @@ const DashboardScreen = () => {
       >
         <Plus color="#fff" size={24} />
       </Pressable>
-
-      <BottomNavigationScreen />
     </SafeAreaView>
   );
 };
@@ -339,77 +307,10 @@ const styles = StyleSheet.create({
     color: '#666',
     lineHeight: 20,
   },
-  submissionCard: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 20,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-    marginBottom: 32,
-  },
-  submissionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 12,
-  },
-  submissionDate: {
-    fontFamily: 'Inter-Bold',
-    fontSize: 18,
-    color: 'rgba(24, 20, 70, 1)',
-    fontWeight: 'bold',
-  },
-  submissionStatus: {
-    backgroundColor: 'rgba(233, 247, 238, 1)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 5,
-    marginLeft: 12,
-  },
-  submissionStatusText: {
-    fontFamily: 'Inter-Medium',
-    fontSize: 14,
-    color: 'rgba(0, 0, 0, 1)',
-  },
-  submissionDescription: {
-    fontFamily: 'Inter-Regular',
-    fontSize: 14,
-    color: '#666',
-    lineHeight: 20,
-    marginBottom: 16,
-  },
-  submissionStats: {
-    flexDirection: 'row',
-    marginBottom: 16,
-  },
-  statItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginRight: 16,
-  },
-  statText: {
-    fontFamily: 'Inter-Regular',
-    fontSize: 14,
-    color: '#666',
-    marginLeft: 4,
-  },
-  viewButton: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    paddingVertical: 12,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-  },
-  viewButtonText: {
-    fontFamily: 'Inter-Medium',
-    fontSize: 14,
-    color: '#141b41',
-    fontWeight: 'bold',
-  },
+
   floatingButton: {
     position: 'absolute',
-    bottom: 130,
+    bottom: 20,
     right: 24,
     width: 56,
     height: 56,

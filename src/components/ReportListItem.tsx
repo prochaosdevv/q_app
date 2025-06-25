@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, Pressable } from 'react-native';
-import { Calendar } from 'lucide-react-native';
+import { Calendar, CalendarDays } from 'lucide-react-native';
 
 interface ReportListItemProps {
   title: string;
@@ -8,17 +8,24 @@ interface ReportListItemProps {
   onPress: () => void;
 }
 
-export function ReportListItem({ title, dateRange, description, onPress }: ReportListItemProps) {
+export function ReportListItem({
+  title,
+  dateRange,
+  description,
+  onPress,
+}: ReportListItemProps) {
   return (
     <Pressable style={styles.container} onPress={onPress}>
       <View style={styles.dateContainer}>
-        <Calendar size={16} color="rgba(0, 0, 0, 1)"  />
+        <CalendarDays size={16} color="rgba(0, 0, 0, 1)" />
         <Text style={styles.dateText}>{dateRange}</Text>
       </View>
-      
+
       <Text style={styles.title}>{title}</Text>
-      <Text style={styles.description} numberOfLines={2}>{description}</Text>
-      
+      <Text style={styles.description} numberOfLines={2}>
+        {description}
+      </Text>
+
       <Text style={styles.viewText}>View</Text>
     </Pressable>
   );
@@ -46,9 +53,10 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily: 'Inter-Bold',
-    fontSize: 16,
+    fontSize: 17,
     color: 'rgba(0, 11, 35, 1)',
     marginBottom: 8,
+    fontWeight: '900',
   },
   description: {
     fontFamily: 'Inter-Regular',
@@ -58,7 +66,8 @@ const styles = StyleSheet.create({
   },
   viewText: {
     fontFamily: 'Inter-Bold',
-    fontSize: 16,
+    fontSize: 15,
     color: '#141b41',
+    fontWeight: '800',
   },
 });

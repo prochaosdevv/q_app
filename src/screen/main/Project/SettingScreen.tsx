@@ -20,7 +20,6 @@ import {
   FilePen,
 } from 'lucide-react-native';
 import jsw from '../../../assets/images/jsw_icon.png';
-import BottomNavigationScreen from '../../../navigation/bottomnavigation/BottomNavigationScreen';
 import { useNavigation } from '@react-navigation/native';
 import { useAuthStore } from '../../../zustand/store/authStore';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
@@ -83,7 +82,8 @@ const SettingScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar backgroundColor="white" />
+      <StatusBar barStyle="light-content" backgroundColor="#0A2342" />
+
       <View style={styles.header}>
         <Text style={styles.title}>Settings</Text>
       </View>
@@ -157,8 +157,6 @@ const SettingScreen = () => {
           ))}
         </View>
       </ScrollView>
-
-      <BottomNavigationScreen />
     </SafeAreaView>
   );
 };

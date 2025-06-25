@@ -30,7 +30,7 @@ const ProjectScreen = () => {
         </View>
         <Pressable
           style={styles.projectCard}
-          onPress={() => navigation.navigate('dashboard')}
+          onPress={() => navigation.navigate('bottom')}
         >
           <View style={styles.img_container}>
             <Image
