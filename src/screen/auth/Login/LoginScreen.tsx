@@ -6,7 +6,6 @@ import {
   TextInput,
   Pressable,
   ScrollView,
-  Alert,
   StatusBar,
 } from 'react-native';
 import { Check } from 'lucide-react-native';
@@ -23,28 +22,25 @@ const LoginScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
+  const [errors, setErrors] = useState({});
   const navigation = useNavigation();
   const { setUser, setToken } = useAuthStore.getState();
   // Handle Login
   const handleLogin = async () => {
+    const newErrors = {};
+    if (!email.trim()) newErrors.email = 'Email is required.';
+    else if (!email.includes('@'))
+      newErrors.email = 'Please enter a valid email';
+    if (!password.trim()) newErrors.password = 'Password is required.';
+    else if (password.length < 6)
+      newErrors.password = 'Password must be atleast 6 characters';
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
     try {
-      if (!email || !password) {
-        return Alert.alert('Message', 'All fields are required...!!');
-      }
-
-      if (!email.includes('@')) {
-        return Alert.alert(
-          'Message',
-          'Please enter a valid email address...!!',
-        );
-      }
-
-      if (password.length < 6) {
-        return Alert.alert(
-          'message',
-          'Password must be atleast 6 characters...!!',
-        );
-      }
+      setErrors({});
 
       // Payload
       const payload = { email: email.trim(), password: password.trim() };
@@ -53,18 +49,17 @@ const LoginScreen = () => {
       const data = response.data;
 
       if (data.success) {
-        Alert.alert('Success', 'Login successful...!!');
         setToken(data.token);
         setUser(data.user);
         console.log('Token has been saved successfully...!! ' + data.token);
         console.log('Welcome ' + data.user.fullname);
         navigation.navigate('otp');
       } else {
-        Alert.alert('Error', 'Invalid email or password...!!');
+        setErrors({ general: 'Invalid email or password...!!' });
       }
     } catch (error) {
       console.error('Login error:', error);
-      Alert.alert('Error', 'Login failed. Please try again later...!!');
+      setErrors({ general: 'Login failed. Please try again later...!!' });
     }
   };
 
@@ -91,8 +86,14 @@ const LoginScreen = () => {
               keyboardType="email-address"
               autoCapitalize="none"
               value={email}
-              onChangeText={setEmail}
+              onChangeText={text => {
+                setEmail(text);
+                setErrors(prev => ({ ...prev, email: '' }));
+              }}
             />
+            {errors.email && (
+              <Text style={styles.errorText}>{errors.email}</Text>
+            )}
           </View>
 
           <View style={styles.inputGroup}>
@@ -103,10 +104,25 @@ const LoginScreen = () => {
               placeholderTextColor="#93a5b1"
               secureTextEntry
               value={password}
-              onChangeText={setPassword}
+              onChangeText={text => {
+                setPassword(text);
+                setErrors(prev => ({ ...prev, password: '' }));
+              }}
             />
+            {errors.password && (
+              <Text style={styles.errorText}>{errors.password}</Text>
+            )}
           </View>
-
+          {errors.general && (
+            <Text
+              style={[
+                styles.errorText,
+                { textAlign: 'center', fontWeight: '800' },
+              ]}
+            >
+              {errors.general}
+            </Text>
+          )}
           <View style={styles.options}>
             <Pressable
               style={styles.checkbox}
@@ -142,9 +158,9 @@ const LoginScreen = () => {
             <Text style={styles.socialButtonText}>Sign up with Google</Text>
           </Pressable>
 
-          <Pressable style={styles.socialButton}>
+          {/* <Pressable style={styles.socialButton}>
             <Text style={styles.socialButtonText}>Sign up with Apple</Text>
-          </Pressable>
+          </Pressable> */}
         </View>
 
         <View style={styles.footer}>
@@ -170,6 +186,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp('6%'),
     paddingVertical: hp('6%'),
   },
+
   topSpace: {
     height: hp('2%'),
   },
@@ -189,7 +206,7 @@ const styles = StyleSheet.create({
     color: '#000',
   },
   form: {
-    flex: 1,
+    flex: 0.2,
   },
   inputGroup: {
     marginBottom: hp('2.5%'),
@@ -267,7 +284,6 @@ const styles = StyleSheet.create({
     borderRadius: wp('10%'),
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: hp('2%'),
     backgroundColor: '#fff',
     borderWidth: 1,
     borderColor: '#a3a3a3',
@@ -292,5 +308,13 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Medium',
     fontSize: wp('3.8%'),
     color: 'rgba(51, 128, 215, 1)',
+  },
+  errorText: {
+    color: '#d32f2f',
+    fontSize: wp('3.8%'),
+    marginTop: hp('0.5%'),
+    fontFamily: 'Inter-Regular',
+    fontWeight: '600',
+    marginLeft: wp('2%'),
   },
 });

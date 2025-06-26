@@ -28,8 +28,6 @@ const sendUserDataToServer = async ({ email, name, id, photo, navigation }) => {
 
     setToken(data.token);
     setUser(data.user);
-    console.log('Token has been saved successfully...!! ' + data.token);
-    console.log('Welcome ' + data.user.fullname);
 
     if (data.success) {
       Alert.alert('Success', 'Login successful...!!', [

@@ -43,9 +43,6 @@ const AppNavigationScreen = () => {
     };
     initialize();
   }, []);
-
-  console.log('Data', userEmail);
-
   return (
     <NavigationContainer>
       <Stack.Navigator>

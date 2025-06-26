@@ -10,54 +10,97 @@ import {
   SafeAreaView,
   Alert,
 } from 'react-native';
-import {
-  ChevronLeft,
-  ChevronDown,
-  ClipboardList,
-  FileText,
-  Settings,
-} from 'lucide-react-native';
+import { ChevronLeft, ChevronDown, CirclePlus } from 'lucide-react-native';
 import { useState } from 'react';
-import jsw from '../../../assets/images/jsw_icon.png';
+import defaultLogo from '../../../assets/images/jsw_icon.png';
 import { useNavigation } from '@react-navigation/native';
 import api from '../../../utils/api';
+import { launchImageLibrary } from 'react-native-image-picker';
 
+type Member = {
+  email: string;
+  role: 'view only' | 'can edit';
+};
 const CreateNewProject = () => {
   const [projectName, setProjectName] = useState('');
   const [description, setDescription] = useState('');
   const [contributors, setContributors] = useState(['']);
+  const [selectedImage, setSelectedImage] = useState(null);
   const navigation = useNavigation();
-  const [members, setMembers] = useState([
-    { email: 'name@email.com', role: 'can view' },
-    { email: 'name@email.com', role: 'can view' },
-  ]);
 
-  const handleContributorChange = (text: string, index: number) => {
+  // Members
+
+  const [members, setMembers] = useState<Member[]>([
+    { email: 'name@email.com', role: 'View only' },
+    { email: 'name@email.com', role: 'Can edit' },
+  ]);
+  const [newMemberEmail, setNewMemberEmail] = useState('');
+  const [activeRoleMenu, setActiveRoleMenu] = useState<number | null>(null);
+  const handleRoleChange = (index: number, role: Member['role']) => {
+    const updatedMembers = [...members];
+    updatedMembers[index].role = role;
+    setMembers(updatedMembers);
+    setActiveRoleMenu(null);
+  };
+
+  const handleRemoveMember = (index: number) => {
+    const updatedMembers = members.filter((_, i) => i !== index);
+    setMembers(updatedMembers);
+    setActiveRoleMenu(null);
+  };
+  // End Members
+
+  const handleContributorChange = (text, index) => {
     const newContributors = [...contributors];
     newContributors[index] = text;
     setContributors(newContributors);
   };
 
+  const handleImagePicker = () => {
+    launchImageLibrary(
+      {
+        mediaType: 'photo',
+        quality: 1,
+      },
+      response => {
+        if (response.didCancel) return;
+        if (response.errorCode) {
+          Alert.alert('Error', 'Failed to pick image.');
+          return;
+        }
+        if (response.assets && response.assets.length > 0) {
+          setSelectedImage(response.assets[0]);
+        }
+      },
+    );
+  };
   const handleCreateProject = async () => {
-    if (!projectName || !description || !contributors) {
-      Alert.alert('Validation', 'Please fill all required fields...!!');
+    if (!projectName || !description || contributors.some(c => !c)) {
+      Alert.alert('Validation', 'Please fill all required fields!');
       return;
     }
 
     try {
-      const imageUri = Image.resolveAssetSource(jsw).uri;
       const formData = new FormData();
+
+      // Append project fields
       formData.append('name', projectName);
       formData.append('description', description);
-      formData.append('image', {
-        uri: imageUri,
-        name: 'project-image.jpg',
-        type: 'image/jpeg',
-      });
 
-      contributors.forEach((contributor, index) => {
-        formData.append(`contributors[${index}]`, contributor);
-      });
+      if (selectedImage) {
+        formData.append('image', {
+          uri: selectedImage.uri,
+          name: selectedImage.fileName || 'Screenshot 2025-06-20 104646.png',
+          type: selectedImage.type || 'image/png',
+        });
+      } else {
+        const defaultImageUri = Image.resolveAssetSource(defaultLogo).uri;
+        formData.append('image', {
+          uri: defaultImageUri,
+          name: 'default-logo.jpg',
+          type: 'image/jpeg',
+        });
+      }
 
       const response = await api.post('/project/create', formData, {
         headers: {
@@ -66,31 +109,23 @@ const CreateNewProject = () => {
       });
 
       if (response.data?.success) {
-        Alert.alert('Success', 'Project created successfully!');
-        [
+        Alert.alert('Success', 'Project created successfully!', [
           {
             text: 'OK',
-            onPress: () => navigation.navigate('dashboard'),
+            onPress: () => navigation.navigate('bottom'),
           },
-        ];
+        ]);
       } else {
-        Alert.alert(
-          'Error',
-          response.data?.message || 'Unknown error occurred',
-        );
+        Alert.alert('Error', 'Failed to create project...!!');
       }
     } catch (error) {
       console.log('API Error:', error);
-      Alert.alert(
-        'Error',
-        'Something went wrong while creating the project....!!',
-      );
+      Alert.alert('Error', 'Something went wrong while creating the project.');
     }
   };
 
   return (
     <SafeAreaView style={styles.container}>
-     
       <View style={styles.header}>
         <Pressable
           style={styles.backButton}
@@ -109,12 +144,12 @@ const CreateNewProject = () => {
         <View style={styles.logoSection}>
           <View style={styles.img_container}>
             <Image
-              source={typeof jsw === 'string' ? { uri: jsw } : jsw}
+              source={selectedImage ? { uri: selectedImage.uri } : defaultLogo}
               style={styles.companyLogo}
-              resizeMode="cover"
+              resizeMode="contain"
             />
           </View>
-          <Pressable style={styles.editImageButton}>
+          <Pressable style={styles.editImageButton} onPress={handleImagePicker}>
             <Text style={styles.editImageText}>Edit image</Text>
           </Pressable>
         </View>
@@ -148,36 +183,82 @@ const CreateNewProject = () => {
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Add contributors</Text>
             {contributors.map((contributor, index) => (
-              <TextInput
-                key={index}
-                style={[styles.input, index > 0 && styles.inputSpacing]}
-                placeholder="Enter name of project"
-                placeholderTextColor="#93a5b1"
-                value={contributor}
-                onChangeText={text => handleContributorChange(text, index)}
-              />
-            ))}
-          </View>
-
-          <View style={styles.membersSection}>
-            {members.map((member, index) => (
-              <View key={index} style={styles.memberItem}>
-                <Text style={styles.memberEmail}>{member.email}</Text>
-                <Pressable style={styles.roleSelector}>
-                  <Text style={styles.roleText}>{member.role}</Text>
-                  <ChevronDown size={16} color="#666" />
-                </Pressable>
+              <View key={index} style={styles.inputRow}>
+                <View style={styles.inputWrapper}>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Enter name of project"
+                    placeholderTextColor="#93a5b1"
+                    value={contributor}
+                    onChangeText={text => handleContributorChange(text, index)}
+                  />
+                </View>
+                <View style={styles.iconContainer}>
+                  <CirclePlus size={20} color="black" />
+                </View>
               </View>
             ))}
           </View>
+
+          <View style={styles.membersList}>
+            {members.map((member, index) => (
+              <View key={index} style={styles.memberItem}>
+                <Pressable
+                  style={styles.memberButton}
+                  onPress={() =>
+                    setActiveRoleMenu(activeRoleMenu === index ? null : index)
+                  }
+                >
+                  <Text style={styles.memberEmail}>{member.email}</Text>
+                  <View style={styles.roleContainer}>
+                    <Text style={styles.roleText}>{member.role}</Text>
+                    <ChevronDown
+                      color="#666"
+                      size={16}
+                      style={[
+                        styles.roleIcon,
+                        activeRoleMenu === index && styles.roleIconActive,
+                      ]}
+                    />
+                  </View>
+                </Pressable>
+
+                {activeRoleMenu === index && (
+                  <View style={styles.roleMenu}>
+                    <Pressable
+                      style={styles.roleMenuItem}
+                      onPress={() => handleRoleChange(index, 'view only')}
+                    >
+                      <Text style={styles.roleMenuText}>View only</Text>
+                    </Pressable>
+                    <Pressable
+                      style={styles.roleMenuItem}
+                      onPress={() => handleRoleChange(index, 'can edit')}
+                    >
+                      <Text style={styles.roleMenuText}>Can edit</Text>
+                    </Pressable>
+                    <Pressable
+                      style={[styles.roleMenuItem, styles.removeMenuItem]}
+                      onPress={() => handleRemoveMember(index)}
+                    >
+                      <Text style={styles.removeMenuText}>Remove</Text>
+                    </Pressable>
+                  </View>
+                )}
+              </View>
+            ))}
+          </View>
+
+          <View style={styles.createButtonContainer}>
+            <Pressable
+              style={styles.createButton}
+              onPress={handleCreateProject}
+            >
+              <Text style={styles.createButtonText}>Create Project</Text>
+            </Pressable>
+          </View>
         </View>
       </ScrollView>
-
-      <View style={styles.createButtonContainer}>
-        <Pressable style={styles.createButton} onPress={handleCreateProject}>
-          <Text style={styles.createButtonText}>Create Project</Text>
-        </Pressable>
-      </View>
     </SafeAreaView>
   );
 };
@@ -200,11 +281,6 @@ const styles = StyleSheet.create({
     paddingBottom: 30,
   },
   backButton: {
-    // width: 40,
-    // height: 40,
-    // justifyContent: 'center',
-    // alignItems: 'center',
-    // marginRight: 8,
     position: 'relative',
     zIndex: 1,
   },
@@ -218,9 +294,10 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+    borderWidth: 1,
   },
   scrollContent: {
-    paddingBottom: 140,
+    paddingBottom: 60,
   },
   logoSection: {
     alignItems: 'center',
@@ -234,14 +311,13 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 1)',
     borderRadius: 20,
     padding: 2,
-    // marginBottom: 64,
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
   },
   companyLogo: {
     width: 55,
-    height: 26,
+    height: 55,
   },
   logoContainer: {
     width: 80,
@@ -275,7 +351,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   inputGroup: {
-    marginBottom: 24,
+    marginBottom: 20,
   },
   label: {
     fontFamily: 'Inter-Medium',
@@ -308,42 +384,31 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: 'transparent',
   },
-  addButton: {
-    marginTop: 12,
-    paddingVertical: 8,
-  },
-  addButtonText: {
-    fontFamily: 'Inter-Medium',
-    fontSize: 14,
-    color: '#5D8BF4',
-  },
-  membersSection: {
-    marginTop: 8,
+
+  membersList: {
+    paddingVertical: 5,
   },
   memberItem: {
+    position: 'relative',
+    paddingBottom: 20,
+  },
+  memberButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     backgroundColor: 'rgba(237, 237, 237, 1)',
-    borderRadius: 28,
+    borderRadius: 50,
     paddingHorizontal: 16,
-    paddingVertical: 12,
-    marginBottom: 12,
+    paddingVertical: 16,
   },
   memberEmail: {
     fontFamily: 'Inter-Regular',
     fontSize: 14,
     color: 'rgba(0, 0, 0, 1)',
   },
-  roleSelector: {
+  roleContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'transparent',
-    // paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: 'transparent',
   },
   roleText: {
     fontFamily: 'Inter-Regular',
@@ -351,13 +416,47 @@ const styles = StyleSheet.create({
     color: 'rgba(0, 0, 0, 1)',
     marginRight: 4,
   },
-  createButtonContainer: {
+  roleIcon: {
+    transform: [{ rotate: '0deg' }],
+  },
+  roleIconActive: {
+    transform: [{ rotate: '180deg' }],
+  },
+  roleMenu: {
     position: 'absolute',
-    bottom: 80,
-    left: 24,
-    right: 24,
+    right: 0,
+    top: '100%',
     backgroundColor: '#fff',
-    paddingTop: 16,
+    borderRadius: 12,
+    padding: 8,
+    width: 140,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    zIndex: 1000,
+  },
+  roleMenuItem: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+  },
+  roleMenuText: {
+    fontFamily: 'Inter-Regular',
+    fontSize: 15,
+    color: '#333',
+  },
+  removeMenuItem: {
+    // paddingTop: 12,
+  },
+  removeMenuText: {
+    fontFamily: 'Inter-Regular',
+    fontSize: 15,
+    color: 'rgba(0, 0, 0, 1)',
+  },
+  createButtonContainer: {
+    backgroundColor: '#fff',
   },
   createButton: {
     backgroundColor: 'rgba(24, 20, 70, 1)',
@@ -375,5 +474,24 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Medium',
     fontSize: 16,
     color: '#fff',
+  },
+  inputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  inputWrapper: {
+    flex: 8.5,
+  },
+
+  iconContainer: {
+    flex: 1.5,
+    marginLeft: 8,
+    backgroundColor: 'rgba(237, 237, 237, 1)',
+    height: 45,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    
   },
 });

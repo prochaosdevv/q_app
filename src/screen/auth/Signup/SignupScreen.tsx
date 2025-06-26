@@ -6,7 +6,6 @@ import {
   TextInput,
   Pressable,
   ScrollView,
-  Alert,
   StatusBar,
 } from 'react-native';
 import {
@@ -21,27 +20,30 @@ const SignupScreen = () => {
   const [fullname, setFullname] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errors, setErrors] = useState({});
   const navigation = useNavigation();
 
   const handleSignUp = async () => {
+    const newErrors = {};
+
+    // Validation
+    if (!fullname) newErrors.fullname = 'Full name is required.';
+    if (!email) newErrors.email = 'Email is required.';
+    else if (!email.includes('@'))
+      newErrors.email = 'Enter a valid email address.';
+
+    if (!password) newErrors.password = 'Password is required.';
+    else if (password.length < 6)
+      newErrors.password = 'Password must be at least 6 characters.';
+
+    // If any validation failed
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
     try {
-      if (!fullname || !email || !password) {
-        return Alert.alert('Message', 'All fields are required...!!');
-      }
-
-      if (!email.includes('@')) {
-        return Alert.alert(
-          'Message',
-          'Please enter a valid email address...!!',
-        );
-      }
-
-      if (password.length < 6) {
-        return Alert.alert(
-          'Message',
-          'Password must be at least 6 characters...!!',
-        );
-      }
+      setErrors({});
 
       // Payload
       const payload = {
@@ -54,38 +56,31 @@ const SignupScreen = () => {
       const data = response.data;
 
       if (data.success) {
-        Alert.alert('Success', 'User registration successful...!!', [
-          {
-            text: 'OK',
-            onPress: () => navigation.navigate('login'),
-          },
-        ]);
+        navigation.navigate('login');
+      } else if (
+        data.message &&
+        data.message.toLowerCase().includes('email already exists')
+      ) {
+        setErrors({ email: 'Email already exists. Please try another.' });
       } else {
-        if (
-          data.message &&
-          data.message.toLowerCase().includes('Email already exists...!!')
-        ) {
-          Alert.alert('Error', 'Email already exists. Please try another...!!');
-        } else {
-          Alert.alert('Error', 'User registration failed...!!');
-        }
+        setErrors({ general: data.message || 'User registration failed.' });
       }
     } catch (error) {
       console.error('Signup Error:', error);
 
-      // Handle if server sends specific error response
       if (error.response && error.response.data?.message) {
         const serverMessage = error.response.data.message.toLowerCase();
 
         if (serverMessage.includes('email already exists')) {
-          return Alert.alert(
-            'Error',
-            'Email already exists. Please try another...!!',
-          );
+          return setErrors({
+            email: 'Email already exists. Please try another.',
+          });
         }
-        return Alert.alert('Error', error.response.data.message);
+
+        return setErrors({ general: error.response.data.message });
       }
-      Alert.alert('Error', 'Signup failed. Please try again...!!');
+
+      setErrors({ general: 'Signup failed. Please try again.' });
     }
   };
 
@@ -111,8 +106,14 @@ const SignupScreen = () => {
               placeholder="John Johnson"
               placeholderTextColor="#93a5b1"
               value={fullname}
-              onChangeText={setFullname}
+              onChangeText={text => {
+                setFullname(text);
+                setErrors(prev => ({ ...prev, email: '' }));
+              }}
             />
+            {errors.fullname && (
+              <Text style={styles.errorText}>{errors.fullname}</Text>
+            )}
           </View>
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Email</Text>
@@ -123,8 +124,14 @@ const SignupScreen = () => {
               keyboardType="email-address"
               autoCapitalize="none"
               value={email}
-              onChangeText={setEmail}
+              onChangeText={text => {
+                setEmail(text);
+                setErrors(prev => ({ ...prev, email: '' }));
+              }}
             />
+            {errors.email && (
+              <Text style={styles.errorText}>{errors.email}</Text>
+            )}
           </View>
 
           <View style={styles.inputGroup}>
@@ -135,9 +142,25 @@ const SignupScreen = () => {
               placeholderTextColor="#93a5b1"
               secureTextEntry
               value={password}
-              onChangeText={setPassword}
+              onChangeText={text => {
+                setPassword(text);
+                setErrors(prev => ({ ...prev, email: '' }));
+              }}
             />
+            {errors.password && (
+              <Text style={styles.errorText}>{errors.password}</Text>
+            )}
           </View>
+          {errors.general && (
+            <Text
+              style={[
+                styles.errorText,
+                { textAlign: 'center', fontWeight: '800' },
+              ]}
+            >
+              {errors.general}
+            </Text>
+          )}
           <Text style={styles.termsText}>
             By signing up, you agree to our{' '}
             <Text style={styles.link}>Terms of service</Text> and{' '}
@@ -154,9 +177,16 @@ const SignupScreen = () => {
             <Text style={styles.socialButtonText}>Sign up with Google</Text>
           </Pressable>
 
-          <Pressable style={styles.socialButton}>
+          {/* <Pressable style={styles.socialButton}>
             <Text style={styles.socialButtonText}>Sign up with Apple</Text>
-          </Pressable>
+          </Pressable> */}
+
+          <View style={styles.footer}>
+            <Text style={styles.footerText}>Already have an account? </Text>
+            <Pressable onPress={() => navigation.navigate('login')}>
+              <Text style={styles.footerLink}>Sign In</Text>
+            </Pressable>
+          </View>
         </View>
       </View>
     </ScrollView>
@@ -260,5 +290,28 @@ const styles = StyleSheet.create({
   link: {
     color: 'rgba(51, 128, 215, 1)',
     fontWeight: 'bold',
+  },
+  errorText: {
+    color: '#d32f2f',
+    fontSize: wp('3.8%'),
+    marginTop: hp('0.5%'),
+    fontFamily: 'Inter-Regular',
+    fontWeight: '600',
+    marginLeft: wp('2%'),
+  },
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  footerText: {
+    fontFamily: 'Inter-Regular',
+    fontSize: wp('3.8%'),
+    color: '#000',
+  },
+  footerLink: {
+    fontFamily: 'Inter-Medium',
+    fontSize: wp('3.8%'),
+    color: 'rgba(51, 128, 215, 1)',
   },
 });

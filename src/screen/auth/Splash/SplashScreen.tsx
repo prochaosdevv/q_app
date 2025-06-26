@@ -31,6 +31,6 @@ const styles = StyleSheet.create({
   },
   image: {
     width: wp('100%'),
-    height: hp('50%'),
+    height: hp('20%'),
   },
 });
