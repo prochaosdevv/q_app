@@ -17,6 +17,7 @@ import { useNavigation } from '@react-navigation/native';
 import api from '../../../utils/api';
 import { useAuthStore } from '../../../zustand/store/authStore';
 import signInWithGoogle from '../../../utils/signInWithGoogle';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LoginScreen = () => {
   const [email, setEmail] = useState('');
@@ -49,6 +50,9 @@ const LoginScreen = () => {
       const data = response.data;
 
       if (data.success) {
+        // Save token in AsyncStorage
+        await AsyncStorage.setItem('access_token', data.token);
+
         setToken(data.token);
         setUser(data.user);
         console.log('Token has been saved successfully...!! ' + data.token);
@@ -155,7 +159,7 @@ const LoginScreen = () => {
             style={styles.socialButton}
             onPress={() => signInWithGoogle({ navigation })}
           >
-            <Text style={styles.socialButtonText}>Sign up with Google</Text>
+            <Text style={styles.socialButtonText}>Sign in with Google</Text>
           </Pressable>
 
           {/* <Pressable style={styles.socialButton}>

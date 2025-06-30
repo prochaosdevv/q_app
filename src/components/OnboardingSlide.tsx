@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: wp('5%'),
-    paddingTop: hp('2%'),
+    paddingTop: hp('1%'),
     backgroundColor: '#fff',
   },
 
@@ -79,9 +79,9 @@ const styles = StyleSheet.create({
 
   description: {
     fontFamily: 'Inter-Regular',
-    fontSize: wp('4.2%'),
+    fontSize: wp('4%'),
     color: '#666',
     textAlign: 'center',
-    lineHeight: hp('3%'),
+    lineHeight: hp('2.5%'),
   },
 });

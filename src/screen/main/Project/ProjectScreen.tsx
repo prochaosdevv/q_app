@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import {
   View,
   Text,
@@ -14,8 +15,26 @@ import {
 } from 'react-native-responsive-screen';
 import jsw from '../../../assets/images/jsw.png';
 import { useNavigation } from '@react-navigation/native';
+import api from '../../../utils/api';
+import { useAuthStore } from '../../../zustand/store/authStore';
+
 const ProjectScreen = () => {
   const navigation = useNavigation();
+  const { user } = useAuthStore.getState();
+  const currentEmail = user?.email;
+  const getProject = async () => {
+    try {
+      const res = await api.get('/project/');
+      const projects = res.data.projects;
+      console.log('Projects : ', projects);
+    } catch (error) {
+      console.log('Project Fetching Error', error);
+    }
+  };
+
+  useEffect(() => {
+    getProject();
+  }, []);
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
@@ -25,7 +44,7 @@ const ProjectScreen = () => {
           <Text style={styles.title}>You’re connect to projects</Text>
           <Text style={styles.subtitle}>
             Projects linked to
-            <Text style={styles.email}>emailname@gmail.com</Text>
+            <Text style={styles.email}> {currentEmail}</Text>
           </Text>
         </View>
         <Pressable

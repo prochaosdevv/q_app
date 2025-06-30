@@ -11,7 +11,7 @@ import {
   Alert,
 } from 'react-native';
 import { ChevronLeft, ChevronDown, CirclePlus } from 'lucide-react-native';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import defaultLogo from '../../../assets/images/jsw_icon.png';
 import { useNavigation } from '@react-navigation/native';
 import api from '../../../utils/api';
@@ -26,13 +26,13 @@ const CreateNewProject = () => {
   const [description, setDescription] = useState('');
   const [contributors, setContributors] = useState(['']);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [error, setError] = useState('');
   const navigation = useNavigation();
 
   // Members
 
   const [members, setMembers] = useState<Member[]>([
     { email: 'name@email.com', role: 'View only' },
-    { email: 'name@email.com', role: 'Can edit' },
   ]);
   const [newMemberEmail, setNewMemberEmail] = useState('');
   const [activeRoleMenu, setActiveRoleMenu] = useState<number | null>(null);
@@ -75,23 +75,22 @@ const CreateNewProject = () => {
     );
   };
   const handleCreateProject = async () => {
-    if (!projectName || !description || contributors.some(c => !c)) {
-      Alert.alert('Validation', 'Please fill all required fields!');
+    setError('');
+    if (!projectName || !description || contributors.some(c => !c.trim())) {
+      setError('Please fill all required fields before creating the project.');
       return;
     }
-
     try {
       const formData = new FormData();
 
-      // Append project fields
       formData.append('name', projectName);
       formData.append('description', description);
 
       if (selectedImage) {
         formData.append('image', {
           uri: selectedImage.uri,
-          name: selectedImage.fileName || 'Screenshot 2025-06-20 104646.png',
-          type: selectedImage.type || 'image/png',
+          name: selectedImage.fileName || 'project-image.jpg',
+          type: selectedImage.type || 'image/jpeg',
         });
       } else {
         const defaultImageUri = Image.resolveAssetSource(defaultLogo).uri;
@@ -102,6 +101,16 @@ const CreateNewProject = () => {
         });
       }
 
+      contributors
+        .filter(email => email.trim())
+        .forEach((email, index) => {
+          formData.append(`contributors[${index}]`, email.trim());
+        });
+
+      members.forEach((member, index) => {
+        formData.append(`members[${index}][email]`, member.email);
+        formData.append(`members[${index}][role]`, member.role.toLowerCase());
+      });
       const response = await api.post('/project/create', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -109,20 +118,22 @@ const CreateNewProject = () => {
       });
 
       if (response.data?.success) {
-        Alert.alert('Success', 'Project created successfully!', [
-          {
-            text: 'OK',
-            onPress: () => navigation.navigate('bottom'),
-          },
-        ]);
+        navigation.navigate('bottom');
       } else {
-        Alert.alert('Error', 'Failed to create project...!!');
+        setError('Failed to create project. Please try again.');
       }
     } catch (error) {
-      console.log('API Error:', error);
-      Alert.alert('Error', 'Something went wrong while creating the project.');
+      console.log('Error:', error);
+      setError('An unexpected error occurred. Please try again later.');
     }
   };
+
+  useEffect(() => {
+    // Automatically clear the error when user types in any of these
+    if (projectName || description || contributors.some(c => c !== '')) {
+      if (error) setError('');
+    }
+  }, [projectName, description, contributors]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -187,20 +198,37 @@ const CreateNewProject = () => {
                 <View style={styles.inputWrapper}>
                   <TextInput
                     style={styles.input}
-                    placeholder="Enter name of project"
+                    placeholder="Enter email of project"
                     placeholderTextColor="#93a5b1"
                     value={contributor}
                     onChangeText={text => handleContributorChange(text, index)}
                   />
                 </View>
-                <View style={styles.iconContainer}>
+                <Pressable
+                  style={styles.iconContainer}
+                  onPress={() => {
+                    const email = contributor.trim();
+                    if (!email) return;
+
+                    // Add contributor as a member
+                    setMembers(prev => [...prev, { email, role: 'View only' }]);
+
+                    // Optionally remove the contributor input field or clear it
+                    const updated = [...contributors];
+                    updated[index] = '';
+                    setContributors(updated);
+                  }}
+                >
                   <CirclePlus size={20} color="black" />
-                </View>
+                </Pressable>
               </View>
             ))}
           </View>
 
-          <View style={styles.membersList}>
+          <Pressable
+            style={styles.membersList}
+            onPress={() => setContributors([...contributors, ''])}
+          >
             {members.map((member, index) => (
               <View key={index} style={styles.memberItem}>
                 <Pressable
@@ -247,8 +275,8 @@ const CreateNewProject = () => {
                 )}
               </View>
             ))}
-          </View>
-
+          </Pressable>
+          {error !== '' && <Text style={styles.errorText}>{error}</Text>}
           <View style={styles.createButtonContainer}>
             <Pressable
               style={styles.createButton}
@@ -297,7 +325,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   scrollContent: {
-    paddingBottom: 60,
+    paddingBottom: 100,
   },
   logoSection: {
     alignItems: 'center',
@@ -425,7 +453,7 @@ const styles = StyleSheet.create({
   roleMenu: {
     position: 'absolute',
     right: 0,
-    top: '100%',
+    top: 50,
     backgroundColor: '#fff',
     borderRadius: 12,
     padding: 8,
@@ -435,7 +463,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
-    zIndex: 1000,
+    zIndex: 999,
   },
   roleMenuItem: {
     paddingVertical: 8,
@@ -492,6 +520,12 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
-    
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+    marginBottom: 12,
+    textAlign: 'center',
   },
 });

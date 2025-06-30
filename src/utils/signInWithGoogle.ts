@@ -1,4 +1,3 @@
-import { Alert } from 'react-native';
 import {
   GoogleSignin,
   isErrorWithCode,
@@ -6,6 +5,7 @@ import {
 } from '@react-native-google-signin/google-signin';
 import api from './api';
 import { useAuthStore } from '../zustand/store/authStore';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 // Configure Google Sign-In
 GoogleSignin.configure({
   webClientId:
@@ -26,22 +26,15 @@ const sendUserDataToServer = async ({ email, name, id, photo, navigation }) => {
     });
     const data = response.data;
 
+    // Save token in AsyncStorage
+    await AsyncStorage.setItem('access_token', data.token);
     setToken(data.token);
     setUser(data.user);
-
-    if (data.success) {
-      Alert.alert('Success', 'Login successful...!!', [
-        {
-          text: 'OK',
-          onPress: () => navigation.navigate('projects'),
-        },
-      ]);
-    } else {
-      Alert.alert('Error', 'Invalid email or password...!!');
-    }
+    setTimeout(() => {
+      navigation.navigate('projects');
+    }, 100);
   } catch (error) {
     console.error('❌ Sign in error:', error?.response?.data || error.message);
-    Alert.alert('Error', 'Sign in failed. Please try again.');
   }
 };
 
@@ -70,17 +63,18 @@ const signInWithGoogle = async ({ navigation }) => {
     if (isErrorWithCode(error)) {
       switch (error.code) {
         case statusCodes.IN_PROGRESS:
-          Alert.alert('Message', 'Sign in is in progress...');
+          console.log('Sign in is in progress...');
+
           break;
         case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
-          Alert.alert('Message', 'Play services not available...');
+          console.log('Play services not available...');
+
           break;
         default:
           console.log('Google Sign-In error code:', error.code);
       }
     } else {
       console.log('Google sign-in error:', error);
-      Alert.alert('Error', 'Google sign-in failed.');
     }
   }
 };

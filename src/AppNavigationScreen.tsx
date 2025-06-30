@@ -13,22 +13,21 @@ import ForgotPasswordScreen from './screen/auth/ForgotPassword/ForgotPasswordScr
 
 // Main Screens
 import ProjectScreen from './screen/main/Project/ProjectScreen';
-import DashboardScreen from './screen/main/Project/DashboardScreen';
 import CreateNewProject from './screen/main/Project/CreateNewProject';
 import DailyReportScreen from './screen/main/Project/DailyReportScreen';
 import CreateProject from './screen/main/Project/CreateProject';
 import ManageMemberScreen from './screen/main/Project/ManageMemberScreen';
-import PastReportScreen from './screen/main/Project/PastReportScreen';
 import ReportViewScreen from './screen/main/Project/ReportViewScreen';
 import ReportDetailScreen from './screen/main/Project/ReportDetailScreen';
-import SettingScreen from './screen/main/Project/SettingScreen';
 
 // Navigation Screen
+
 import BottomNavigationScreen from './navigation/bottomnavigation/BottomNavigationScreen';
 // import DrawerNavigationScreen from './navigation/drawernavigation/DrawerNavigationScreen';
 
 // Zustand
 import { useAuthStore } from './zustand/store/authStore';
+
 const Stack = createNativeStackNavigator();
 const AppNavigationScreen = () => {
   const [showSplashScreen, setShowSplashScreen] = useState(true);
