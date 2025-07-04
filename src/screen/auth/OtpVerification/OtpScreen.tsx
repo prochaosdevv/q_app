@@ -19,7 +19,8 @@ import {
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import { useNavigation } from '@react-navigation/native';
-import { CircleCheck as CheckCircle } from 'lucide-react-native';
+import { useAuthStore } from '../../../zustand/store/authStore';
+
 const OtpScreen = () => {
   const [otp, setOtp] = useState(['', '', '', '']);
   const [isLoading, setIsLoading] = useState(false);
@@ -27,6 +28,8 @@ const OtpScreen = () => {
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const inputRefs = useRef<(TextInput | null)[]>([]);
   const navigation = useNavigation();
+  const { user } = useAuthStore.getState();
+  const currentEmail = user?.email;
   useEffect(() => {
     if (Platform.OS !== 'web') {
       const keyboardDidShowListener = Keyboard.addListener(
@@ -94,8 +97,8 @@ const OtpScreen = () => {
           <Text style={styles.title}>Enter OTP</Text>
           <Text style={styles.subtitle}>
             We have sent a 4 digit code to{' '}
-            <Text style={styles.email}>emailname@gmail.com</Text>. Also check
-            your spam
+            <Text style={styles.email}>{currentEmail}</Text>. Also check your
+            spam
           </Text>
         </View>
         <View style={styles.otpContainer}>

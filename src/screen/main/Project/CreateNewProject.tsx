@@ -11,136 +11,42 @@ import {
   Alert,
 } from 'react-native';
 import { ChevronLeft, ChevronDown, CirclePlus } from 'lucide-react-native';
-import { useEffect, useState } from 'react';
 import defaultLogo from '../../../assets/images/jsw_icon.png';
 import { useNavigation } from '@react-navigation/native';
-import api from '../../../utils/api';
-import { launchImageLibrary } from 'react-native-image-picker';
+import { useCreateNewProject } from '../../../hooks/useCreateNewProject';
+import { useState } from 'react';
 
-type Member = {
-  email: string;
-  role: 'view only' | 'can edit';
-};
 const CreateNewProject = () => {
-  const [projectName, setProjectName] = useState('');
-  const [description, setDescription] = useState('');
-  const [contributors, setContributors] = useState(['']);
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [error, setError] = useState('');
+  const {
+    projectName,
+    setProjectName,
+    description,
+    setDescription,
+    selectedImage,
+    handleImagePicker,
+    contributors,
+    setContributors,
+    members,
+    setMembers,
+    handleRoleChange,
+    handleRemoveMember,
+    handleContributorChange,
+    handleCreateProject,
+    error,
+    activeRoleMenu,
+    setActiveRoleMenu,
+    isValidEmail,
+  } = useCreateNewProject();
+
   const navigation = useNavigation();
-
-  // Members
-
-  const [members, setMembers] = useState<Member[]>([
-    { email: 'name@email.com', role: 'View only' },
-  ]);
-  const [newMemberEmail, setNewMemberEmail] = useState('');
-  const [activeRoleMenu, setActiveRoleMenu] = useState<number | null>(null);
-  const handleRoleChange = (index: number, role: Member['role']) => {
-    const updatedMembers = [...members];
-    updatedMembers[index].role = role;
-    setMembers(updatedMembers);
-    setActiveRoleMenu(null);
-  };
-
-  const handleRemoveMember = (index: number) => {
-    const updatedMembers = members.filter((_, i) => i !== index);
-    setMembers(updatedMembers);
-    setActiveRoleMenu(null);
-  };
-  // End Members
-
-  const handleContributorChange = (text, index) => {
-    const newContributors = [...contributors];
-    newContributors[index] = text;
-    setContributors(newContributors);
-  };
-
-  const handleImagePicker = () => {
-    launchImageLibrary(
-      {
-        mediaType: 'photo',
-        quality: 1,
-      },
-      response => {
-        if (response.didCancel) return;
-        if (response.errorCode) {
-          Alert.alert('Error', 'Failed to pick image.');
-          return;
-        }
-        if (response.assets && response.assets.length > 0) {
-          setSelectedImage(response.assets[0]);
-        }
-      },
-    );
-  };
-  const handleCreateProject = async () => {
-    setError('');
-    if (!projectName || !description || contributors.some(c => !c.trim())) {
-      setError('Please fill all required fields before creating the project.');
-      return;
-    }
-    try {
-      const formData = new FormData();
-
-      formData.append('name', projectName);
-      formData.append('description', description);
-
-      if (selectedImage) {
-        formData.append('image', {
-          uri: selectedImage.uri,
-          name: selectedImage.fileName || 'project-image.jpg',
-          type: selectedImage.type || 'image/jpeg',
-        });
-      } else {
-        const defaultImageUri = Image.resolveAssetSource(defaultLogo).uri;
-        formData.append('image', {
-          uri: defaultImageUri,
-          name: 'default-logo.jpg',
-          type: 'image/jpeg',
-        });
-      }
-
-      contributors
-        .filter(email => email.trim())
-        .forEach((email, index) => {
-          formData.append(`contributors[${index}]`, email.trim());
-        });
-
-      members.forEach((member, index) => {
-        formData.append(`members[${index}][email]`, member.email);
-        formData.append(`members[${index}][role]`, member.role.toLowerCase());
-      });
-      const response = await api.post('/project/create', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-
-      if (response.data?.success) {
-        navigation.navigate('bottom');
-      } else {
-        setError('Failed to create project. Please try again.');
-      }
-    } catch (error) {
-      console.log('Error:', error);
-      setError('An unexpected error occurred. Please try again later.');
-    }
-  };
-
-  useEffect(() => {
-    // Automatically clear the error when user types in any of these
-    if (projectName || description || contributors.some(c => c !== '')) {
-      if (error) setError('');
-    }
-  }, [projectName, description, contributors]);
-
+  const [emailError, setEmailError] = useState();
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar backgroundColor="#14274A" barStyle="light-content" />
       <View style={styles.header}>
         <Pressable
-          style={styles.backButton}
           onPress={() => navigation.goBack()}
+          style={styles.backButton}
         >
           <ChevronLeft color="white" size={24} />
         </Pressable>
@@ -152,6 +58,7 @@ const CreateNewProject = () => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
+        {/* Logo Upload */}
         <View style={styles.logoSection}>
           <View style={styles.img_container}>
             <Image
@@ -160,11 +67,12 @@ const CreateNewProject = () => {
               resizeMode="contain"
             />
           </View>
-          <Pressable style={styles.editImageButton} onPress={handleImagePicker}>
+          <Pressable onPress={handleImagePicker} style={styles.editImageButton}>
             <Text style={styles.editImageText}>Edit image</Text>
           </Pressable>
         </View>
 
+        {/* Form Fields */}
         <View style={styles.formSection}>
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Name</Text>
@@ -191,43 +99,66 @@ const CreateNewProject = () => {
             />
           </View>
 
+          {/* Contributor Emails */}
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Add contributors</Text>
             {contributors.map((contributor, index) => (
-              <View key={index} style={styles.inputRow}>
-                <View style={styles.inputWrapper}>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Enter email of project"
-                    placeholderTextColor="#93a5b1"
-                    value={contributor}
-                    onChangeText={text => handleContributorChange(text, index)}
-                  />
+              <>
+                <View key={index} style={styles.inputRow}>
+                  <View style={styles.inputWrapper}>
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Enter contributor email"
+                      placeholderTextColor="#93a5b1"
+                      value={contributor.email}
+                      onChangeText={text => {
+                        handleContributorChange(text, index);
+                        setEmailError('');
+                      }}
+                      keyboardType="email-address"
+                      autoCapitalize="none"
+                    />
+                  </View>
+                  <Pressable
+                    style={styles.iconContainer}
+                    onPress={() => {
+                      const email = contributor.email.trim();
+                      if (!email) {
+                        setEmailError('Email is required.');
+                        return;
+                      }
+                      if (!isValidEmail(email)) {
+                        setEmailError('Please enter a valid email address.');
+                        return;
+                      }
+                      setMembers(prev => [
+                        ...prev,
+                        { email, role: 'View only' },
+                      ]);
+                      const updated = [...contributors];
+                      updated[index] = { email: '', permission: 'view only' };
+                      setContributors(updated);
+                    }}
+                  >
+                    <CirclePlus size={20} color="black" />
+                  </Pressable>
                 </View>
-                <Pressable
-                  style={styles.iconContainer}
-                  onPress={() => {
-                    const email = contributor.trim();
-                    if (!email) return;
-
-                    // Add contributor as a member
-                    setMembers(prev => [...prev, { email, role: 'View only' }]);
-
-                    // Optionally remove the contributor input field or clear it
-                    const updated = [...contributors];
-                    updated[index] = '';
-                    setContributors(updated);
-                  }}
-                >
-                  <CirclePlus size={20} color="black" />
-                </Pressable>
-              </View>
+                {emailError !== '' && (
+                  <Text style={styles.errorText}>{emailError}</Text>
+                )}
+              </>
             ))}
           </View>
 
+          {/* Add contributor field */}
           <Pressable
             style={styles.membersList}
-            onPress={() => setContributors([...contributors, ''])}
+            onPress={() =>
+              setContributors([
+                ...contributors,
+                { email: '', permission: 'view only' },
+              ])
+            }
           >
             {members.map((member, index) => (
               <View key={index} style={styles.memberItem}>
@@ -276,7 +207,10 @@ const CreateNewProject = () => {
               </View>
             ))}
           </Pressable>
+
           {error !== '' && <Text style={styles.errorText}>{error}</Text>}
+
+          {/* Submit button */}
           <View style={styles.createButtonContainer}>
             <Pressable
               style={styles.createButton}
@@ -292,7 +226,6 @@ const CreateNewProject = () => {
 };
 
 export default CreateNewProject;
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -303,7 +236,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 24,
     borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
+    borderBottomColor: '#14274A',
     backgroundColor: '#14274A',
     paddingTop: 60,
     paddingBottom: 30,
@@ -452,8 +385,8 @@ const styles = StyleSheet.create({
   },
   roleMenu: {
     position: 'absolute',
-    right: 0,
-    top: 50,
+    right: 10, // move it a bit inside
+    top: -115, // move it above
     backgroundColor: '#fff',
     borderRadius: 12,
     padding: 8,
@@ -463,7 +396,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
-    zIndex: 999,
+    zIndex: 9999,
   },
   roleMenuItem: {
     paddingVertical: 8,

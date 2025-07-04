@@ -106,7 +106,7 @@ const AppNavigationScreen = () => {
         <Stack.Screen
           name="create-new-project"
           component={CreateNewProject}
-          options={{ headerShown: false, statusBarStyle: 'light' }}
+          options={{ headerShown: false }}
         />
         <Stack.Screen
           name="manage-members"

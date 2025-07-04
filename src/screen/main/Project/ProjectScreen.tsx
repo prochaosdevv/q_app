@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   Linking,
   StatusBar,
   SafeAreaView,
+  FlatList,
 } from 'react-native';
 import {
   widthPercentageToDP as wp,
@@ -17,60 +18,116 @@ import jsw from '../../../assets/images/jsw.png';
 import { useNavigation } from '@react-navigation/native';
 import api from '../../../utils/api';
 import { useAuthStore } from '../../../zustand/store/authStore';
+import moment from 'moment';
 
 const ProjectScreen = () => {
   const navigation = useNavigation();
   const { user } = useAuthStore.getState();
+  const [project, setProject] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
+
   const currentEmail = user?.email;
   const getProject = async () => {
     try {
       const res = await api.get('/project/');
       const projects = res.data.projects;
       console.log('Projects : ', projects);
+      setProject(projects);
     } catch (error) {
       console.log('Project Fetching Error', error);
     }
+  };
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await getProject(); // refresh project list
+    setRefreshing(false);
   };
 
   useEffect(() => {
     getProject();
   }, []);
+
+  const renderItem = ({ item }) => (
+    <Pressable
+      style={styles.projectCard}
+      onPress={() => navigation.navigate('bottom')}
+    >
+      <View style={styles.img_container}>
+        <Image
+          source={item.image ? { uri: item.image } : jsw}
+          style={styles.projectLogo}
+          resizeMode="contain"
+        />
+      </View>
+      <View style={styles.projectInfo}>
+        <Text style={styles.projectName}>{item.name}</Text>
+        <Text style={styles.projectName}>{item.description}</Text>
+        <Text style={styles.projectDate}>
+          {moment(item.createdAt).format('MMM YYYY')}
+        </Text>
+      </View>
+    </Pressable>
+  );
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        <View style={styles.topSpace} />
+        <View style={styles.topSection}>
+          <View style={styles.topSpace} />
 
-        <View style={styles.header}>
-          <Text style={styles.title}>You’re connect to projects</Text>
-          <Text style={styles.subtitle}>
-            Projects linked to
-            <Text style={styles.email}> {currentEmail}</Text>
-          </Text>
+          <View style={styles.header}>
+            {project.length > 0 ? (
+              <>
+                <Text style={styles.title}>You’re connected to projects</Text>
+                <Text style={styles.subtitle}>
+                  Projects linked to
+                  <Text style={styles.email}> {currentEmail}</Text>
+                </Text>
+              </>
+            ) : (
+              <View style={{ marginTop: 10 }}>
+                <Text style={[styles.title]}>
+                  You’re not connected to any project
+                </Text>
+                <Text style={styles.subtitle}>
+                  Create a project linked to
+                  <Text style={styles.email}> {currentEmail}</Text>
+                </Text>
+              </View>
+            )}
+          </View>
         </View>
-        <Pressable
-          style={styles.projectCard}
-          onPress={() => navigation.navigate('bottom')}
-        >
-          <View style={styles.img_container}>
-            <Image
-              source={typeof jsw === 'string' ? { uri: jsw } : jsw}
-              style={styles.projectLogo}
-              resizeMode="contain"
-            />
-          </View>
-          <View style={styles.projectInfo}>
-            <Text style={styles.projectName}>Wales Project name</Text>
-            <Text style={styles.projectName}>2025</Text>
-            <Text style={styles.projectDate}>Jan 2025</Text>
-          </View>
-        </Pressable>
-        <Text style={styles.orText}>or</Text>
-        <Pressable
-          style={styles.createButton}
-          onPress={() => navigation.navigate('create-new-project')}
-        >
-          <Text style={styles.createButtonText}>Create new project</Text>
-        </Pressable>
+        <View style={styles.middleSection}>
+          {project.length > 0 ? (
+            <>
+              <FlatList
+                data={project}
+                keyExtractor={item => item._id}
+                renderItem={renderItem}
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                showsVerticalScrollIndicator={false}
+              />
+              <Text style={styles.orText}>or</Text>
+              <Pressable
+                style={styles.createButton}
+                onPress={() => navigation.navigate('create-new-project')}
+              >
+                <Text style={styles.createButtonText}>Create new project</Text>
+              </Pressable>
+            </>
+          ) : (
+            <View style={{ marginTop: 20 }}>
+              <Text style={styles.orText}>or</Text>
+              <Pressable
+                style={styles.createButton}
+                onPress={() => navigation.navigate('create-new-project')}
+              >
+                <Text style={styles.createButtonText}>Create new project</Text>
+              </Pressable>
+            </View>
+          )}
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -85,19 +142,25 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: hp('2%'),
-    paddingTop: hp('2%'),
+    paddingHorizontal: wp('5%'),
   },
+  topSection: {
+    flex: 0.22,
+    justifyContent: 'center',
+  },
+  middleSection: {
+    flex: 0.65,
+  },
+
   topSpace: {
-    height: hp('6%'),
+    height: hp('5%'),
   },
   header: {
-    marginBottom: hp('2%'),
-    paddingHorizontal: wp('2%'),
+    marginBottom: hp('0.1'),
   },
   title: {
     fontFamily: 'Inter-Bold',
-    fontSize: wp('7%'),
+    fontSize: wp('9%'),
     color: '#141b41',
     marginBottom: hp('1%'),
     fontWeight: 'bold',
@@ -120,15 +183,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#f7f9fc',
     borderRadius: hp('2%'),
     padding: hp('2%'),
-    marginBottom: hp('2%'),
+    marginBottom: hp('1%'),
     borderColor: 'rgba(239, 239, 240, 1)',
     borderWidth: 1,
-    marginTop: hp('2%'),
   },
   projectLogo: {
     width: wp('10%'),
     height: hp('10%'),
-    borderRadius: hp('20%'),
+    borderRadius: hp('1%'),
   },
   img_container: {
     backgroundColor: 'rgba(239, 237, 237, 1)',
