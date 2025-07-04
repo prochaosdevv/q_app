@@ -9,6 +9,7 @@ import {
   StatusBar,
   SafeAreaView,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { ChevronLeft, ChevronDown, CirclePlus } from 'lucide-react-native';
 import defaultLogo from '../../../assets/images/jsw_icon.png';
@@ -36,6 +37,7 @@ const CreateNewProject = () => {
     activeRoleMenu,
     setActiveRoleMenu,
     isValidEmail,
+    loading,
   } = useCreateNewProject();
 
   const navigation = useNavigation();
@@ -216,7 +218,11 @@ const CreateNewProject = () => {
               style={styles.createButton}
               onPress={handleCreateProject}
             >
-              <Text style={styles.createButtonText}>Create Project</Text>
+              {loading ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <Text style={styles.createButtonText}>Create Project</Text>
+              )}
             </Pressable>
           </View>
         </View>

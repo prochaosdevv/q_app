@@ -16,6 +16,7 @@ export const useCreateNewProject = () => {
   ]);
   const [members, setMembers] = useState([]);
   const [activeRoleMenu, setActiveRoleMenu] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const navigation = useNavigation();
 
@@ -73,10 +74,11 @@ export const useCreateNewProject = () => {
   // Submit project creation to backend
   const handleCreateProject = async () => {
     setError('');
-
+    setLoading(true);
     const invalidContributor = contributors.some(c => !c.email.trim());
-    if (!projectName || !description || invalidContributor) {
+    if (!projectName || !description) {
       setError('Please fill all required fields before creating the project.');
+      setLoading(false);
       return;
     }
 
@@ -106,6 +108,7 @@ export const useCreateNewProject = () => {
       console.log('Error:', error);
       setError('An unexpected error occurred. Please try again later.');
     }
+    setLoading(false);
   };
 
   // Clear error on typing
@@ -134,5 +137,7 @@ export const useCreateNewProject = () => {
     activeRoleMenu,
     setActiveRoleMenu,
     isValidEmail,
+    loading, 
+    setLoading,
   };
 };
