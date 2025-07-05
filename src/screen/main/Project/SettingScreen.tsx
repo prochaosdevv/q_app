@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   StatusBar,
   Alert,
   SafeAreaView,
+  FlatList,
 } from 'react-native';
 import {
   FileText,
@@ -19,25 +20,18 @@ import {
   ClipboardList,
   FilePen,
 } from 'lucide-react-native';
-import jsw from '../../../assets/images/jsw_icon.png';
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from 'react-native-responsive-screen';
 import { useNavigation } from '@react-navigation/native';
 import { useAuthStore } from '../../../zustand/store/authStore';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
-
+import api from '../../../utils/api';
+import jsw from '../../../assets/images/jsw_icon.png';
 const SettingScreen = () => {
   const navigation = useNavigation();
-  const projects = [
-    {
-      id: '1',
-      name: 'JSW Big project',
-      logo: jsw,
-    },
-    {
-      id: '2',
-      name: 'Wales House',
-      logo: null,
-    },
-  ];
+  const [project, setProject] = useState([]);
 
   const handleLogout = () => {
     Alert.alert(
@@ -79,6 +73,33 @@ const SettingScreen = () => {
       { cancelable: true },
     );
   };
+  const getProject = async () => {
+    try {
+      const res = await api.get('/project/');
+      const projects = res.data.projects;
+      console.log('Projects : ', projects);
+      setProject(projects);
+    } catch (error) {
+      console.log('Project Fetching Error', error);
+    }
+  };
+
+  const renderItem = ({ item }) => (
+    <Pressable key={item._id} style={styles.projectItem}>
+      <View style={styles.projectLogo_container}>
+        <Image
+          source={item.image ? { uri: item.image } : jsw}
+          style={styles.projectLogo}
+          resizeMode="contain"
+        />
+      </View>
+      <Text style={styles.projectName}>{item.name}</Text>
+    </Pressable>
+  );
+
+  useEffect(() => {
+    getProject();
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -127,34 +148,33 @@ const SettingScreen = () => {
         </Pressable>
 
         <View style={styles.projectsSection}>
-          <Text style={styles.sectionTitle}>Projects</Text>
+          <Text style={[styles.sectionTitle, { marginBottom: 10 }]}>
+            Projects
+          </Text>
 
-          {projects.map(project => (
-            <Pressable key={project.id} style={styles.projectItem}>
-              {/* {project.logo ? ( */}
-
-              <View style={styles.projectLogo_container}>
-                <Image
-                  source={
-                    typeof project.logo === 'string'
-                      ? { uri: project?.logo }
-                      : project.logo
-                  }
-                  style={styles.projectLogo}
-                  resizeMode="contain"
-                />
-              </View>
-
-              {/* ) : ( */}
-              {/* <View style={styles.projectLogoPlaceholder}>
-                  <Text style={styles.projectLogoText}>
-                    {project.name.charAt(0)}
-                  </Text>
-                </View> */}
-              {/* )} */}
-              <Text style={styles.projectName}>{project.name}</Text>
-            </Pressable>
-          ))}
+          {project.length > 0 ? (
+            <FlatList
+              data={project}
+              keyExtractor={item => item._id}
+              renderItem={renderItem}
+              showsVerticalScrollIndicator={false}
+            />
+          ) : (
+            <View>
+              <Text
+                style={{
+                  fontFamily: 'Inter-Bold',
+                  fontSize: wp('4.3%'),
+                  color: '#141b41',
+                  marginBottom: hp('1%'),
+                  fontWeight: 'bold',
+                  paddingHorizontal: 24,
+                }}
+              >
+                You’re not connected to any project.
+              </Text>
+            </View>
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -189,7 +209,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'rgba(0, 11, 35, 1)',
     paddingHorizontal: 24,
-    marginTop: 20,
+    marginTop: 10,
   },
   menuItem: {
     flexDirection: 'row',
@@ -208,7 +228,7 @@ const styles = StyleSheet.create({
     color: 'rgba(0, 11, 35, 1)',
   },
   projectsSection: {
-    marginTop: 24,
+    marginTop: 1,
   },
   projectItem: {
     flexDirection: 'row',

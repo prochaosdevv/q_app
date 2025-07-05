@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   View,
   Text,
@@ -12,10 +13,9 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { ChevronLeft, ChevronDown, CirclePlus } from 'lucide-react-native';
-import defaultLogo from '../../../assets/images/jsw_icon.png';
 import { useNavigation } from '@react-navigation/native';
 import { useCreateNewProject } from '../../../hooks/useCreateNewProject';
-import { useState } from 'react';
+import defaultLogo from '../../../assets/images/jsw_icon.png';
 
 const CreateNewProject = () => {
   const {

@@ -23,10 +23,12 @@ import {
 import { Popover } from '../../../components/Popover';
 import jsw from '../../../assets/images/jsw_icon.png';
 import { LinearGradient } from 'react-native-linear-gradient';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import WeeklyReport from '../../../components/WeeklyReport';
 const DashboardScreen = () => {
   const navigation = useNavigation();
+  const route = useRoute();
+  const { id } = route.params;
   const [isPopoverVisible, setIsPopoverVisible] = useState(false);
 
   const handleOptionSelect = (option: string) => {
@@ -85,7 +87,11 @@ const DashboardScreen = () => {
 
                 <Pressable
                   style={styles.continueButton}
-                  onPress={() => navigation.navigate('daily-report')}
+                  onPress={() =>
+                    navigation.navigate('daily-report', {
+                      id,
+                    })
+                  }
                 >
                   <Text style={styles.continueButtonText}>Continue</Text>
                 </Pressable>

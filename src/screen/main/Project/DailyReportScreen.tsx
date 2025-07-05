@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -8,49 +8,128 @@ import {
   Modal,
   ScrollView,
   StatusBar,
+  Image,
 } from 'react-native';
+import { ChevronLeft, ChevronDown, Plus } from 'lucide-react-native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import moment from 'moment';
 import {
-  ChevronLeft,
-  ChevronDown,
-  ClipboardList,
-  FileText,
-  Settings,
-  Plus,
-  Check,
-} from 'lucide-react-native';
-import { useNavigation } from '@react-navigation/native';
-
-const weatherOptions = [
-  'Sunny',
-  'Partly Cloudy',
-  'Cloudy',
-  'Overcast',
-  'Light Rain',
-  'Rain',
-  'Heavy Rain',
-  'Drizzle',
-  'Snow',
-  'Fog',
-  'Windy',
-  'Storm',
-];
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from 'react-native-responsive-screen';
+import {
+  useDailyReport,
+  weatherOptions,
+  delayOptions,
+  labourOptions,
+  materialOptions,
+  plantOptions,
+} from '../../../hooks/useDailyReport';
 
 const DailyReportScreen = () => {
-  const [selectedWeather, setSelectedWeather] = useState('');
-  const [showWeatherDropdown, setShowWeatherDropdown] = useState(false);
-  const [selectedDealy, setSelectedDealy] = useState('');
-  const [showDealyDropdown, setShowDealyDropdown] = useState(false);
-  const [showPhotoModal, setShowPhotoModal] = useState(false);
+  const {
+    progressText,
+    setProgressText,
+
+    selectedWeather,
+    setShowWeatherDropdown,
+    showWeatherDropdown,
+    handleWeatherSelect,
+
+    selectedDealy,
+    showDealyDropdown,
+    setShowDealyDropdown,
+    handleDelaySelect,
+
+    selectedLabour,
+    showLabourDropdown,
+    setShowLabourDropdown,
+    handleLabourSelect,
+
+    selectedMaterial,
+    showMaterialDropdown,
+    setShowMaterialDropdown,
+    handleMaterialSelect,
+
+    selectedPlant,
+    showPlantDropdown,
+    setShowPlantDropdown,
+    handlePlantSelect,
+
+    showPhotoModal,
+    setShowPhotoModal,
+    openGallery,
+    openCamera,
+    selectedImage,
+  } = useDailyReport();
   const navigation = useNavigation();
-  const handleFooterPress = (route: any) => {
-    // router.push(route);
-  };
+  const route = useRoute();
+  const { id } = route.params;
+  console.log('Final Id', id);
 
-  const handleWeatherSelect = (weather: string) => {
-    setSelectedWeather(weather);
-    setShowWeatherDropdown(false);
-  };
+  const renderDropdownModal = (
+    visible,
+    setVisible,
+    options,
+    selected,
+    onSelect,
+    title,
+  ) => (
+    <Modal
+      visible={visible}
+      transparent
+      animationType="fade"
+      onRequestClose={() => setVisible(false)}
+    >
+      <View style={styles.modalOverlay}>
+        <Pressable
+          style={styles.modalBackdrop}
+          onPress={() => setVisible(false)}
+        />
+        <View style={styles.dropdownContainer}>
+          <View style={styles.dropdownHeader}>
+            <Text style={styles.dropdownTitle}>{title}</Text>
+          </View>
+          <ScrollView style={styles.dropdownList}>
+            {options.map((option, index) => (
+              <Pressable
+                key={index}
+                style={[
+                  styles.dropdownItem,
+                  selected === option && styles.dropdownItemSelected,
+                  index === options.length - 1 && { borderBottomWidth: 0 },
+                ]}
+                onPress={() => onSelect(option)}
+              >
+                <Text
+                  style={[
+                    styles.dropdownItemText,
+                    selected === option && styles.dropdownItemTextSelected,
+                  ]}
+                >
+                  {option}
+                </Text>
+              </Pressable>
+            ))}
+          </ScrollView>
+        </View>
+      </View>
+    </Modal>
+  );
 
+  const handleSubmit = async () => {
+    const payload = {
+      projectId: id,
+      progressReport: progressText,
+      weather: selectedWeather,
+      delays: selectedDealy,
+      labour: selectedLabour,
+      material: selectedMaterial,
+      plant: selectedPlant,
+      image: selectedImage?.uri || null,
+    };
+    await console.log(payload);
+  };
   return (
     <View style={styles.container}>
       <StatusBar backgroundColor="white" />
@@ -67,14 +146,17 @@ const DailyReportScreen = () => {
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        <Text style={styles.title}>Wednesday 14 Jan Report</Text>
-
+        <Text style={styles.title}>
+          {moment().format('dddd DD MMMM')} Report
+        </Text>
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Progress report</Text>
           <TextInput
             style={styles.textArea}
             placeholder="Enter Progress for the day..."
             placeholderTextColor="rgba(0, 0, 0, 1)"
+            value={progressText}
+            onChangeText={setProgressText}
             multiline
             numberOfLines={4}
             textAlignVertical="top"
@@ -119,122 +201,96 @@ const DailyReportScreen = () => {
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Labour</Text>
-          <Pressable style={styles.select}>
-            <Text style={styles.selectText}>Select Labour</Text>
+          <Pressable
+            style={styles.select}
+            onPress={() => setShowLabourDropdown(true)}
+          >
+            <Text
+              style={[
+                styles.selectText,
+                selectedLabour && styles.selectTextSelected,
+              ]}
+            >
+              {selectedLabour || 'Select Labour'}
+            </Text>
             <ChevronDown color="rgba(0, 0, 0, 1)" size={20} />
           </Pressable>
         </View>
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Material</Text>
-          <Pressable style={styles.select}>
-            <Text style={styles.selectText}>Select Material</Text>
+          <Pressable
+            style={styles.select}
+            onPress={() => setShowMaterialDropdown(true)}
+          >
+            <Text
+              style={[
+                styles.selectText,
+                selectedMaterial && styles.selectTextSelected,
+              ]}
+            >
+              {selectedMaterial || 'Select Material'}
+            </Text>
             <ChevronDown color="rgba(0, 0, 0, 1)" size={20} />
           </Pressable>
         </View>
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Plant</Text>
-          <Pressable style={styles.select}>
-            <Text style={styles.selectText}>Select Plant</Text>
+          <Pressable
+            style={styles.select}
+            onPress={() => setShowPlantDropdown(true)}
+          >
+            <Text
+              style={[
+                styles.selectText,
+                selectedPlant && styles.selectTextSelected,
+              ]}
+            >
+              {selectedPlant || 'Select Plant'}
+            </Text>
             <ChevronDown color="rgba(0, 0, 0, 1)" size={20} />
           </Pressable>
         </View>
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Photos</Text>
-          <Pressable style={styles.photoButton}>
-            <Text style={styles.photoButtonText}>Add photos</Text>
-            <Pressable
-              style={styles.roundedOutlineButton}
-              onPress={() => setShowPhotoModal(true)}
-            >
-              <Plus color="rgba(0, 0, 0, 1)" size={18} />
+          <View style={{ flexDirection: 'row', gap: 10 }}>
+            <Pressable style={styles.photoButton}>
+              <Text style={styles.photoButtonText}>Add photos</Text>
+              <Pressable
+                style={styles.roundedOutlineButton}
+                onPress={() => setShowPhotoModal(true)}
+              >
+                <Plus color="rgba(0, 0, 0, 1)" size={18} />
+              </Pressable>
             </Pressable>
-          </Pressable>
+            {selectedImage && (
+              <View>
+                <Image
+                  source={{ uri: selectedImage.uri }}
+                  style={{
+                    width: 50,
+                    height: 50,
+                    borderRadius: 10,
+                    borderWidth: 1,
+                    borderColor: 'rgb(217, 217, 217)',
+                  }}
+                  resizeMode="cover"
+                />
+              </View>
+            )}
+          </View>
         </View>
 
         <View style={styles.submitContainer}>
-          <Pressable style={styles.submitButton}>
+          <Pressable style={styles.submitButton} onPress={handleSubmit}>
             <Text style={styles.submitButtonText}>Submit</Text>
           </Pressable>
         </View>
       </ScrollView>
 
-      {/* Weather Dropdown Modal */}
-      <Modal
-        visible={showWeatherDropdown}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setShowWeatherDropdown(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <Pressable
-            style={styles.modalBackdrop}
-            onPress={() => setShowWeatherDropdown(false)}
-          />
-          <View style={styles.dropdownContainer}>
-            <View style={styles.dropdownHeader}>
-              <Text style={styles.dropdownTitle}>Select Weather</Text>
-            </View>
-            <ScrollView
-              style={styles.dropdownList}
-              showsVerticalScrollIndicator={false}
-            >
-              {weatherOptions.map((weather, index) => (
-                <Pressable
-                  key={index}
-                  style={[
-                    styles.dropdownItem,
-                    selectedWeather === weather && styles.dropdownItemSelected,
-                  ]}
-                  onPress={() => handleWeatherSelect(weather)}
-                >
-                  <Text
-                    style={[
-                      styles.dropdownItemText,
-                      selectedWeather === weather &&
-                        styles.dropdownItemTextSelected,
-                    ]}
-                  >
-                    {weather}
-                  </Text>
-                </Pressable>
-              ))}
-            </ScrollView>
-          </View>
-        </View>
-      </Modal>
-
-      {/* <View style={styles.footer}>
-        <View style={styles.footerContent}>
-          <Pressable
-            style={[styles.footerTab, styles.footerTabActive]}
-            onPress={() => handleFooterPress('/dashboard')}
-          >
-            <ClipboardList size={20} color="rgba(0, 11, 35, 1)" />
-            <Text style={[styles.footerTabText, styles.footerTabTextActive]}>
-              Tasks
-            </Text>
-          </Pressable>
-
-          <Pressable
-            style={styles.footerTab}
-            onPress={() => handleFooterPress('/past-reports')}
-          >
-            <FileText size={20} color="rgba(0, 0, 0, 1)" />
-            <Text style={styles.footerTabText}>Past Reports</Text>
-          </Pressable>
-
-          <Pressable
-            style={styles.footerTab}
-            onPress={() => handleFooterPress('/settings')}
-          >
-            <Settings size={20} color="rgba(0, 0, 0, 1)" />
-            <Text style={styles.footerTabText}>Settings</Text>
-          </Pressable>
-        </View>
-      </View> */}
+      {/* Photo Modal */}
       <Modal
         visible={showPhotoModal}
         transparent
@@ -249,11 +305,11 @@ const DailyReportScreen = () => {
           <View style={styles.photoModalBox}>
             <Text style={styles.photoModalTitle}>Add photos</Text>
 
-            <Pressable style={styles.photoOptionButton}>
+            <Pressable style={styles.photoOptionButton} onPress={openGallery}>
               <Text style={styles.photoOptionText}>From device</Text>
             </Pressable>
 
-            <Pressable style={styles.photoOptionButton}>
+            <Pressable style={styles.photoOptionButton} onPress={openCamera}>
               <Text style={styles.photoOptionText}>Take photo</Text>
             </Pressable>
 
@@ -266,6 +322,51 @@ const DailyReportScreen = () => {
           </View>
         </View>
       </Modal>
+
+      {renderDropdownModal(
+        showWeatherDropdown,
+        setShowWeatherDropdown,
+        weatherOptions,
+        selectedWeather,
+        handleWeatherSelect,
+        'Select Weather',
+      )}
+
+      {renderDropdownModal(
+        showDealyDropdown,
+        setShowDealyDropdown,
+        delayOptions,
+        selectedDealy,
+        handleDelaySelect,
+        'Select Delay',
+      )}
+
+      {renderDropdownModal(
+        showLabourDropdown,
+        setShowLabourDropdown,
+        labourOptions,
+        selectedLabour,
+        handleLabourSelect,
+        'Select Labour',
+      )}
+
+      {renderDropdownModal(
+        showMaterialDropdown,
+        setShowMaterialDropdown,
+        materialOptions,
+        selectedMaterial,
+        handleMaterialSelect,
+        'Select Material',
+      )}
+
+      {renderDropdownModal(
+        showPlantDropdown,
+        setShowPlantDropdown,
+        plantOptions,
+        selectedPlant,
+        handlePlantSelect,
+        'Select Plant',
+      )}
     </View>
   );
 };
@@ -373,7 +474,7 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     padding: 16,
     height: 56,
-    width: 150,
+    width: wp('70%'),
     borderWidth: 1,
     borderColor: 'rgba(232, 233, 234, 1)',
   },

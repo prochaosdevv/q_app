@@ -50,7 +50,11 @@ const ProjectScreen = () => {
   const renderItem = ({ item }) => (
     <Pressable
       style={styles.projectCard}
-      onPress={() => navigation.navigate('bottom')}
+      onPress={() =>
+        navigation.navigate('bottom', {
+          id: item._id,
+        })
+      }
     >
       <View style={styles.img_container}>
         <Image
