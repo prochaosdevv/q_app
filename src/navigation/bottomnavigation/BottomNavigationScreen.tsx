@@ -127,17 +127,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   icon: {
-    width: wp('6.5%'),
+    width: wp('7.2%'),
     height: hp('4%'),
   },
   label: {
-    fontSize: hp('1.6%'),
+    fontSize: hp('1.8%'),
     color: '#0A2342',
     marginTop: hp('0.5%'),
     fontWeight: '400',
   },
   activeLabel: {
-    fontWeight: '700',
+    fontWeight: '800',
   },
   underline: {
     height: 2,
@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
     borderRadius: 2,
   },
   activeIcon: {
-    width: wp('7.5%'),
+    width: wp('8%'),
     height: hp('5%'),
   },
 });

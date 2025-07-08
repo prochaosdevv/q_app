@@ -29,50 +29,37 @@ import { useAuthStore } from '../../../zustand/store/authStore';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import api from '../../../utils/api';
 import jsw from '../../../assets/images/jsw_icon.png';
+import LogoutModal from '../../../components/LogoutModal';
 const SettingScreen = () => {
-  const navigation = useNavigation();
   const [project, setProject] = useState([]);
+  const [showLogouModal, setShowLogouModal] = useState(false);
+  const navigation = useNavigation();
 
   const handleLogout = () => {
-    Alert.alert(
-      'Logout',
-      'Are you sure you want to logout?',
-      [
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
-        {
-          text: 'Logout',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              const logout = useAuthStore.getState().logout;
-              await logout();
-
-              // Sign out from Google
-              try {
-                await GoogleSignin.signOut();
-                console.log('✅ Google sign-out successful...!!');
-              } catch (googleError) {
-                console.warn('⚠️ Google Sign-Out failed:', googleError);
-              }
-
-              // Navigate to login screen
-              navigation.navigate('login');
-            } catch (error) {
-              console.log('❌ Logout Error:', error);
-              Alert.alert(
-                'Error',
-                'Something went wrong while logging out...!!',
-              );
-            }
-          },
-        },
-      ],
-      { cancelable: true },
-    );
+    setShowLogouModal(true);
   };
+  const handleModalContinue = async () => {
+    setShowLogouModal(false);
+    try {
+      const logout = useAuthStore.getState().logout;
+      await logout();
+      console.log('✅ Sign-out successful...!!');
+      // Sign out from Google
+      try {
+        await GoogleSignin.signOut();
+        console.log('✅ Google sign-out successful...!!');
+      } catch (googleError) {
+        console.warn('⚠️ Google Sign-Out failed:', googleError);
+      }
+
+      // Navigate to login screen
+      navigation.navigate('login');
+    } catch (error) {
+      console.log('❌ Logout Error:', error);
+      Alert.alert('Error', 'Something went wrong while logging out...!!');
+    }
+  };
+
   const getProject = async () => {
     try {
       const res = await api.get('/project/');
@@ -146,6 +133,12 @@ const SettingScreen = () => {
           <LogOut size={20} color="rgba(0, 11, 35, 1)" />
           <Text style={[styles.menuText, styles.logoutText]}>Logout</Text>
         </Pressable>
+
+        <LogoutModal
+          visible={showLogouModal}
+          onClose={() => setShowLogouModal(false)}
+          onContinue={handleModalContinue}
+        />
 
         <View style={styles.projectsSection}>
           <Text style={[styles.sectionTitle, { marginBottom: 10 }]}>

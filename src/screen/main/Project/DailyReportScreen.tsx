@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -25,6 +25,7 @@ import {
   materialOptions,
   plantOptions,
 } from '../../../hooks/useDailyReport';
+import DailyReportModal from '../../../components/dailyReport/DailyReportModal';
 
 const DailyReportScreen = () => {
   const {
@@ -66,7 +67,8 @@ const DailyReportScreen = () => {
   const route = useRoute();
   const { id } = route.params;
   console.log('Final Id', id);
-
+  const [showLabourModal, setShowLabourModal] = useState(false);
+  const [labourEntries, setLabourEntries] = useState([]);
   const renderDropdownModal = (
     visible,
     setVisible,
@@ -201,7 +203,7 @@ const DailyReportScreen = () => {
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Labour</Text>
-          <Pressable
+          {/* <Pressable
             style={styles.select}
             onPress={() => setShowLabourDropdown(true)}
           >
@@ -214,9 +216,46 @@ const DailyReportScreen = () => {
               {selectedLabour || 'Select Labour'}
             </Text>
             <ChevronDown color="rgba(0, 0, 0, 1)" size={20} />
+          </Pressable> */}
+          <Pressable style={styles.detailsButton}>
+            <Text style={styles.detailsButtonText}>Add</Text>
+            <Pressable
+              style={styles.roundedOutlineButton}
+              onPress={() => setShowLabourModal(true)}
+            >
+              <Plus color="rgba(0, 0, 0, 1)" size={18} />
+            </Pressable>
+            <DailyReportModal
+              visible={showLabourModal}
+              onCancel={() => setShowLabourModal(false)}
+              onConfirm={data => {
+                console.log('Labour Data:', data);
+                setLabourEntries(prev => [...prev, data]);
+                setShowLabourModal(false);
+              }}
+            />
           </Pressable>
         </View>
-
+        {labourEntries.map((entry, index) => (
+          <View key={index} style={styles.card}>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+              <View>
+                <Text style={styles.cardTitle}>{entry.labour}</Text>
+                <Text style={styles.cardDescription}>{entry.description}</Text>
+              </View>
+              <View>
+                {' '}
+                <Text style={styles.cardQty}>Qty: {entry.qty}</Text>
+              </View>
+            </View>
+          </View>
+        ))}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Material</Text>
           <Pressable
@@ -642,5 +681,43 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Medium',
     fontSize: 14,
     color: '#fff',
+  },
+
+  detailsButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: 'rgba(255, 255, 255, 1)',
+    borderRadius: 28,
+    padding: 16,
+    height: 56,
+    width: wp('87%'),
+    borderWidth: 1,
+    borderColor: 'rgba(232, 233, 234, 1)',
+  },
+  detailsButtonText: {
+    fontFamily: 'Inter-Regular',
+    fontSize: 14,
+    color: 'rgba(0, 11, 35, 1)',
+  },
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: wp('4%'),
+    borderWidth: 1,
+    borderColor: 'rgba(232, 233, 234, 1)',
+    
+  },
+  cardTitle: {
+    fontSize: wp('4.5%'),
+    fontWeight: 'bold',
+  },
+  cardDescription: {
+    fontSize: wp('3.8%'),
+    color: '#444',
+  },
+  cardQty: {
+    fontSize: wp('3.7%'),
+    color: '#666',
   },
 });

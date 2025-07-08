@@ -84,7 +84,7 @@ const AppNavigationScreen = () => {
         <Stack.Screen
           name="forgot-password"
           component={ForgotPasswordScreen}
-          options={{ headerShown: false }}
+          options={{ headerShown: false, statusBarStyle: 'dark' }}
         />
 
         <Stack.Screen

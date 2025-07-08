@@ -42,6 +42,9 @@ const ForgotPasswordScreen = () => {
             />
           </View>
         </View>
+        <Pressable style={styles.signInButton}>
+          <Text style={styles.signInButtonText}>Reset password</Text>
+        </Pressable>
 
         <View style={styles.footer}>
           <Text style={styles.footerText}>Return to</Text>
@@ -152,7 +155,7 @@ const styles = StyleSheet.create({
     borderRadius: wp('10%'),
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: hp('3%'),
+    marginBottom: hp('1.5'),
   },
   signInButtonText: {
     fontFamily: 'Inter-Medium',
@@ -191,6 +194,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Medium',
     fontSize: wp('3.8%'),
     color: 'rgba(24, 20, 70, 1)',
-    fontWeight:'800'
+    fontWeight: '800',
   },
 });
