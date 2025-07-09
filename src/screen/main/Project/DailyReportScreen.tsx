@@ -11,7 +11,7 @@ import {
   Image,
   ActivityIndicator,
 } from 'react-native';
-import { ChevronLeft, ChevronDown, Plus } from 'lucide-react-native';
+import { ChevronLeft, ChevronDown, Plus, X } from 'lucide-react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import moment from 'moment';
 import {
@@ -24,8 +24,6 @@ import {
   delayOptions,
   plantOptions,
 } from '../../../hooks/useDailyReport';
-import LabourModal from '../../../components/dailyReport/LabourModal';
-import MaterialModal from '../../../components/dailyReport/MaterialModal';
 import api from '../../../utils/api';
 
 const DailyReportScreen = () => {
@@ -56,63 +54,87 @@ const DailyReportScreen = () => {
   } = useDailyReport();
 
   const navigation = useNavigation();
-  const route = useRoute();
-  const { id } = route.params;
+  const { id } = useRoute().params;
 
   const [showLabourModal, setShowLabourModal] = useState(false);
   const [labourEntries, setLabourEntries] = useState([]);
   const [showMaterialModal, setShowMaterialModal] = useState(false);
   const [materialEntries, setMaterialEntries] = useState([]);
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const [labour, setLabour] = useState('');
+  const [labourRole, setLabourRole] = useState('');
+  const [labourQty, setLabourQty] = useState('');
+
+  const [materialType, setMaterialType] = useState('');
+  const [materialQty, setMaterialQty] = useState('');
+
   const handleSubmit = async () => {
     setLoading(true);
     setError('');
 
-    try {
-      if (
-        !progressText ||
-        !selectedWeather ||
-        !selectedDealy ||
-        !selectedPlant ||
-        !selectedImage ||
-        labourEntries.length === 0 ||
-        materialEntries.length === 0
-      ) {
-        setError('All fields are required.');
-        setLoading(false);
-        return;
-      }
+    if (
+      !progressText ||
+      !selectedWeather ||
+      !selectedDealy ||
+      !selectedPlant ||
+      !selectedImage ||
+      labourEntries.length === 0 ||
+      materialEntries.length === 0
+    ) {
+      setError('All fields are required.');
+      setLoading(false);
+      return;
+    }
 
-      const payload = {
-        projectId: id,
-        progressReport: progressText,
-        weather: { condition: selectedWeather },
-        delays: parseInt(selectedDealy),
-        labour: labourEntries.map(item => ({
-          name: item.name, // or item.labour
-          role: item.role,
-          qty: parseInt(item.qty),
-        })),
-        material: materialEntries.map(item => ({
+    const formData = new FormData();
+    formData.append('projectId', id);
+    formData.append('progressReport', progressText);
+    formData.append('weather', JSON.stringify({ condition: selectedWeather }));
+    formData.append('delays', parseInt(selectedDealy));
+    formData.append('plant', selectedPlant);
+
+    formData.append(
+      'labour',
+      JSON.stringify(
+        labourEntries.map(item => ({
           name: item.name,
           role: item.role,
           qty: parseInt(item.qty),
         })),
-        plant: selectedPlant,
-        image: selectedImage.uri,
-      };
+      ),
+    );
 
-      console.log(payload);
+    formData.append(
+      'material',
+      JSON.stringify(
+        materialEntries.map(item => ({
+          type: item.type,
+          quantity: item.quantity, // keep as string (e.g., "20 bags")
+        })),
+      ),
+    );
 
-      // const res = await api.post('/project/daily-report/create', payload, {
-      //   headers: { 'Content-Type': 'multipart/form-data' },
-      // });
-      // console.log('Success:', res.data);
-      // setLoading(false);
+    formData.append('photos', {
+      uri: selectedImage.uri,
+      name: 'report.jpg',
+      type: 'image/jpeg',
+    });
+
+    console.log('Data ', formData);
+
+    try {
+      const res = await api.post('/project/daily-report/create', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      setLoading(false);
+      navigation.navigate('bottom', {
+        screen: 'dashboard',
+        params: { id },
+      });
     } catch (err) {
-      console.log('Error:', error);
+      console.log('Error:', err);
       setError('An unexpected error occurred. Please try again later.');
       setLoading(false);
     }
@@ -163,6 +185,122 @@ const DailyReportScreen = () => {
               </Pressable>
             ))}
           </ScrollView>
+        </View>
+      </View>
+    </Modal>
+  );
+
+  const LabourModal = () => (
+    <Modal
+      visible={showLabourModal}
+      transparent
+      animationType="fade"
+      onRequestClose={() => setShowLabourModal(false)}
+    >
+      <View style={styles.modalOverlay}>
+        <Pressable
+          style={styles.modalBackdrop}
+          onPress={() => setShowLabourModal(false)}
+        />
+        <View style={styles.modalBox}>
+          <View style={styles.modalHeader}>
+            <Text style={styles.modalTitle}>Add Labour</Text>
+            <Pressable onPress={() => setShowLabourModal(false)}>
+              <X size={24} color="#000" />
+            </Pressable>
+          </View>
+
+          <TextInput
+            placeholder="Labour Name"
+            value={labour}
+            onChangeText={setLabour}
+            style={styles.input}
+            placeholderTextColor="black"
+          />
+          <TextInput
+            placeholder="Role"
+            value={labourRole}
+            onChangeText={setLabourRole}
+            style={styles.input}
+            placeholderTextColor="black"
+          />
+          <TextInput
+            placeholder="Qty"
+            value={labourQty}
+            onChangeText={setLabourQty}
+            keyboardType="numeric"
+            style={styles.input}
+            placeholderTextColor="black"
+          />
+          <Pressable
+            style={styles.okButton}
+            onPress={() => {
+              setLabourEntries(prev => [
+                ...prev,
+                { name: labour, role: labourRole, qty: labourQty },
+              ]);
+              setLabour('');
+              setLabourRole('');
+              setLabourQty('');
+              setShowLabourModal(false);
+            }}
+          >
+            <Text style={styles.buttonText}>OK</Text>
+          </Pressable>
+        </View>
+      </View>
+    </Modal>
+  );
+
+  const MaterialModal = () => (
+    <Modal
+      visible={showMaterialModal}
+      transparent
+      animationType="fade"
+      onRequestClose={() => setShowMaterialModal(false)}
+    >
+      <View style={styles.modalOverlay}>
+        <Pressable
+          style={styles.modalBackdrop}
+          onPress={() => setShowMaterialModal(false)}
+        />
+        <View style={styles.modalBox}>
+          <View style={styles.modalHeader}>
+            <Text style={styles.modalTitle}>Add Material</Text>
+            <Pressable onPress={() => setShowMaterialModal(false)}>
+              <X size={24} color="#000" />
+            </Pressable>
+          </View>
+
+          <TextInput
+            placeholder="Material Type"
+            value={materialType}
+            onChangeText={setMaterialType}
+            style={styles.input}
+            placeholderTextColor="black"
+          />
+          <TextInput
+            placeholder="Qty"
+            value={materialQty}
+            onChangeText={setMaterialQty}
+            keyboardType="numeric"
+            style={styles.input}
+            placeholderTextColor="black"
+          />
+          <Pressable
+            style={styles.okButton}
+            onPress={() => {
+              setMaterialEntries(prev => [
+                ...prev,
+                { type: materialType, quantity: materialQty },
+              ]);
+              setMaterialType('');
+              setMaterialQty('');
+              setShowMaterialModal(false);
+            }}
+          >
+            <Text style={styles.buttonText}>OK</Text>
+          </Pressable>
         </View>
       </View>
     </Modal>
@@ -251,31 +389,13 @@ const DailyReportScreen = () => {
               <Plus color="rgba(0, 0, 0, 1)" size={18} />
             </Pressable>
           </Pressable>
-          <LabourModal
-            visible={showLabourModal}
-            onCancel={() => setShowLabourModal(false)}
-            onConfirm={data => {
-              setLabourEntries(prev => [...prev, data]);
-              setShowLabourModal(false);
-            }}
-          />
         </View>
-
-        {labourEntries.map((entry, index) => (
-          <View key={index} style={styles.card}>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}
-            >
-              <View>
-                <Text style={styles.cardTitle}>{entry.labour}</Text>
-                <Text style={styles.cardDescription}>{entry.role}</Text>
-              </View>
-              <Text style={styles.cardQty}>Qty: {entry.qty}</Text>
-            </View>
+        {labourEntries.map((item, index) => (
+          <View key={index} style={styles.itemCard}>
+            <Text style={styles.itemCartText}>
+              {item.name} | {item.role}
+            </Text>
+            <Text style={styles.itemCartText}>{item.qty}</Text>
           </View>
         ))}
 
@@ -291,28 +411,12 @@ const DailyReportScreen = () => {
               <Plus color="rgba(0, 0, 0, 1)" size={18} />
             </Pressable>
           </Pressable>
-          <MaterialModal
-            visible={showMaterialModal}
-            onCancel={() => setShowMaterialModal(false)}
-            onConfirm={data => {
-              setMaterialEntries(prev => [...prev, data]);
-              setShowMaterialModal(false);
-            }}
-          />
         </View>
 
-        {materialEntries.map((entry, index) => (
-          <View key={index} style={styles.card}>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}
-            >
-              <Text style={styles.cardTitle}>{entry.type}</Text>
-              <Text style={styles.cardQty}>Qty: {entry.qty}</Text>
-            </View>
+        {materialEntries.map((item, index) => (
+          <View key={index} style={styles.itemCard}>
+            <Text style={styles.itemCartText}>{item.type}</Text>
+            <Text style={styles.itemCartText}>{item.quantity}</Text>
           </View>
         ))}
 
@@ -405,6 +509,10 @@ const DailyReportScreen = () => {
           </View>
         </View>
       </Modal>
+
+      {/* Modals */}
+      {LabourModal()}
+      {MaterialModal()}
 
       {/* Render Dropdown Modals */}
       {[
@@ -761,5 +869,64 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Regular',
     marginBottom: 12,
     textAlign: 'center',
+  },
+  modalBox: {
+    width: wp('90%'),
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: wp('6%'),
+    zIndex: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.25,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingBottom: hp('1.8%'),
+  },
+  modalTitle: {
+    fontSize: wp('4.5%'),
+    fontWeight: '800',
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    paddingHorizontal: wp('3%'),
+    paddingVertical: hp('1.8'),
+    fontSize: wp('3.8%'),
+    color: 'black',
+    marginBottom: hp('2%'),
+  },
+  okButton: {
+    paddingVertical: hp('1.9%'),
+    paddingHorizontal: wp('10%'),
+    backgroundColor: 'rgba(24, 20, 70, 1)',
+    borderRadius: 28,
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: wp('4%'),
+    textAlign: 'center',
+  },
+  itemCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: 'rgba(255, 255, 255, 1)',
+    borderRadius: 28,
+    padding: 16,
+    height: 56,
+    borderWidth: 1,
+    borderColor: 'rgba(232, 233, 234, 1)',
+    marginBottom: hp('2%'),
+  },
+  itemCartText: {
+    color: 'black',
   },
 });
