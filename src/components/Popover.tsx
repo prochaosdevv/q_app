@@ -25,14 +25,15 @@ export function Popover({ visible, onClose, onSelect }: PopoverProps) {
 
   const handleOptionPress = (optionId: string) => {
     if (optionId === 'manage_members') {
-      navigation.navigate('manage-members');
+      navigation.navigate('manage-members', {
+        id,
+      });
       onClose();
     }
     if (optionId === 'add_day_log') {
       navigation.navigate('daily-report', {
         id,
       });
-
       onClose();
     }
     if (optionId === 'send_report') {
