@@ -9,6 +9,7 @@ import {
   ScrollView,
   StatusBar,
   Image,
+  ActivityIndicator,
 } from 'react-native';
 import { ChevronLeft, ChevronDown, Plus } from 'lucide-react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -21,11 +22,11 @@ import {
   useDailyReport,
   weatherOptions,
   delayOptions,
-  labourOptions,
-  materialOptions,
   plantOptions,
 } from '../../../hooks/useDailyReport';
-import DailyReportModal from '../../../components/dailyReport/DailyReportModal';
+import LabourModal from '../../../components/dailyReport/LabourModal';
+import MaterialModal from '../../../components/dailyReport/MaterialModal';
+import api from '../../../utils/api';
 
 const DailyReportScreen = () => {
   const {
@@ -42,16 +43,6 @@ const DailyReportScreen = () => {
     setShowDealyDropdown,
     handleDelaySelect,
 
-    selectedLabour,
-    showLabourDropdown,
-    setShowLabourDropdown,
-    handleLabourSelect,
-
-    selectedMaterial,
-    showMaterialDropdown,
-    setShowMaterialDropdown,
-    handleMaterialSelect,
-
     selectedPlant,
     showPlantDropdown,
     setShowPlantDropdown,
@@ -63,12 +54,70 @@ const DailyReportScreen = () => {
     openCamera,
     selectedImage,
   } = useDailyReport();
+
   const navigation = useNavigation();
   const route = useRoute();
   const { id } = route.params;
-  console.log('Final Id', id);
+
   const [showLabourModal, setShowLabourModal] = useState(false);
   const [labourEntries, setLabourEntries] = useState([]);
+  const [showMaterialModal, setShowMaterialModal] = useState(false);
+  const [materialEntries, setMaterialEntries] = useState([]);
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const handleSubmit = async () => {
+    setLoading(true);
+    setError('');
+
+    try {
+      if (
+        !progressText ||
+        !selectedWeather ||
+        !selectedDealy ||
+        !selectedPlant ||
+        !selectedImage ||
+        labourEntries.length === 0 ||
+        materialEntries.length === 0
+      ) {
+        setError('All fields are required.');
+        setLoading(false);
+        return;
+      }
+
+      const payload = {
+        projectId: id,
+        progressReport: progressText,
+        weather: { condition: selectedWeather },
+        delays: parseInt(selectedDealy),
+        labour: labourEntries.map(item => ({
+          name: item.name, // or item.labour
+          role: item.role,
+          qty: parseInt(item.qty),
+        })),
+        material: materialEntries.map(item => ({
+          name: item.name,
+          role: item.role,
+          qty: parseInt(item.qty),
+        })),
+        plant: selectedPlant,
+        image: selectedImage.uri,
+      };
+
+      console.log(payload);
+
+      // const res = await api.post('/project/daily-report/create', payload, {
+      //   headers: { 'Content-Type': 'multipart/form-data' },
+      // });
+      // console.log('Success:', res.data);
+      // setLoading(false);
+    } catch (err) {
+      console.log('Error:', error);
+      setError('An unexpected error occurred. Please try again later.');
+      setLoading(false);
+    }
+  };
+
   const renderDropdownModal = (
     visible,
     setVisible,
@@ -119,28 +168,13 @@ const DailyReportScreen = () => {
     </Modal>
   );
 
-  const handleSubmit = async () => {
-    const payload = {
-      projectId: id,
-      progressReport: progressText,
-      weather: selectedWeather,
-      delays: selectedDealy,
-      labour: selectedLabour,
-      material: selectedMaterial,
-      plant: selectedPlant,
-      image: selectedImage?.uri || null,
-    };
-    await console.log(payload);
-  };
   return (
     <View style={styles.container}>
       <StatusBar backgroundColor="white" />
       <View style={styles.header}>
         <Pressable
           style={styles.backButton}
-          onPress={() => {
-            navigation.goBack();
-          }}
+          onPress={() => navigation.goBack()}
         >
           <ChevronLeft color="white" size={24} />
         </Pressable>
@@ -151,6 +185,8 @@ const DailyReportScreen = () => {
         <Text style={styles.title}>
           {moment().format('dddd DD MMMM')} Report
         </Text>
+
+        {/* Progress Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Progress report</Text>
           <TextInput
@@ -165,6 +201,7 @@ const DailyReportScreen = () => {
           />
         </View>
 
+        {/* Weather Dropdown */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Weather</Text>
           <Pressable
@@ -183,6 +220,7 @@ const DailyReportScreen = () => {
           </Pressable>
         </View>
 
+        {/* Delay Dropdown */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Delays</Text>
           <Pressable
@@ -201,41 +239,28 @@ const DailyReportScreen = () => {
           </Pressable>
         </View>
 
+        {/* Labour Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Labour</Text>
-          {/* <Pressable
-            style={styles.select}
-            onPress={() => setShowLabourDropdown(true)}
-          >
-            <Text
-              style={[
-                styles.selectText,
-                selectedLabour && styles.selectTextSelected,
-              ]}
-            >
-              {selectedLabour || 'Select Labour'}
-            </Text>
-            <ChevronDown color="rgba(0, 0, 0, 1)" size={20} />
-          </Pressable> */}
           <Pressable style={styles.detailsButton}>
-            <Text style={styles.detailsButtonText}>Add</Text>
+            <Text style={styles.detailsButtonText}>Add Labour</Text>
             <Pressable
               style={styles.roundedOutlineButton}
               onPress={() => setShowLabourModal(true)}
             >
               <Plus color="rgba(0, 0, 0, 1)" size={18} />
             </Pressable>
-            <DailyReportModal
-              visible={showLabourModal}
-              onCancel={() => setShowLabourModal(false)}
-              onConfirm={data => {
-                console.log('Labour Data:', data);
-                setLabourEntries(prev => [...prev, data]);
-                setShowLabourModal(false);
-              }}
-            />
           </Pressable>
+          <LabourModal
+            visible={showLabourModal}
+            onCancel={() => setShowLabourModal(false)}
+            onConfirm={data => {
+              setLabourEntries(prev => [...prev, data]);
+              setShowLabourModal(false);
+            }}
+          />
         </View>
+
         {labourEntries.map((entry, index) => (
           <View key={index} style={styles.card}>
             <View
@@ -247,33 +272,51 @@ const DailyReportScreen = () => {
             >
               <View>
                 <Text style={styles.cardTitle}>{entry.labour}</Text>
-                <Text style={styles.cardDescription}>{entry.description}</Text>
+                <Text style={styles.cardDescription}>{entry.role}</Text>
               </View>
-              <View>
-                {' '}
-                <Text style={styles.cardQty}>Qty: {entry.qty}</Text>
-              </View>
+              <Text style={styles.cardQty}>Qty: {entry.qty}</Text>
             </View>
           </View>
         ))}
+
+        {/* Material Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Material</Text>
-          <Pressable
-            style={styles.select}
-            onPress={() => setShowMaterialDropdown(true)}
-          >
-            <Text
-              style={[
-                styles.selectText,
-                selectedMaterial && styles.selectTextSelected,
-              ]}
+          <Pressable style={styles.detailsButton}>
+            <Text style={styles.detailsButtonText}>Add Material</Text>
+            <Pressable
+              style={styles.roundedOutlineButton}
+              onPress={() => setShowMaterialModal(true)}
             >
-              {selectedMaterial || 'Select Material'}
-            </Text>
-            <ChevronDown color="rgba(0, 0, 0, 1)" size={20} />
+              <Plus color="rgba(0, 0, 0, 1)" size={18} />
+            </Pressable>
           </Pressable>
+          <MaterialModal
+            visible={showMaterialModal}
+            onCancel={() => setShowMaterialModal(false)}
+            onConfirm={data => {
+              setMaterialEntries(prev => [...prev, data]);
+              setShowMaterialModal(false);
+            }}
+          />
         </View>
 
+        {materialEntries.map((entry, index) => (
+          <View key={index} style={styles.card}>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+              <Text style={styles.cardTitle}>{entry.type}</Text>
+              <Text style={styles.cardQty}>Qty: {entry.qty}</Text>
+            </View>
+          </View>
+        ))}
+
+        {/* Plant Dropdown */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Plant</Text>
           <Pressable
@@ -292,6 +335,7 @@ const DailyReportScreen = () => {
           </Pressable>
         </View>
 
+        {/* Photo Upload */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Photos</Text>
           <View style={{ flexDirection: 'row', gap: 10 }}>
@@ -305,26 +349,29 @@ const DailyReportScreen = () => {
               </Pressable>
             </Pressable>
             {selectedImage && (
-              <View>
-                <Image
-                  source={{ uri: selectedImage.uri }}
-                  style={{
-                    width: 50,
-                    height: 50,
-                    borderRadius: 10,
-                    borderWidth: 1,
-                    borderColor: 'rgb(217, 217, 217)',
-                  }}
-                  resizeMode="cover"
-                />
-              </View>
+              <Image
+                source={{ uri: selectedImage.uri }}
+                style={{
+                  width: 50,
+                  height: 50,
+                  borderRadius: 10,
+                  borderWidth: 1,
+                  borderColor: 'rgb(217, 217, 217)',
+                }}
+                resizeMode="cover"
+              />
             )}
           </View>
         </View>
-
+        {error !== '' && <Text style={styles.errorText}>{error}</Text>}
+        {/* Submit Button */}
         <View style={styles.submitContainer}>
           <Pressable style={styles.submitButton} onPress={handleSubmit}>
-            <Text style={styles.submitButtonText}>Submit</Text>
+            {loading ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : (
+              <Text style={styles.submitButtonText}>Submit</Text>
+            )}
           </Pressable>
         </View>
       </ScrollView>
@@ -343,15 +390,12 @@ const DailyReportScreen = () => {
           />
           <View style={styles.photoModalBox}>
             <Text style={styles.photoModalTitle}>Add photos</Text>
-
             <Pressable style={styles.photoOptionButton} onPress={openGallery}>
               <Text style={styles.photoOptionText}>From device</Text>
             </Pressable>
-
             <Pressable style={styles.photoOptionButton} onPress={openCamera}>
               <Text style={styles.photoOptionText}>Take photo</Text>
             </Pressable>
-
             <Pressable
               style={styles.continueButton}
               onPress={() => setShowPhotoModal(false)}
@@ -362,49 +406,41 @@ const DailyReportScreen = () => {
         </View>
       </Modal>
 
-      {renderDropdownModal(
-        showWeatherDropdown,
-        setShowWeatherDropdown,
-        weatherOptions,
-        selectedWeather,
-        handleWeatherSelect,
-        'Select Weather',
-      )}
-
-      {renderDropdownModal(
-        showDealyDropdown,
-        setShowDealyDropdown,
-        delayOptions,
-        selectedDealy,
-        handleDelaySelect,
-        'Select Delay',
-      )}
-
-      {renderDropdownModal(
-        showLabourDropdown,
-        setShowLabourDropdown,
-        labourOptions,
-        selectedLabour,
-        handleLabourSelect,
-        'Select Labour',
-      )}
-
-      {renderDropdownModal(
-        showMaterialDropdown,
-        setShowMaterialDropdown,
-        materialOptions,
-        selectedMaterial,
-        handleMaterialSelect,
-        'Select Material',
-      )}
-
-      {renderDropdownModal(
-        showPlantDropdown,
-        setShowPlantDropdown,
-        plantOptions,
-        selectedPlant,
-        handlePlantSelect,
-        'Select Plant',
+      {/* Render Dropdown Modals */}
+      {[
+        {
+          visible: showWeatherDropdown,
+          setVisible: setShowWeatherDropdown,
+          options: weatherOptions,
+          selected: selectedWeather,
+          onSelect: handleWeatherSelect,
+          title: 'Select Weather',
+        },
+        {
+          visible: showDealyDropdown,
+          setVisible: setShowDealyDropdown,
+          options: delayOptions,
+          selected: selectedDealy,
+          onSelect: handleDelaySelect,
+          title: 'Select Delay',
+        },
+        {
+          visible: showPlantDropdown,
+          setVisible: setShowPlantDropdown,
+          options: plantOptions,
+          selected: selectedPlant,
+          onSelect: handlePlantSelect,
+          title: 'Select Plant',
+        },
+      ].map((item, index) =>
+        renderDropdownModal(
+          item.visible,
+          item.setVisible,
+          item.options,
+          item.selected,
+          item.onSelect,
+          item.title,
+        ),
       )}
     </View>
   );
@@ -706,7 +742,6 @@ const styles = StyleSheet.create({
     padding: wp('4%'),
     borderWidth: 1,
     borderColor: 'rgba(232, 233, 234, 1)',
-    
   },
   cardTitle: {
     fontSize: wp('4.5%'),
@@ -719,5 +754,12 @@ const styles = StyleSheet.create({
   cardQty: {
     fontSize: wp('3.7%'),
     color: '#666',
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+    marginBottom: 12,
+    textAlign: 'center',
   },
 });

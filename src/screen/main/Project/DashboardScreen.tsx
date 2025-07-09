@@ -140,7 +140,7 @@ const DashboardScreen = () => {
 
           <Text style={styles.sectionTitle}>Submissions this week</Text>
 
-          <WeeklyReport />
+          <WeeklyReport id={id} />
         </View>
       </ScrollView>
 

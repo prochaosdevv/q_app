@@ -12,16 +12,13 @@ import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
-
-export default function DailyReportModal({ visible, onCancel, onConfirm }) {
-  const [labour, setLabour] = useState('');
-  const [description, setDescription] = useState('');
+export default function MaterialModal({ visible, onCancel, onConfirm }) {
+  const [type, setType] = useState('');
   const [qty, setQty] = useState('');
 
   const handleOk = () => {
-    onConfirm({ labour, description, qty });
-    setLabour('');
-    setDescription('');
+    onConfirm({ type, qty });
+    setType('');
     setQty('');
   };
 
@@ -36,30 +33,19 @@ export default function DailyReportModal({ visible, onCancel, onConfirm }) {
         <Pressable style={styles.modalBackdrop} onPress={onCancel} />
         <View style={styles.modalBox}>
           <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Add Labour</Text>
+            <Text style={styles.modalTitle}>Add Material</Text>
             <Pressable onPress={onCancel}>
               <X size={24} color="#000" />
             </Pressable>
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Labour</Text>
+            <Text style={styles.label}>Material Type</Text>
             <TextInput
-              placeholder="Enter Labour"
+              placeholder="Enter Material Type"
               style={styles.input}
-              value={labour}
-              onChangeText={setLabour}
-              placeholderTextColor={'black'}
-            />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Description</Text>
-            <TextInput
-              placeholder="Enter Description"
-              style={styles.input}
-              value={description}
-              onChangeText={setDescription}
+              value={type}
+              onChangeText={setType}
               placeholderTextColor={'black'}
             />
           </View>
@@ -86,6 +72,7 @@ export default function DailyReportModal({ visible, onCancel, onConfirm }) {
     </Modal>
   );
 }
+
 const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,

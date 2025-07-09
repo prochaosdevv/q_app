@@ -1,14 +1,8 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
-  Dimensions,
-  Modal,
-} from 'react-native';
-import { Settings, UserPlus, FileText, Check } from 'lucide-react-native';
+import { View, Text, StyleSheet, Pressable, Modal } from 'react-native';
+import { Check } from 'lucide-react-native';
 import { useState } from 'react';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import api from '../utils/api';
 
 interface PopoverProps {
   visible: boolean;
@@ -18,15 +12,15 @@ interface PopoverProps {
 
 export function Popover({ visible, onClose, onSelect }: PopoverProps) {
   const navigation = useNavigation();
+  const route = useRoute();
   if (!visible) return null;
-
+  const { id } = route.params;
   const options = [
     { id: 'add_day_log', label: 'Add new day log' },
     { id: 'send_report', label: 'Send Report' },
     { id: 'manage_members', label: 'Manage members' },
   ];
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [showLogModal, setShowLogModal] = useState(false);
   const [sendReport, setSendReport] = useState(false);
 
   const handleOptionPress = (optionId: string) => {
@@ -35,7 +29,11 @@ export function Popover({ visible, onClose, onSelect }: PopoverProps) {
       onClose();
     }
     if (optionId === 'add_day_log') {
-      setShowLogModal(true);
+      navigation.navigate('daily-report', {
+        id,
+      });
+
+      onClose();
     }
     if (optionId === 'send_report') {
       setSendReport(true);
@@ -44,6 +42,17 @@ export function Popover({ visible, onClose, onSelect }: PopoverProps) {
     // onClose();
   };
 
+  const handleSendReport = async () => {
+    try {
+      const response = await api.put(`/project/mark-sent/${id}`);
+      if (response?.data?.success === true) {
+        setShowSuccessModal(true);
+      }
+      console.log(response.data);
+    } catch (error) {
+      console.log('Error fetching while sending report', error);
+    }
+  };
   return (
     <View style={styles.container}>
       <Pressable style={styles.overlay} onPress={onClose} />
@@ -65,38 +74,7 @@ export function Popover({ visible, onClose, onSelect }: PopoverProps) {
           </Pressable>
         </View>
       </View>
-      {/* daily log modal  */}
-      <Modal
-        visible={showLogModal}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setShowLogModal(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <Pressable
-            style={styles.modalBackdrop}
-            onPress={() => setShowLogModal(false)}
-          />
-          <View style={styles.successModalBox}>
-            <View style={styles.iconWrapper}>
-              <View style={styles.successIconCircle}>
-                <Check color="#fff" size={24} />
-              </View>
-            </View>
-            <Text style={styles.successTitle}>Daily log completed</Text>
-            <Text style={styles.successMessage}>
-              Your requested daily report is submitted. You can wish to add more
-              later today if wanted by clicking the '+' button
-            </Text>
-            <Pressable
-              style={styles.okButton}
-              onPress={() => setShowLogModal(false)}
-            >
-              <Text style={styles.okButtonText}>Okay</Text>
-            </Pressable>
-          </View>
-        </View>
-      </Modal>
+
       {/* send report  */}
       <Modal
         visible={sendReport}
@@ -115,10 +93,7 @@ export function Popover({ visible, onClose, onSelect }: PopoverProps) {
               Reports are sent to admins automatically at the end of week (6pm
               Friday) though you can choose to send early
             </Text>
-            <Pressable
-              style={styles.okButton}
-              onPress={() => setShowSuccessModal(true)}
-            >
+            <Pressable style={styles.okButton} onPress={handleSendReport}>
               <Text style={styles.okButtonText}>Send early report</Text>
             </Pressable>
             <Pressable
@@ -154,7 +129,10 @@ export function Popover({ visible, onClose, onSelect }: PopoverProps) {
             </Text>
             <Pressable
               style={styles.okButton}
-              onPress={() => setShowSuccessModal(false)}
+              onPress={() => {
+                setShowSuccessModal(false);
+                onClose();
+              }}
             >
               <Text style={styles.okButtonText}>Continue</Text>
             </Pressable>
