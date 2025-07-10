@@ -19,18 +19,34 @@ import {
   Pencil,
   Settings,
 } from 'lucide-react-native';
-import { useNavigation } from '@react-navigation/native';
-const ReportDetailScreen = ({ date }) => {
+import { useNavigation, useRoute } from '@react-navigation/native';
+import api from '../../../utils/api';
+const ReportDetailScreen = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [ShowDeleteReport, setShowDeleteReport] = useState(false);
   const [ShowSuccessReport, setShowSuccessReport] = useState(false);
+
   const navigation = useNavigation();
+  const route = useRoute();
+  const { reportId } = route.params;
+  console.log('reportId', reportId);
+
+  const deleteDailyReport = () => {
+    try {
+      const response = api.delete(`/project/daily-report/${reportId}`);
+      setShowDeleteReport(false);
+      setShowSuccessReport(true);
+    } catch (error) {
+      console.log('Error fetching to delete daily report.', error);
+    }
+  };
   const images = [
     'https://images.pexels.com/photos/2219024/pexels-photo-2219024.jpeg',
     'https://images.pexels.com/photos/159306/construction-site-build-construction-work-159306.jpeg',
     'https://images.pexels.com/photos/2219024/pexels-photo-2219024.jpeg',
     'https://images.pexels.com/photos/159306/construction-site-build-construction-work-159306.jpeg',
   ];
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -67,9 +83,9 @@ const ReportDetailScreen = ({ date }) => {
               <View style={styles.popupMenu}>
                 <Pressable
                   style={styles.popupItem}
-                  onPress={() => {
-                    setShowDeleteReport(true);
-                  }}
+                  // onPress={() => {
+                  //   setShowDeleteReport(true);
+                  // }}
                 >
                   <Text style={styles.popupTextBold}>Edit log</Text>
                 </Pressable>
@@ -77,7 +93,6 @@ const ReportDetailScreen = ({ date }) => {
                 <Pressable
                   style={styles.popupItem}
                   onPress={() => {
-                    console.log('Delete');
                     setShowDeleteReport(true);
                   }}
                 >
@@ -165,7 +180,7 @@ const ReportDetailScreen = ({ date }) => {
             >
               <Pressable
                 style={styles.deleteButton}
-                onPress={() => setShowSuccessReport(true)}
+                onPress={deleteDailyReport}
               >
                 <Text style={styles.deleteButtonText}>Delete Report</Text>
               </Pressable>
@@ -200,7 +215,12 @@ const ReportDetailScreen = ({ date }) => {
             {/* <View> */}
             <Pressable
               style={styles.okButton}
-              onPress={() => setShowSuccessReport(false)}
+              onPress={() => {
+                setShowSuccessReport(false);
+                navigation.navigate('bottom', {
+                  screen: 'dashboard',
+                });
+              }}
             >
               <Text style={styles.deleteButtonText}>Okay</Text>
             </Pressable>
@@ -225,7 +245,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 24,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(230, 230, 230, 1)',
+    borderBottomColor: '#14274A',
     backgroundColor: '#14274A',
     paddingTop: 60,
     paddingBottom: 30,

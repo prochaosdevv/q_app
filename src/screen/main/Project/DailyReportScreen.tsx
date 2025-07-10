@@ -131,7 +131,6 @@ const DailyReportScreen = () => {
       setLoading(false);
       navigation.navigate('bottom', {
         screen: 'dashboard',
-        params: { id },
       });
     } catch (err) {
       console.log('Error:', err);

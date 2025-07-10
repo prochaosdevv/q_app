@@ -10,6 +10,7 @@ import {
   Platform,
   StatusBar,
   SafeAreaView,
+  RefreshControl,
 } from 'react-native';
 import {
   Plus,
@@ -30,31 +31,52 @@ const DashboardScreen = () => {
   const route = useRoute();
   const { id } = route.params;
   const [isPopoverVisible, setIsPopoverVisible] = useState(false);
-
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const handleOptionSelect = (option: string) => {
     // Handle option selection
     console.log('Selected option:', option);
   };
 
+  const onRefresh = async () => {
+    setRefreshing(true);
+    setLoading(true);
+
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1500));
+    } catch (error) {
+      console.error('Error refreshing:', error);
+    } finally {
+      setRefreshing(false);
+      setLoading(false);
+    }
+  };
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#0A2342" />
+      <View style={styles.header}>
+        <Text style={styles.greeting}>Hi, John Doe</Text>
+        <View style={styles.img_container}>
+          <Image
+            source={typeof jsw === 'string' ? { uri: jsw } : jsw}
+            style={styles.companyLogo}
+            resizeMode="cover"
+          />
+        </View>
+      </View>
 
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={['#141b41']} // Android spinner color
+            tintColor="#141b41" // iOS spinner color
+          />
+        }
       >
-        <View style={styles.header}>
-          <Text style={styles.greeting}>Hi, John Doe</Text>
-          <View style={styles.img_container}>
-            <Image
-              source={typeof jsw === 'string' ? { uri: jsw } : jsw}
-              style={styles.companyLogo}
-              resizeMode="cover"
-            />
-          </View>
-        </View>
-
         <View style={styles.content}>
           <Text style={styles.sectionTitle}>Due today</Text>
 
@@ -140,7 +162,7 @@ const DashboardScreen = () => {
 
           <Text style={styles.sectionTitle}>Submissions this week</Text>
 
-          <WeeklyReport id={id} />
+          <WeeklyReport id={id} refreshing={refreshing} />
         </View>
       </ScrollView>
 

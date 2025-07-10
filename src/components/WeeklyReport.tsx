@@ -1,40 +1,27 @@
-import {
-  View,
-  Text,
-  Pressable,
-  StyleSheet,
-  ActivityIndicator,
-  FlatList,
-} from 'react-native';
+import { View, Text, Pressable, StyleSheet, FlatList } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { Check, ClockAlert, Sun } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import api from '../utils/api';
 import moment from 'moment';
 
-const WeeklyReport = ({ id }) => {
+const WeeklyReport = ({ id, refreshing }) => {
   const [dailyReport, setDailyReport] = useState([]);
-  const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
 
   const getDailyReport = async id => {
-    setLoading(true);
     try {
       const response = await api.get(`/project/daily-report/${id}`);
       const data = response?.data.reports;
-      console.log('Test 1', data);
-
       setDailyReport(data || []);
-      console.log('Test 2', dailyReport);
+      console.log('Daily Report', dailyReport);
     } catch (error) {
       console.log('Error fetching daily report', error);
-    } finally {
-      setLoading(false);
     }
   };
-  const handleViewReport = date => {
+  const handleViewReport = reportId => {
     navigation.navigate('report-details', {
-      date,
+      reportId,
     });
   };
 
@@ -42,68 +29,63 @@ const WeeklyReport = ({ id }) => {
     if (id) {
       getDailyReport(id);
     }
-  }, [id]);
+  }, [id, refreshing]);
 
-  const renderItem = ({ item }) => (
-    <View style={styles.reportCard}>
-      <View style={styles.reportHeader}>
-        <Text style={styles.reportDate}>
-          {moment(item.createdAt).format('dddd DD MMMM')}
-        </Text>
-        <View style={styles.statusBadge}>
-          <Text style={styles.statusText}>submitted</Text>
-          <Check color="black" size={20} />
-        </View>
-      </View>
-
-      <Text style={styles.reportDescription}>{item.progressReport}</Text>
-
-      <View style={styles.statsContainer}>
-        <View style={styles.stat}>
-          <Text style={[styles.statText, { marginRight: 2 }]}>
-            {item.delays}
+  const renderItem = ({ item }) => {
+    const reportId = item._id;
+    return (
+      <View style={styles.reportCard}>
+        <View style={styles.reportHeader}>
+          <Text style={styles.reportDate}>
+            {moment(item.createdAt).format('dddd DD MMMM')}
           </Text>
-          <ClockAlert size={16} color="#666" />
+          <View style={styles.statusBadge}>
+            <Text style={styles.statusText}>submitted</Text>
+            <Check color="black" size={20} />
+          </View>
         </View>
-        <View style={styles.stat}>
-          <Sun size={16} color="#666" />
-        </View>
-        <View style={styles.stat}>
-          <Text style={styles.statText}>£0 extra costs</Text>
-        </View>
-      </View>
 
-      <Pressable
-        style={styles.viewButton}
-        onPress={() => handleViewReport('2025-07-13')}
-      >
-        <Text style={styles.viewButtonText}>View</Text>
-      </Pressable>
-    </View>
-  );
+        <Text style={styles.reportDescription}>{item.progressReport}</Text>
+
+        <View style={styles.statsContainer}>
+          <View style={styles.stat}>
+            <Text style={[styles.statText, { marginRight: 2 }]}>
+              {item.delays}
+            </Text>
+            <ClockAlert size={16} color="#666" />
+          </View>
+          <View style={styles.stat}>
+            <Sun size={16} color="#666" />
+          </View>
+          <View style={styles.stat}>
+            <Text style={styles.statText}>£0 extra costs</Text>
+          </View>
+        </View>
+
+        <Pressable
+          style={styles.viewButton}
+          onPress={() => handleViewReport(reportId)}
+        >
+          <Text style={styles.viewButtonText}>View</Text>
+        </Pressable>
+      </View>
+    );
+  };
   return (
     <>
-      {loading ? (
-        <ActivityIndicator
-          size="large"
-          color="blue"
-          style={{ marginTop: 20 }}
-        />
-      ) : (
-        <FlatList
-          data={dailyReport}
-          keyExtractor={(item, index) => item?.createdAt || index.toString()}
-          renderItem={renderItem}
-          contentContainerStyle={{ paddingBottom: 20 }}
-          ListEmptyComponent={
-            <View style={{ alignItems: 'center' }}>
-              <Text style={{ color: '#888', fontSize: 14 }}>
-                No daily reports available.
-              </Text>
-            </View>
-          }
-        />
-      )}
+      <FlatList
+        data={dailyReport}
+        keyExtractor={(item, index) => item?.createdAt || index.toString()}
+        renderItem={renderItem}
+        contentContainerStyle={{ paddingBottom: 20 }}
+        ListEmptyComponent={
+          <View style={{ alignItems: 'center' }}>
+            <Text style={{ color: '#888', fontSize: 14 }}>
+              No daily reports available.
+            </Text>
+          </View>
+        }
+      />
     </>
   );
 };
