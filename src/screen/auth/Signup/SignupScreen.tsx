@@ -15,14 +15,20 @@ import {
 import api from '../../../utils/api';
 import { useNavigation } from '@react-navigation/native';
 import signInWithGoogle from '../../../utils/signInWithGoogle';
+import SignupModal from '../../../components/SignupModal';
 
 const SignupScreen = () => {
   const [fullname, setFullname] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState({});
+  const [showSignupModal, setShowSignupModal] = useState(true);
   const navigation = useNavigation();
 
+  const handleSignupModal = () => {
+    console.log('Report sent!');
+    setShowSignupModal(false);
+  };
   const handleSignUp = async () => {
     const newErrors = {};
 
@@ -96,6 +102,14 @@ const SignupScreen = () => {
             Our project management app brings better visibility to your projects
             progress
           </Text>
+          <Pressable onPress={() => setShowSignupModal(true)}>
+            <Text>Modal</Text>
+          </Pressable>
+          <SignupModal
+            showSignupModal={showSignupModal}
+            setShowSignupModal={setShowSignupModal}
+            handleSignupModal={handleSignupModal}
+          />
         </View>
 
         <View style={styles.form}>
