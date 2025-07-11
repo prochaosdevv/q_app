@@ -129,9 +129,9 @@ const DailyReportScreen = () => {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       setLoading(false);
-      navigation.navigate('bottom', {
-        screen: 'dashboard',
-      });
+      // navigation.navigate('bottom', {
+      //   screen: 'dashboard',
+      // });
     } catch (err) {
       console.log('Error:', err);
       setError('An unexpected error occurred. Please try again later.');

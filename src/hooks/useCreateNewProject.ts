@@ -99,8 +99,11 @@ export const useCreateNewProject = () => {
       });
 
       if (response.data?.success) {
+        const projectId = response.data.project._id;
         console.log('Data has been saved...!!');
-        navigation.navigate('bottom');
+        navigation.navigate('bottom', {
+          id: projectId,
+        });
       } else {
         setError('Failed to create project. Please try again.');
       }
@@ -137,7 +140,7 @@ export const useCreateNewProject = () => {
     activeRoleMenu,
     setActiveRoleMenu,
     isValidEmail,
-    loading, 
+    loading,
     setLoading,
   };
 };

@@ -8,6 +8,7 @@ import {
   SafeAreaView,
   ScrollView,
   FlatList,
+  ActivityIndicator,
 } from 'react-native';
 import { ChevronLeft, ChevronDown, CirclePlus } from 'lucide-react-native';
 import { useCallback, useEffect, useState } from 'react';
@@ -27,6 +28,7 @@ const ManageMembers = () => {
   const [newMemberEmail, setNewMemberEmail] = useState('');
   const [activeRoleMenu, setActiveRoleMenu] = useState<number | null>(null);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   // Navigation
   const navigation = useNavigation();
@@ -61,23 +63,38 @@ const ManageMembers = () => {
   const createMemberByProjectId = async () => {
     const email = newMemberEmail.trim().toLowerCase();
 
+    // Basic validation
     if (!email) return setError('Email is required.');
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return setError('Enter a valid email.');
+    }
+
+    // Prevent duplicate entries (optional but useful)
+    const isDuplicate = members.some(
+      member => member.email.trim().toLowerCase() === email,
+    );
+    if (isDuplicate) return setError('Email already exists.');
+
+    // Exit early if already loading
+    if (loading) return;
+
+    setLoading(true); // Start loader
+    setError(''); // Clear previous error
 
     try {
-      setError('');
       const payload = {
         projectId: id,
         contributors: [{ email, permission: 'can view' }],
       };
 
       await api.post(`/project/add-contributors/`, payload);
-      setNewMemberEmail('');
-      await getMembersByProjectId(); // refresh only after success
+      setNewMemberEmail(''); // Clear input on success
+      await getMembersByProjectId(); // Refresh list
     } catch (err) {
       console.log('Error creating member:', err);
       setError('Something went wrong. Try again.');
+    } finally {
+      setLoading(false); // Stop loader
     }
   };
 
@@ -174,8 +191,13 @@ const ManageMembers = () => {
             <Pressable
               style={styles.iconContainer}
               onPress={createMemberByProjectId}
+              disabled={loading}
             >
-              <CirclePlus size={20} color="black" />
+              {loading ? (
+                <ActivityIndicator size="small" color="black" />
+              ) : (
+                <CirclePlus size={20} color="black" />
+              )}
             </Pressable>
           </View>
         </View>

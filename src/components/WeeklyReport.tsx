@@ -10,11 +10,15 @@ const WeeklyReport = ({ id, refreshing }) => {
   const navigation = useNavigation();
 
   const getDailyReport = async id => {
+    console.log('Project id is', id);
+
     try {
       const response = await api.get(`/project/daily-report/${id}`);
-      const data = response?.data.reports;
-      setDailyReport(data || []);
-      console.log('Daily Report', dailyReport);
+      const data = response?.data.project;
+      console.log('My data ', data);
+
+      // setDailyReport(data || []);
+      // console.log('Daily Report', dailyReport);
     } catch (error) {
       console.log('Error fetching daily report', error);
     }
@@ -79,7 +83,7 @@ const WeeklyReport = ({ id, refreshing }) => {
         renderItem={renderItem}
         contentContainerStyle={{ paddingBottom: 20 }}
         ListEmptyComponent={
-          <View style={{ alignItems: 'center' }}>
+          <View style={{ alignItems: 'center', marginTop: 20 }}>
             <Text style={{ color: '#888', fontSize: 14 }}>
               No daily reports available.
             </Text>

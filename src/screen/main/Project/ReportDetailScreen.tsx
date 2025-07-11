@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -21,16 +21,30 @@ import {
 } from 'lucide-react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import api from '../../../utils/api';
+import moment from 'moment';
 const ReportDetailScreen = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [ShowDeleteReport, setShowDeleteReport] = useState(false);
   const [ShowSuccessReport, setShowSuccessReport] = useState(false);
+  const [dailyReport, setDailyReport] = useState([]);
 
   const navigation = useNavigation();
   const route = useRoute();
   const { reportId } = route.params;
   console.log('reportId', reportId);
+  // Get Daily Report By Id
+  const getDailyReportById = async () => {
+    try {
+      const response = api.get(`/project/daily-report/${reportId}`);
+      const data = (await response).data.reports;
+      setDailyReport(data);
+      console.log('data', dailyReport);
+    } catch (error) {
+      console.log('Error Fetching to daily report by id : ', error);
+    }
+  };
 
+  // Delete Daily Report
   const deleteDailyReport = () => {
     try {
       const response = api.delete(`/project/daily-report/${reportId}`);
@@ -47,6 +61,9 @@ const ReportDetailScreen = () => {
     'https://images.pexels.com/photos/159306/construction-site-build-construction-work-159306.jpeg',
   ];
 
+  useEffect(() => {
+    getDailyReportById();
+  }, []);
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -68,7 +85,9 @@ const ReportDetailScreen = () => {
       >
         {/* // Inside the ScrollView > top_section */}
         <View style={styles.top_section}>
-          <Text style={styles.date}>Friday 14 July 2025 </Text>
+          <Text style={styles.date}>
+            {moment(dailyReport.createdAt).format('dddd DD MMMM')}
+          </Text>
 
           <View style={{ position: 'relative' }}>
             <Pressable
@@ -134,18 +153,14 @@ const ReportDetailScreen = () => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Progress report</Text>
           <View style={styles.textBox}>
-            <Text style={styles.reportText}>
-              Track Monitor Readings Deliver & Install GF5 Material - x Wagons
-              (2 wagons spread the rest was stock piled due to weather
-              conditions) Vibration testing cable ducted.
-            </Text>
+            <Text style={styles.reportText}>{dailyReport._id}</Text>
           </View>
         </View>
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Weather</Text>
           <View style={styles.textBox_}>
-            <Text style={styles.reportText}>Rain</Text>
+            <Text style={styles.reportText}>{dailyReport.weather}</Text>
           </View>
         </View>
       </ScrollView>
