@@ -13,12 +13,9 @@ const WeeklyReport = ({ id, refreshing }) => {
     console.log('Project id is', id);
 
     try {
-      const response = await api.get(`/project/daily-report/${id}`);
-      const data = response?.data.project;
-      console.log('My data ', data);
-
-      // setDailyReport(data || []);
-      // console.log('Daily Report', dailyReport);
+      const response = await api.get(`/project/get/daily-report/by/${id}`);
+      const data = response?.data.reports;
+      setDailyReport(data || []);
     } catch (error) {
       console.log('Error fetching daily report', error);
     }

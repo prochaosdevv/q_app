@@ -31,12 +31,12 @@ const ReportDetailScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const { reportId } = route.params;
-  console.log('reportId', reportId);
+
   // Get Daily Report By Id
   const getDailyReportById = async () => {
     try {
-      const response = api.get(`/project/daily-report/${reportId}`);
-      const data = (await response).data.reports;
+      const response = await api.get(`/project/daily-report/${reportId}`);
+      const data = response.data.report;
       setDailyReport(data);
       console.log('data', dailyReport);
     } catch (error) {
@@ -54,12 +54,6 @@ const ReportDetailScreen = () => {
       console.log('Error fetching to delete daily report.', error);
     }
   };
-  const images = [
-    'https://images.pexels.com/photos/2219024/pexels-photo-2219024.jpeg',
-    'https://images.pexels.com/photos/159306/construction-site-build-construction-work-159306.jpeg',
-    'https://images.pexels.com/photos/2219024/pexels-photo-2219024.jpeg',
-    'https://images.pexels.com/photos/159306/construction-site-build-construction-work-159306.jpeg',
-  ];
 
   useEffect(() => {
     getDailyReportById();
@@ -102,9 +96,7 @@ const ReportDetailScreen = () => {
               <View style={styles.popupMenu}>
                 <Pressable
                   style={styles.popupItem}
-                  // onPress={() => {
-                  //   setShowDeleteReport(true);
-                  // }}
+                  onPress={()=>navigation.navigate('edit-daily-report',{ report: dailyReport })}
                 >
                   <Text style={styles.popupTextBold}>Edit log</Text>
                 </Pressable>
@@ -139,10 +131,10 @@ const ReportDetailScreen = () => {
             snapToInterval={Dimensions.get('window').width - 48}
             contentContainerStyle={{ paddingHorizontal: 24 }}
           >
-            {images.map((uri, index) => (
+            {dailyReport?.photos?.map((photoUrl, index) => (
               <Image
                 key={index}
-                source={{ uri }}
+                source={{ uri: photoUrl }}
                 style={styles.sliderImage}
                 resizeMode="cover"
               />
@@ -153,14 +145,29 @@ const ReportDetailScreen = () => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Progress report</Text>
           <View style={styles.textBox}>
-            <Text style={styles.reportText}>{dailyReport._id}</Text>
+            <Text style={styles.reportText}>{dailyReport.progressReport}</Text>
           </View>
         </View>
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Weather</Text>
           <View style={styles.textBox_}>
-            <Text style={styles.reportText}>{dailyReport.weather}</Text>
+            <Text style={styles.reportText}>
+              {dailyReport.weather?.condition}
+            </Text>
+          </View>
+        </View>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Delays</Text>
+          <View style={styles.textBox_}>
+            <Text style={styles.reportText}>{dailyReport.delays} hours</Text>
+          </View>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>plant</Text>
+          <View style={styles.textBox_}>
+            <Text style={styles.reportText}>{dailyReport.plant}</Text>
           </View>
         </View>
       </ScrollView>

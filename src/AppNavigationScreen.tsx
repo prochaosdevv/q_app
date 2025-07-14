@@ -27,6 +27,7 @@ import BottomNavigationScreen from './navigation/bottomnavigation/BottomNavigati
 
 // Zustand
 import { useAuthStore } from './zustand/store/authStore';
+import EditDailyReportScreen from './screen/main/Project/EditDailyReportScreen';
 
 const Stack = createNativeStackNavigator();
 const AppNavigationScreen = () => {
@@ -125,6 +126,11 @@ const AppNavigationScreen = () => {
           options={{ headerShown: false }}
         />
 
+        <Stack.Screen
+          name="edit-daily-report"
+          component={EditDailyReportScreen}
+          options={{ headerShown: false }}
+        />
         {/* <Stack.Screen name="drawernav" component={DrawerNavigationScreen} /> */}
         <Stack.Screen name="bottomnav" component={BottomNavigationScreen} />
       </Stack.Navigator>
