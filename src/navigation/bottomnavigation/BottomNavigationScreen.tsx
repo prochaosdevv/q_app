@@ -100,7 +100,11 @@ const BottomNavigationScreen = () => {
           component={DashboardScreen}
           initialParams={{ id }}
         />
-        <Tab.Screen name="past-report" component={PastReportScreen} />
+        <Tab.Screen
+          name="past-report"
+          component={PastReportScreen}
+          initialParams={{ id }}
+        />
         <Tab.Screen name="setting" component={SettingScreen} />
       </Tab.Navigator>
     </>

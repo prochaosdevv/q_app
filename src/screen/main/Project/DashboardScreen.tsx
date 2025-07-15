@@ -26,6 +26,7 @@ import jsw from '../../../assets/images/jsw_icon.png';
 import { LinearGradient } from 'react-native-linear-gradient';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import WeeklyReport from '../../../components/WeeklyReport';
+import WeeklyGoal from '../../../components/WeeklyGoal';
 const DashboardScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
@@ -102,7 +103,7 @@ const DashboardScreen = () => {
                       style={styles.gradientRing}
                     />
                     <View style={styles.progressCenter}>
-                      <Text style={styles.progressText}>60%</Text>
+                      <Text style={styles.progressText}>0%</Text>
                     </View>
                   </View>
                 </View>
@@ -162,7 +163,8 @@ const DashboardScreen = () => {
 
           <Text style={styles.sectionTitle}>Submissions this week</Text>
 
-          <WeeklyReport id={id} refreshing={refreshing} />
+          {/* <WeeklyReport id={id} refreshing={refreshing} /> */}
+          <WeeklyGoal id={id} refreshing={refreshing} />
         </View>
       </ScrollView>
 

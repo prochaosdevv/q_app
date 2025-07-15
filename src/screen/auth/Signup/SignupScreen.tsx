@@ -22,7 +22,7 @@ const SignupScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState({});
-  const [showSignupModal, setShowSignupModal] = useState(true);
+  const [showSignupModal, setShowSignupModal] = useState(false);
   const navigation = useNavigation();
 
   const handleSignupModal = () => {

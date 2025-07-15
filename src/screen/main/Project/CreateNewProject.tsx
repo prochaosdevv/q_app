@@ -11,6 +11,8 @@ import {
   SafeAreaView,
   Alert,
   ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { ChevronLeft, ChevronDown, CirclePlus } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -55,178 +57,188 @@ const CreateNewProject = () => {
         <Text style={styles.headerTitle}>Create New Project</Text>
       </View>
 
-      <ScrollView
-        style={styles.content}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
       >
-        {/* Logo Upload */}
-        <View style={styles.logoSection}>
-          <View style={styles.img_container}>
-            <Image
-              source={selectedImage ? { uri: selectedImage.uri } : defaultLogo}
-              style={styles.companyLogo}
-              resizeMode="contain"
-            />
-          </View>
-          <Pressable onPress={handleImagePicker} style={styles.editImageButton}>
-            <Text style={styles.editImageText}>Edit image</Text>
-          </Pressable>
-        </View>
-
-        {/* Form Fields */}
-        <View style={styles.formSection}>
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Name</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter name of project"
-              placeholderTextColor="#93a5b1"
-              value={projectName}
-              onChangeText={setProjectName}
-            />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Description</Text>
-            <TextInput
-              style={styles.textArea}
-              placeholder="Enter project description"
-              placeholderTextColor="#93a5b1"
-              value={description}
-              onChangeText={setDescription}
-              multiline
-              numberOfLines={4}
-              textAlignVertical="top"
-            />
-          </View>
-
-          {/* Contributor Emails */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Add contributors</Text>
-            {contributors.map((contributor, index) => (
-              <>
-                <View key={index} style={styles.inputRow}>
-                  <View style={styles.inputWrapper}>
-                    <TextInput
-                      style={styles.input}
-                      placeholder="Enter contributor email"
-                      placeholderTextColor="#93a5b1"
-                      value={contributor.email}
-                      onChangeText={text => {
-                        handleContributorChange(text, index);
-                        setEmailError('');
-                      }}
-                      keyboardType="email-address"
-                      autoCapitalize="none"
-                    />
-                  </View>
-                  <Pressable
-                    style={styles.iconContainer}
-                    onPress={() => {
-                      const email = contributor.email.trim();
-                      if (!email) {
-                        setEmailError('Email is required.');
-                        return;
-                      }
-                      if (!isValidEmail(email)) {
-                        setEmailError('Please enter a valid email address.');
-                        return;
-                      }
-                      setMembers(prev => [
-                        ...prev,
-                        { email, role: 'View only' },
-                      ]);
-                      const updated = [...contributors];
-                      updated[index] = { email: '', permission: 'view only' };
-                      setContributors(updated);
-                    }}
-                  >
-                    <CirclePlus size={20} color="black" />
-                  </Pressable>
-                </View>
-                {emailError !== '' && (
-                  <Text style={styles.errorText}>{emailError}</Text>
-                )}
-              </>
-            ))}
-          </View>
-
-          {/* Add contributor field */}
-          <Pressable
-            style={styles.membersList}
-            onPress={() =>
-              setContributors([
-                ...contributors,
-                { email: '', permission: 'view only' },
-              ])
-            }
-          >
-            {members.map((member, index) => (
-              <View key={index} style={styles.memberItem}>
-                <Pressable
-                  style={styles.memberButton}
-                  onPress={() =>
-                    setActiveRoleMenu(activeRoleMenu === index ? null : index)
-                  }
-                >
-                  <Text style={styles.memberEmail}>{member.email}</Text>
-                  <View style={styles.roleContainer}>
-                    <Text style={styles.roleText}>{member.role}</Text>
-                    <ChevronDown
-                      color="#666"
-                      size={16}
-                      style={[
-                        styles.roleIcon,
-                        activeRoleMenu === index && styles.roleIconActive,
-                      ]}
-                    />
-                  </View>
-                </Pressable>
-
-                {activeRoleMenu === index && (
-                  <View style={styles.roleMenu}>
-                    <Pressable
-                      style={styles.roleMenuItem}
-                      onPress={() => handleRoleChange(index, 'view only')}
-                    >
-                      <Text style={styles.roleMenuText}>View only</Text>
-                    </Pressable>
-                    <Pressable
-                      style={styles.roleMenuItem}
-                      onPress={() => handleRoleChange(index, 'can edit')}
-                    >
-                      <Text style={styles.roleMenuText}>Can edit</Text>
-                    </Pressable>
-                    <Pressable
-                      style={[styles.roleMenuItem, styles.removeMenuItem]}
-                      onPress={() => handleRemoveMember(index)}
-                    >
-                      <Text style={styles.removeMenuText}>Remove</Text>
-                    </Pressable>
-                  </View>
-                )}
-              </View>
-            ))}
-          </Pressable>
-
-          {error !== '' && <Text style={styles.errorText}>{error}</Text>}
-
-          {/* Submit button */}
-          <View style={styles.createButtonContainer}>
+        <ScrollView
+          style={styles.content}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+        >
+          {/* Logo Upload */}
+          <View style={styles.logoSection}>
+            <View style={styles.img_container}>
+              <Image
+                source={
+                  selectedImage ? { uri: selectedImage.uri } : defaultLogo
+                }
+                style={styles.companyLogo}
+                resizeMode="contain"
+              />
+            </View>
             <Pressable
-              style={styles.createButton}
-              onPress={handleCreateProject}
+              onPress={handleImagePicker}
+              style={styles.editImageButton}
             >
-              {loading ? (
-                <ActivityIndicator size="small" color="#fff" />
-              ) : (
-                <Text style={styles.createButtonText}>Create Project</Text>
-              )}
+              <Text style={styles.editImageText}>Edit image</Text>
             </Pressable>
           </View>
-        </View>
-      </ScrollView>
+
+          {/* Form Fields */}
+          <View style={styles.formSection}>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Name</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Enter name of project"
+                placeholderTextColor="#93a5b1"
+                value={projectName}
+                onChangeText={setProjectName}
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Description</Text>
+              <TextInput
+                style={styles.textArea}
+                placeholder="Enter project description"
+                placeholderTextColor="#93a5b1"
+                value={description}
+                onChangeText={setDescription}
+                multiline
+                numberOfLines={4}
+                textAlignVertical="top"
+              />
+            </View>
+
+            {/* Contributor Emails */}
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Add contributors</Text>
+              {contributors.map((contributor, index) => (
+                <>
+                  <View key={index} style={styles.inputRow}>
+                    <View style={styles.inputWrapper}>
+                      <TextInput
+                        style={styles.input}
+                        placeholder="Enter contributor email"
+                        placeholderTextColor="#93a5b1"
+                        value={contributor.email}
+                        onChangeText={text => {
+                          handleContributorChange(text, index);
+                          setEmailError('');
+                        }}
+                        keyboardType="email-address"
+                        autoCapitalize="none"
+                      />
+                    </View>
+                    <Pressable
+                      style={styles.iconContainer}
+                      onPress={() => {
+                        const email = contributor.email.trim();
+                        if (!email) {
+                          setEmailError('Email is required.');
+                          return;
+                        }
+                        if (!isValidEmail(email)) {
+                          setEmailError('Please enter a valid email address.');
+                          return;
+                        }
+                        setMembers(prev => [
+                          ...prev,
+                          { email, role: 'View only' },
+                        ]);
+                        const updated = [...contributors];
+                        updated[index] = { email: '', permission: 'view only' };
+                        setContributors(updated);
+                      }}
+                    >
+                      <CirclePlus size={20} color="black" />
+                    </Pressable>
+                  </View>
+                  {emailError !== '' && (
+                    <Text style={styles.errorText}>{emailError}</Text>
+                  )}
+                </>
+              ))}
+            </View>
+
+            {/* Add contributor field */}
+            <Pressable
+              style={styles.membersList}
+              onPress={() =>
+                setContributors([
+                  ...contributors,
+                  { email: '', permission: 'view only' },
+                ])
+              }
+            >
+              {members.map((member, index) => (
+                <View key={index} style={styles.memberItem}>
+                  <Pressable
+                    style={styles.memberButton}
+                    onPress={() =>
+                      setActiveRoleMenu(activeRoleMenu === index ? null : index)
+                    }
+                  >
+                    <Text style={styles.memberEmail}>{member.email}</Text>
+                    <View style={styles.roleContainer}>
+                      <Text style={styles.roleText}>{member.role}</Text>
+                      <ChevronDown
+                        color="#666"
+                        size={16}
+                        style={[
+                          styles.roleIcon,
+                          activeRoleMenu === index && styles.roleIconActive,
+                        ]}
+                      />
+                    </View>
+                  </Pressable>
+
+                  {activeRoleMenu === index && (
+                    <View style={styles.roleMenu}>
+                      <Pressable
+                        style={styles.roleMenuItem}
+                        onPress={() => handleRoleChange(index, 'view only')}
+                      >
+                        <Text style={styles.roleMenuText}>View only</Text>
+                      </Pressable>
+                      <Pressable
+                        style={styles.roleMenuItem}
+                        onPress={() => handleRoleChange(index, 'can edit')}
+                      >
+                        <Text style={styles.roleMenuText}>Can edit</Text>
+                      </Pressable>
+                      <Pressable
+                        style={[styles.roleMenuItem, styles.removeMenuItem]}
+                        onPress={() => handleRemoveMember(index)}
+                      >
+                        <Text style={styles.removeMenuText}>Remove</Text>
+                      </Pressable>
+                    </View>
+                  )}
+                </View>
+              ))}
+            </Pressable>
+
+            {error !== '' && <Text style={styles.errorText}>{error}</Text>}
+
+            {/* Submit button */}
+            <View style={styles.createButtonContainer}>
+              <Pressable
+                style={styles.createButton}
+                onPress={handleCreateProject}
+              >
+                {loading ? (
+                  <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                  <Text style={styles.createButtonText}>Create Project</Text>
+                )}
+              </Pressable>
+            </View>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };

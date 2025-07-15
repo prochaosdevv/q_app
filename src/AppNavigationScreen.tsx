@@ -15,7 +15,6 @@ import ForgotPasswordScreen from './screen/auth/ForgotPassword/ForgotPasswordScr
 import ProjectScreen from './screen/main/Project/ProjectScreen';
 import CreateNewProject from './screen/main/Project/CreateNewProject';
 import DailyReportScreen from './screen/main/Project/DailyReportScreen';
-import CreateProject from './screen/main/Project/CreateProject';
 import ManageMemberScreen from './screen/main/Project/ManageMemberScreen';
 import ReportViewScreen from './screen/main/Project/ReportViewScreen';
 import ReportDetailScreen from './screen/main/Project/ReportDetailScreen';
@@ -32,6 +31,8 @@ import AccountManagementScreen from './screen/main/Project/Settings/AccountManag
 import ChangePasswordScreen from './screen/main/Project/Settings/ChangePasswordScreen';
 import HelpAndSupportScreen from './screen/main/Project/Settings/HelpAndSupportScreen';
 import TermsAndConditionScreen from './screen/main/Project/Settings/TermsAndConditionScreen';
+import WeekViewScreen from './screen/main/Project/WeekViewScreen';
+import WeeklyWeekReport from './screen/main/Project/WeeklyWeekReport';
 
 const Stack = createNativeStackNavigator();
 const AppNavigationScreen = () => {
@@ -100,11 +101,7 @@ const AppNavigationScreen = () => {
           component={DailyReportScreen}
           options={{ headerShown: false }}
         />
-        <Stack.Screen
-          name="create-project"
-          component={CreateProject}
-          options={{ headerShown: false }}
-        />
+
         <Stack.Screen
           name="create-new-project"
           component={CreateNewProject}
@@ -149,6 +146,16 @@ const AppNavigationScreen = () => {
         <Stack.Screen
           name="terms-and-condition"
           component={TermsAndConditionScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="week-view"
+          component={WeekViewScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="weekly-week-report"
+          component={WeeklyWeekReport}
           options={{ headerShown: false }}
         />
         {/* <Stack.Screen name="drawernav" component={DrawerNavigationScreen} /> */}

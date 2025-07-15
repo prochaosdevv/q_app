@@ -7,46 +7,37 @@ import {
   StatusBar,
   SafeAreaView,
   Image,
+  FlatList,
+  RefreshControl,
 } from 'react-native';
 
 import { ReportListItem } from '../../../components/ReportListItem';
-import { ClipboardList, FileText, Settings } from 'lucide-react-native';
-import { useNavigation } from '@react-navigation/native';
+import {
+  CalendarDays,
+  ClipboardList,
+  FileText,
+  Settings,
+} from 'lucide-react-native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import jsw from '../../../assets/images/jsw_icon.png';
+import WeeklyGoal from '../../../components/WeeklyGoal';
+import { useState } from 'react';
+
 const PastReportScreen = () => {
-  const navigation = useNavigation();
-  const reports = [
-    {
-      id: '1',
-      title: 'Counting bricks',
-      dateRange: '10 Jul - 17 Jul',
-      description:
-        'Finish main infrastructure of the kitchen alongside finishing bathroom',
-    },
-    {
-      id: '2',
-      title: 'Scaffolding work',
-      dateRange: '10 Jul - 17 Jul',
-      description:
-        'Finish main infrastructure of the kitchen alongside finishing bathroom',
-    },
-    {
-      id: '3',
-      title: 'Getting equipment into site',
-      dateRange: '10 Jul - 17 Jul',
-      description:
-        'Finish main infrastructure of the kitchen alongside finishing bathroom',
-    },
-  ];
+  const [refreshing, setRefreshing] = useState(false);
+  const route = useRoute();
+  const { id } = route.params;
 
-  const handleReportPress = report => {
-    navigation.navigate('report-view', {
-      dateRange: report.dateRange,
-      title: report.title,
-      description: report.description,
-    });
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1500));
+    } catch (error) {
+      console.error('Error refreshing:', error);
+    } finally {
+      setRefreshing(false);
+    }
   };
-
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#0A2342" />
@@ -65,17 +56,16 @@ const PastReportScreen = () => {
         style={styles.content}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={['#141b41']} // Android spinner color
+            tintColor="#141b41" // iOS spinner color
+          />
+        }
       >
-        {reports.map((report, index) => (
-          <View key={report.id}>
-            <ReportListItem
-              title={report.title}
-              dateRange={report.dateRange}
-              description={report.description}
-              onPress={() => handleReportPress(report)}
-            />
-          </View>
-        ))}
+        <WeeklyGoal id={id} refreshing={refreshing} />
       </ScrollView>
     </SafeAreaView>
   );

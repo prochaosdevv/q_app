@@ -16,18 +16,61 @@ import {
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import { useNavigation } from '@react-navigation/native';
+import { useAuthStore } from '../../../../zustand/store/authStore';
+import api from '../../../../utils/api';
 
 export default function ChangePasswordScreen() {
-  const navigation = useNavigation();
-  const [password, setPassword] = useState('');
+  const [oldPassword, setOldPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
+
+  const [showOldPassword, setShowOldPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const navigation = useNavigation();
 
-  const togglePasswordVisibility = () => setShowPassword(!showPassword);
+  const token = useAuthStore.getState().token;
 
-  const handleContinue = () => {
-    setShowSuccessModal(true);
+  const handleChangePassword = async () => {
+    setError(null);
+
+    if (!oldPassword || !newPassword || !confirmPassword) {
+      return setError('All fields are required.');
+    }
+
+    if (newPassword.length < 6) {
+      return setError('Password must be at least 6 characters.');
+    }
+
+    if (newPassword !== confirmPassword) {
+      return setError('Passwords do not match.');
+    }
+
+    try {
+      const res = await api.put(
+        '/user/change-password',
+        { oldPassword, newPassword },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      if (res.data.success) {
+        setOldPassword('');
+        setNewPassword('');
+        setConfirmPassword('');
+        setShowSuccessModal(true);
+      } else {
+        setError(res.data.message);
+      }
+    } catch (err: any) {
+      setError(err?.response?.data?.message || 'Server error.');
+    }
   };
   return (
     <SafeAreaView style={styles.container}>
@@ -50,49 +93,104 @@ export default function ChangePasswordScreen() {
 
         {/* Password Input */}
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Password</Text>
+          <Text style={styles.label}>Enter Old Password</Text>
           <View style={styles.passwordContainer}>
             <TextInput
               placeholder="********"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={!showPassword}
+              value={oldPassword}
+              onChangeText={text => {
+                setOldPassword(text);
+                setError(null);
+              }}
+              secureTextEntry={!showOldPassword}
               placeholderTextColor="#999"
               style={styles.input}
             />
-            <TouchableOpacity onPress={togglePasswordVisibility}>
-              {showPassword ? (
-                <Eye color="#333" size={22} />
+            <TouchableOpacity
+              onPress={() => setShowOldPassword(!showOldPassword)}
+            >
+              {showOldPassword ? (
+                <Eye color="#2E2E2E" size={22} />
               ) : (
-                <EyeOff color="#333" size={22} />
+                <EyeOff color="#2E2E2E" size={22} />
               )}
             </TouchableOpacity>
           </View>
         </View>
 
-        {/* Confirm Password Input (same design) */}
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Confirm Password</Text>
+          <Text style={styles.label}>Enter New Password</Text>
+          <View style={styles.passwordContainer}>
+            <TextInput
+              placeholder="********"
+              value={newPassword}
+              onChangeText={text => {
+                setNewPassword(text);
+                setError(null);
+              }}
+              secureTextEntry={!showNewPassword}
+              placeholderTextColor="#999"
+              style={styles.input}
+            />
+            <TouchableOpacity
+              onPress={() => setShowNewPassword(!showNewPassword)}
+            >
+              {showNewPassword ? (
+                <Eye color="#2E2E2E" size={22} />
+              ) : (
+                <EyeOff color="#2E2E2E" size={22} />
+              )}
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>Confirm New Password</Text>
           <View style={styles.passwordContainer}>
             <TextInput
               placeholder="Re-enter your password"
               value={confirmPassword}
-              onChangeText={setConfirmPassword}
-              secureTextEntry={!showPassword}
+              onChangeText={text => {
+                setConfirmPassword(text);
+                setError(null);
+              }}
+              secureTextEntry={!showConfirmPassword}
               placeholderTextColor="#999"
               style={styles.input}
             />
+            <TouchableOpacity
+              onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+            >
+              {showConfirmPassword ? (
+                <Eye color="#2E2E2E" size={22} />
+              ) : (
+                <EyeOff color="#2E2E2E" size={22} />
+              )}
+            </TouchableOpacity>
           </View>
         </View>
+        {/* Error Display */}
+        {error && (
+          <Text
+            style={{
+              color: 'red',
+              textAlign: 'center',
+              marginBottom: hp('2%'),
+              fontWeight: '500',
+            }}
+          >
+            {error}
+          </Text>
+        )}
 
         {/* Password rules */}
-        <Text style={styles.passwordRule}>Must be at least 5 characters</Text>
+        <Text style={styles.passwordRule}>Must be at least 6 characters</Text>
         <Text style={styles.passwordRule}>
           Must contain a unique character like !@?
         </Text>
 
         {/* Submit Button */}
-        <Pressable style={styles.submitButton} onPress={handleContinue}>
+        <Pressable style={styles.submitButton} onPress={handleChangePassword}>
           <Text style={styles.submitButtonText}>Submit new password</Text>
         </Pressable>
       </View>
@@ -123,7 +221,7 @@ export default function ChangePasswordScreen() {
                 <Pressable
                   style={styles.modalContinueButton}
                   android_ripple={{ color: '#ccc' }}
-                  onPress={() => setShowSuccessModal(false)}
+                  onPress={() => navigation.navigate('login')}
                 >
                   <Text style={styles.modalContinueButtonText}>Continue</Text>
                 </Pressable>
@@ -184,10 +282,10 @@ const styles = StyleSheet.create({
     marginBottom: hp('2.5%'),
   },
   label: {
-    fontSize: wp('4%'),
+    fontSize: wp('3.5%'),
     marginBottom: hp('0.8%'),
-    color: '#333',
-    fontWeight: '500',
+    color: '#666666',
+    fontWeight: '400',
   },
   passwordContainer: {
     flexDirection: 'row',
