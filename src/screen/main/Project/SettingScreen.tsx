@@ -109,22 +109,42 @@ const SettingScreen = () => {
           <Text style={styles.menuText}>Create New Project</Text>
         </Pressable>
 
-        <Pressable style={styles.menuItem}>
+        <Pressable
+          style={styles.menuItem}
+          onPress={() => {
+            navigation.navigate('account-management');
+          }}
+        >
           <SettingsIcon size={20} color="#141b41" />
           <Text style={styles.menuText}>Account management</Text>
         </Pressable>
 
-        <Pressable style={styles.menuItem}>
+        <Pressable
+          style={styles.menuItem}
+          onPress={() => {
+            navigation.navigate('change-password');
+          }}
+        >
           <Lock size={20} color="#141b41" />
           <Text style={styles.menuText}>Change Password</Text>
         </Pressable>
 
-        <Pressable style={styles.menuItem}>
+        <Pressable
+          style={styles.menuItem}
+          onPress={() => {
+            navigation.navigate('help-and-support');
+          }}
+        >
           <HelpCircle size={20} color="#141b41" />
           <Text style={styles.menuText}>Help and Support</Text>
         </Pressable>
 
-        <Pressable style={styles.menuItem}>
+        <Pressable
+          style={styles.menuItem}
+          onPress={() => {
+            navigation.navigate('terms-and-condition');
+          }}
+        >
           <SettingsIcon size={20} color="#141b41" />
           <Text style={styles.menuText}>Terms and conditions</Text>
         </Pressable>

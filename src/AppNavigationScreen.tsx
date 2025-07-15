@@ -28,6 +28,10 @@ import BottomNavigationScreen from './navigation/bottomnavigation/BottomNavigati
 // Zustand
 import { useAuthStore } from './zustand/store/authStore';
 import EditDailyReportScreen from './screen/main/Project/EditDailyReportScreen';
+import AccountManagementScreen from './screen/main/Project/Settings/AccountManagementScreen';
+import ChangePasswordScreen from './screen/main/Project/Settings/ChangePasswordScreen';
+import HelpAndSupportScreen from './screen/main/Project/Settings/HelpAndSupportScreen';
+import TermsAndConditionScreen from './screen/main/Project/Settings/TermsAndConditionScreen';
 
 const Stack = createNativeStackNavigator();
 const AppNavigationScreen = () => {
@@ -66,7 +70,6 @@ const AppNavigationScreen = () => {
             options={{ headerShown: false, statusBarStyle: 'dark' }}
           />
         )}
-
         <Stack.Screen
           name="login"
           component={LoginScreen}
@@ -87,13 +90,11 @@ const AppNavigationScreen = () => {
           component={ForgotPasswordScreen}
           options={{ headerShown: false, statusBarStyle: 'dark' }}
         />
-
         <Stack.Screen
           name="bottom"
           component={BottomNavigationScreen}
           options={{ headerShown: false }}
         />
-
         <Stack.Screen
           name="daily-report"
           component={DailyReportScreen}
@@ -114,7 +115,6 @@ const AppNavigationScreen = () => {
           component={ManageMemberScreen}
           options={{ headerShown: false }}
         />
-
         <Stack.Screen
           name="report-view"
           component={ReportViewScreen}
@@ -125,10 +125,30 @@ const AppNavigationScreen = () => {
           component={ReportDetailScreen}
           options={{ headerShown: false }}
         />
-
         <Stack.Screen
           name="edit-daily-report"
           component={EditDailyReportScreen}
+          options={{ headerShown: false }}
+        />
+        {/* Settings Screens */}
+        <Stack.Screen
+          name="account-management"
+          component={AccountManagementScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="change-password"
+          component={ChangePasswordScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="help-and-support"
+          component={HelpAndSupportScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="terms-and-condition"
+          component={TermsAndConditionScreen}
           options={{ headerShown: false }}
         />
         {/* <Stack.Screen name="drawernav" component={DrawerNavigationScreen} /> */}

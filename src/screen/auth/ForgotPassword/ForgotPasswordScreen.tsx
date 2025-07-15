@@ -14,9 +14,39 @@ import {
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import { useNavigation } from '@react-navigation/native';
+import api from '../../../utils/api';
 
 const ForgotPasswordScreen = () => {
   const navigation = useNavigation();
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const validateEmail = email => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+  };
+  const handleResetPassword = async () => {
+    const trimmedEmail = email.trim().toLowerCase();
+    if (!trimmedEmail) return setError('Email is required.');
+    if (!validateEmail(trimmedEmail)) return setError('Enter a valid email.');
+
+    try {
+      setLoading(true);
+      setError('');
+      const res = await api.post('/auth/forgot-password', {
+        email: trimmedEmail,
+      });
+
+      if (!res.data?.success) {
+        setError(res.data?.message || 'Something went wrong.');
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || 'Server error.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <ScrollView style={styles.scrollContainer}>
       <StatusBar barStyle="dark-content" backgroundColor="#000000" />
@@ -39,11 +69,32 @@ const ForgotPasswordScreen = () => {
               placeholderTextColor="#93a5b1"
               keyboardType="email-address"
               autoCapitalize="none"
+              value={email}
+              onChangeText={setEmail}
             />
           </View>
         </View>
-        <Pressable style={styles.signInButton}>
-          <Text style={styles.signInButtonText}>Reset password</Text>
+        {error ? (
+          <Text
+            style={{
+              color: 'red',
+              marginBottom: hp('1.8%'),
+              fontWeight: '600',
+              textAlign: 'center',
+            }}
+          >
+            {error}
+          </Text>
+        ) : null}
+        <Pressable
+          style={styles.signInButton}
+          onPress={handleResetPassword}
+          disabled={loading}
+        >
+          <Text style={styles.signInButtonText}>
+            {' '}
+            {loading ? 'Sending...' : 'Reset password'}
+          </Text>
         </Pressable>
 
         <View style={styles.footer}>
