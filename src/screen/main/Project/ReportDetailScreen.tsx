@@ -38,7 +38,7 @@ const ReportDetailScreen = () => {
       const response = await api.get(`/project/daily-report/${reportId}`);
       const data = response.data.report;
       setDailyReport(data);
-      console.log('Lumesh', dailyReport);
+      console.log('Lumesh1', dailyReport);
     } catch (error) {
       console.log('Error Fetching to daily report by id : ', error);
     }

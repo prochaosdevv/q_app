@@ -50,11 +50,12 @@ const DailyReportScreen = () => {
     setShowPhotoModal,
     openGallery,
     openCamera,
-    selectedImage,
+    selectedImages,
+    removeImage,
   } = useDailyReport();
 
   const navigation = useNavigation();
-  const { id } = useRoute().params;
+  const { id, image } = useRoute().params;
 
   const [showLabourModal, setShowLabourModal] = useState(false);
   const [labourEntries, setLabourEntries] = useState([]);
@@ -74,27 +75,24 @@ const DailyReportScreen = () => {
     setLoading(true);
     setError('');
 
-    if (
-      !progressText ||
-      !selectedWeather ||
-      !selectedDealy ||
-      !selectedPlant ||
-      !selectedImage ||
-      labourEntries.length === 0 ||
-      materialEntries.length === 0
-    ) {
-      setError('All fields are required.');
-      setLoading(false);
-      return;
-    }
+    if (!progressText.trim()) return setError('Progress report is required.');
+    if (!selectedWeather) return setError('Weather selection is required.');
+    if (!selectedDealy) return setError('Delay selection is required.');
+    if (!selectedPlant) return setError('Plant selection is required.');
+    if (labourEntries.length === 0)
+      return setError('Please add at least one labour entry.');
+    if (materialEntries.length === 0)
+      return setError('Please add at least one material entry.');
+    if (selectedImages.length === 0)
+      return setError('Please select at least one photo.');
 
     const formData = new FormData();
+
     formData.append('projectId', id);
     formData.append('progressReport', progressText);
     formData.append('weather', JSON.stringify({ condition: selectedWeather }));
     formData.append('delays', parseInt(selectedDealy));
     formData.append('plant', selectedPlant);
-
     formData.append(
       'labour',
       JSON.stringify(
@@ -105,36 +103,37 @@ const DailyReportScreen = () => {
         })),
       ),
     );
-
     formData.append(
       'material',
       JSON.stringify(
         materialEntries.map(item => ({
           type: item.type,
-          quantity: item.quantity, // keep as string (e.g., "20 bags")
+          quantity: item.quantity,
         })),
       ),
     );
 
-    formData.append('photos', {
-      uri: selectedImage.uri,
-      name: 'report.jpg',
-      type: 'image/jpeg',
+    selectedImages.forEach((img, index) => {
+      formData.append('photos', {
+        uri: img.uri,
+        type: img.type,
+        name: img.fileName || `photo_${index}.jpg`,
+      });
     });
-
-    console.log('Data ', formData);
 
     try {
       const res = await api.post('/project/daily-report/create', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      setLoading(false);
-      // navigation.navigate('bottom', {
-      //   screen: 'dashboard',
-      // });
+
+      navigation.navigate('bottom', {
+        screen: 'dashboard',
+        params: { id, image },
+      });
     } catch (err) {
-      console.log('Error:', err);
-      setError('An unexpected error occurred. Please try again later.');
+      console.log('Submission Error:', err.message || err);
+      setError('Failed to submit. Please try again later.');
+    } finally {
       setLoading(false);
     }
   };
@@ -234,6 +233,10 @@ const DailyReportScreen = () => {
           <Pressable
             style={styles.okButton}
             onPress={() => {
+              if (!labour || !labourRole || !labourQty) {
+                setError('All labour fields are required.');
+                return;
+              }
               setLabourEntries(prev => [
                 ...prev,
                 { name: labour, role: labourRole, qty: labourQty },
@@ -289,6 +292,10 @@ const DailyReportScreen = () => {
           <Pressable
             style={styles.okButton}
             onPress={() => {
+              if (!materialType || !materialQty) {
+                setError('All material fields are required.');
+                return;
+              }
               setMaterialEntries(prev => [
                 ...prev,
                 { type: materialType, quantity: materialQty },
@@ -331,7 +338,10 @@ const DailyReportScreen = () => {
             placeholder="Enter Progress for the day..."
             placeholderTextColor="rgba(0, 0, 0, 1)"
             value={progressText}
-            onChangeText={setProgressText}
+            onChangeText={text => {
+              setProgressText(text);
+              setError('');
+            }}
             multiline
             numberOfLines={4}
             textAlignVertical="top"
@@ -441,31 +451,50 @@ const DailyReportScreen = () => {
         {/* Photo Upload */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Photos</Text>
-          <View style={{ flexDirection: 'row', gap: 10 }}>
-            <Pressable style={styles.photoButton}>
-              <Text style={styles.photoButtonText}>Add photos</Text>
-              <Pressable
-                style={styles.roundedOutlineButton}
-                onPress={() => setShowPhotoModal(true)}
-              >
-                <Plus color="rgba(0, 0, 0, 1)" size={18} />
-              </Pressable>
+          <Pressable style={styles.photoButton}>
+            <Text style={styles.photoButtonText}>Add photos</Text>
+            <Pressable
+              style={styles.roundedOutlineButton}
+              onPress={() => setShowPhotoModal(true)}
+            >
+              <Plus color="rgba(0, 0, 0, 1)" size={18} />
             </Pressable>
-            {selectedImage && (
-              <Image
-                source={{ uri: selectedImage.uri }}
-                style={{
-                  width: 50,
-                  height: 50,
-                  borderRadius: 10,
-                  borderWidth: 1,
-                  borderColor: 'rgb(217, 217, 217)',
-                }}
-                resizeMode="cover"
-              />
-            )}
-          </View>
+          </Pressable>
         </View>
+        {/* Photo Upload Preview */}
+        {selectedImages.length > 0 && (
+          <View
+            style={{
+              flexDirection: 'row',
+              flexWrap: 'wrap',
+              gap: 10,
+              marginBottom: 12,
+            }}
+          >
+            {selectedImages.map((img, index) => (
+              <View key={index} style={{ position: 'relative' }}>
+                <Image
+                  source={{ uri: img.uri }}
+                  style={{ width: 60, height: 60, borderRadius: 10 }}
+                />
+                <Pressable
+                  onPress={() => removeImage(index)}
+                  style={{
+                    position: 'absolute',
+                    top: -6,
+                    right: -6,
+                    backgroundColor: 'red',
+                    borderRadius: 12,
+                    padding: 2,
+                  }}
+                >
+                  <X size={14} color="white" />
+                </Pressable>
+              </View>
+            ))}
+          </View>
+        )}
+
         {error !== '' && <Text style={styles.errorText}>{error}</Text>}
         {/* Submit Button */}
         <View style={styles.submitContainer}>
@@ -656,7 +685,6 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     padding: 16,
     height: 56,
-    width: wp('70%'),
     borderWidth: 1,
     borderColor: 'rgba(232, 233, 234, 1)',
   },
