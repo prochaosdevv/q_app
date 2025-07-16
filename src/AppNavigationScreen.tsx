@@ -33,6 +33,8 @@ import HelpAndSupportScreen from './screen/main/Project/Settings/HelpAndSupportS
 import TermsAndConditionScreen from './screen/main/Project/Settings/TermsAndConditionScreen';
 import WeekViewScreen from './screen/main/Project/WeekViewScreen';
 import WeeklyWeekReport from './screen/main/Project/WeeklyWeekReport';
+import OtpVerificationScreen from './screen/auth/ForgotPassword/OtpVerificationScreen';
+import CreateNewPasswordScreen from './screen/auth/ForgotPassword/CreateNewPasswordScreen';
 
 const Stack = createNativeStackNavigator();
 const AppNavigationScreen = () => {
@@ -92,6 +94,18 @@ const AppNavigationScreen = () => {
           options={{ headerShown: false, statusBarStyle: 'dark' }}
         />
         <Stack.Screen
+          name="otp-verify"
+          component={OtpVerificationScreen}
+          options={{ headerShown: false, statusBarStyle: 'dark' }}
+        />
+        <Stack.Screen
+          name="create-new-password"
+          component={CreateNewPasswordScreen}
+          options={{ headerShown: false, statusBarStyle: 'dark' }}
+        />
+
+        {/* Auth Route */}
+        <Stack.Screen
           name="bottom"
           component={BottomNavigationScreen}
           options={{ headerShown: false }}
@@ -127,6 +141,16 @@ const AppNavigationScreen = () => {
           component={EditDailyReportScreen}
           options={{ headerShown: false }}
         />
+        <Stack.Screen
+          name="week-view"
+          component={WeekViewScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="weekly-week-report"
+          component={WeeklyWeekReport}
+          options={{ headerShown: false }}
+        />
         {/* Settings Screens */}
         <Stack.Screen
           name="account-management"
@@ -148,16 +172,7 @@ const AppNavigationScreen = () => {
           component={TermsAndConditionScreen}
           options={{ headerShown: false }}
         />
-        <Stack.Screen
-          name="week-view"
-          component={WeekViewScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="weekly-week-report"
-          component={WeeklyWeekReport}
-          options={{ headerShown: false }}
-        />
+
         {/* <Stack.Screen name="drawernav" component={DrawerNavigationScreen} /> */}
         <Stack.Screen name="bottomnav" component={BottomNavigationScreen} />
       </Stack.Navigator>

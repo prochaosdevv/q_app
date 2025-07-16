@@ -25,15 +25,21 @@ import { Popover } from '../../../components/Popover';
 import jsw from '../../../assets/images/jsw_icon.png';
 import { LinearGradient } from 'react-native-linear-gradient';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import WeeklyReport from '../../../components/WeeklyReport';
 import WeeklyGoal from '../../../components/WeeklyGoal';
+import { useAuthStore } from '../../../zustand/store/authStore';
+import moment from 'moment';
+import CircularProgress from './CircularProgress ';
+import DailySubmission from '../../../components/DailySubmission';
 const DashboardScreen = () => {
-  const navigation = useNavigation();
-  const route = useRoute();
-  const { id } = route.params;
   const [isPopoverVisible, setIsPopoverVisible] = useState(false);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const { user } = useAuthStore.getState();
+  const currentUserName = user?.fullname;
+
+  const navigation = useNavigation();
+  const route = useRoute();
+  const { id } = route.params;
   const handleOptionSelect = (option: string) => {
     // Handle option selection
     console.log('Selected option:', option);
@@ -56,7 +62,12 @@ const DashboardScreen = () => {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#0A2342" />
       <View style={styles.header}>
-        <Text style={styles.greeting}>Hi, John Doe</Text>
+        <Text style={styles.greeting}>
+          Hi,
+          {currentUserName.length > 6
+            ? currentUserName.substring(0, 6) + '...'
+            : currentUserName}
+        </Text>
         <View style={styles.img_container}>
           <Image
             source={typeof jsw === 'string' ? { uri: jsw } : jsw}
@@ -73,8 +84,8 @@ const DashboardScreen = () => {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            colors={['#141b41']} // Android spinner color
-            tintColor="#141b41" // iOS spinner color
+            colors={['#141b41']}
+            tintColor="#141b41"
           />
         }
       >
@@ -93,20 +104,12 @@ const DashboardScreen = () => {
                 end={{ x: 1, y: 0 }}
                 style={styles.reportCard}
               >
-                <Text style={styles.reportTitle}>Thursday 14 Jan report</Text>
+                <Text style={styles.reportTitle}>
+                  {moment().format('dddd D MMM')} report
+                </Text>
                 <Text style={styles.reportStatus}>In progress</Text>
 
-                <View style={styles.progressContainer}>
-                  <View style={styles.progressCircle}>
-                    <LinearGradient
-                      colors={['rgba(24, 20, 70, 1)', 'rgba(131, 196, 231, 1)']}
-                      style={styles.gradientRing}
-                    />
-                    <View style={styles.progressCenter}>
-                      <Text style={styles.progressText}>0%</Text>
-                    </View>
-                  </View>
-                </View>
+                <CircularProgress percentage={0} />
 
                 <Pressable
                   style={styles.continueButton}
@@ -123,18 +126,7 @@ const DashboardScreen = () => {
               <View style={[styles.reportCard, styles.reportCardWeb]}>
                 <Text style={styles.reportTitle}>Thursday 14 Jan report</Text>
                 <Text style={styles.reportStatus}>In progress</Text>
-
-                <View style={styles.progressContainer}>
-                  <View style={styles.progressCircle}>
-                    <View
-                      style={[styles.gradientRing, styles.gradientRingWeb]}
-                    />
-                    <View style={styles.progressCenter}>
-                      <Text style={styles.progressText}>60%</Text>
-                    </View>
-                  </View>
-                </View>
-
+                <CircularProgress percentage={0} />
                 <Pressable
                   style={styles.continueButton}
                   // onPress={handleContinuePress}
@@ -144,27 +136,14 @@ const DashboardScreen = () => {
               </View>
             )}
           </View>
-
+          {/* Weekly Report */}
           <Text style={styles.sectionTitle}>Weeks goal</Text>
+          <WeeklyGoal id={id} refreshing={refreshing} />
 
-          <View style={styles.goalCard}>
-            <View style={styles.goalHeader}>
-              <Text style={styles.goalTitle}>Counting bricks</Text>
-            </View>
-
-            <Text style={styles.goalDescription}>
-              Finish main infrastructure of the kitchen alongside finishing
-              bathroom
-            </Text>
-            <Pressable>
-              <Text style={styles.editButtonText}>Edit</Text>
-            </Pressable>
-          </View>
-
+          {/* Daily Submission */}
           <Text style={styles.sectionTitle}>Submissions this week</Text>
 
-          {/* <WeeklyReport id={id} refreshing={refreshing} /> */}
-          <WeeklyGoal id={id} refreshing={refreshing} />
+          <DailySubmission id={id} refreshing={refreshing} />
         </View>
       </ScrollView>
 
@@ -250,48 +229,17 @@ const styles = StyleSheet.create({
   },
   reportTitle: {
     fontFamily: 'Inter-Bold',
-    fontSize: 18,
+    fontSize: 22,
     color: '#141b41',
     marginBottom: 4,
+    fontWeight: '800',
   },
   reportStatus: {
     fontFamily: 'Inter-Regular',
     fontSize: 14,
     color: '#666',
   },
-  progressContainer: {
-    alignItems: 'flex-end',
-  },
-  progressCircle: {
-    width: 120,
-    height: 120,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  gradientRing: {
-    position: 'absolute',
-    width: 100,
-    height: 100,
-    borderRadius: 60,
-    padding: 6,
-  },
-  gradientRingWeb: {
-    backgroundColor: 'rgba(24, 20, 70, 1)',
-  },
-  progressCenter: {
-    width: 76,
-    height: 76,
-    borderRadius: 48,
-    backgroundColor: '#fff',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  progressText: {
-    fontFamily: 'Inter-Bold',
-    fontSize: 20,
-    color: '#141b41',
-    fontWeight: '300',
-  },
+
   continueButton: {
     backgroundColor: 'rgba(24, 20, 70, 1)',
     borderRadius: 50,
@@ -303,39 +251,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Medium',
     fontSize: 16,
     color: '#fff',
-  },
-  goalCard: {
-    backgroundColor: 'rgba(255, 255, 255, 1)',
-    borderRadius: 16,
-    padding: 15,
-    borderWidth: 1,
-    borderColor: 'rgba(232, 233, 234, 1)',
-    marginBottom: 32,
-  },
-  goalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  goalTitle: {
-    fontFamily: 'Inter-Bold',
-    fontSize: 18,
-    color: 'rgba(24, 20, 70, 1)',
-    fontWeight: 'bold',
-  },
-  editButtonText: {
-    fontFamily: 'Inter-Medium',
-    fontSize: 16,
-    color: 'rgba(24, 20, 70, 1)',
-    marginTop: 10,
-    fontWeight: 'bold',
-  },
-  goalDescription: {
-    fontFamily: 'Inter-Regular',
-    fontSize: 14,
-    color: '#666',
-    lineHeight: 20,
   },
 
   floatingButton: {

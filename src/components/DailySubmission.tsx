@@ -4,8 +4,7 @@ import { Check, ClockAlert, Sun } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import api from '../utils/api';
 import moment from 'moment';
-
-const WeeklyReport = ({ id, refreshing }) => {
+export default function DailySubmission({ id, refreshing }) {
   const [dailyReport, setDailyReport] = useState([]);
   const navigation = useNavigation();
 
@@ -89,9 +88,7 @@ const WeeklyReport = ({ id, refreshing }) => {
       />
     </>
   );
-};
-
-export default WeeklyReport;
+}
 
 const styles = StyleSheet.create({
   reportCard: {

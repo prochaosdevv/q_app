@@ -4,60 +4,47 @@ import { useEffect, useState } from 'react';
 import moment from 'moment';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import api from '../utils/api';
-import { CalendarDays, Pencil } from 'lucide-react-native';
-import EditWeekGoalModal from './modal/EditWeekGoalModal';
-export default function WeeklyGoal({ refreshing }) {
-  const [weeklyGoal, setWeeklyGoal] = useState();
-  const [showWeekGoalEditModal, setShowWeekGoalEditModal] = useState(false);
+import { CalendarDays } from 'lucide-react-native';
+export default function PastReport({ refreshing }) {
+  const [pastReport, setPastReport] = useState([]);
   const navigation = useNavigation();
   const route = useRoute();
   const { id } = route.params;
 
-  const getWeeklyGoal = async () => {
+  const getPastReport = async () => {
     try {
-      const response = await api.get(`/project/weekly/goal/by/${id}`);
-      const data = response.data.weeklyGoals;
-      setWeeklyGoal(data);
+      const response = await api.get(`/project/get/past-report/by/${id}`);
+      const data = response.data.reports;
+      setPastReport(data);
     } catch (error) {
       console.log('Error fetching to weekly report : ', error);
     }
   };
   useEffect(() => {
     if (id) {
-      getWeeklyGoal(id);
+      getPastReport(id);
     }
   }, [id, refreshing]);
 
   const renderItem = ({ item }) => (
     <Pressable style={styles.card}>
       <View style={styles.dateContainer}>
-        <View style={{ flexDirection: 'row' }}>
-          <CalendarDays size={16} color="rgba(0, 0, 0, 1)" />
-          <Text style={styles.dateText}>
-            {' '}
-            {moment(item.startDate).format('DD MMM YYYY')}
-          </Text>
-        </View>
-        <Pressable
-          style={styles.edit}
-          onPress={() => setShowWeekGoalEditModal(true)}
-        >
-          <Text style={styles.edit_text}>Edit</Text>
-          <Pencil size={14} />
-        </Pressable>
-
-        <EditWeekGoalModal
-          showWeekGoalEditModal={showWeekGoalEditModal}
-          setShowWeekGoalEditModal={setShowWeekGoalEditModal}
-        />
+        <CalendarDays size={16} color="rgba(0, 0, 0, 1)" />
+        <Text style={styles.dateText}>
+          {' '}
+          {moment(item.createdAt).format('DD MMM')}
+        </Text>
       </View>
 
-      <Text style={styles.title}>{item.title}</Text>
+      <Text style={styles.title}>{item.project.name}</Text>
       <Text style={styles.description} numberOfLines={2}>
-        {item.description}
+        {item.project.description}
       </Text>
+
       <Pressable
-        onPress={() => navigation.navigate('week-view', { id: item._id })}
+        onPress={() =>
+          navigation.navigate('report-details', { reportId: item._id })
+        }
       >
         <Text style={styles.viewText}>View</Text>
       </Pressable>
@@ -67,7 +54,7 @@ export default function WeeklyGoal({ refreshing }) {
   return (
     <>
       <FlatList
-        data={weeklyGoal}
+        data={pastReport}
         keyExtractor={item => item._id}
         renderItem={renderItem}
         contentContainerStyle={{ paddingBottom: 16 }}
@@ -77,7 +64,7 @@ export default function WeeklyGoal({ refreshing }) {
               textAlign: 'center',
             }}
           >
-            No weekly goals found.
+            No past report found.
           </Text>
         }
       />
@@ -98,19 +85,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 12,
-    justifyContent: 'space-between',
   },
   dateText: {
     fontFamily: 'Inter-Regular',
     fontSize: 12,
     color: 'rgba(0, 11, 35, 1)',
-    marginLeft: 3,
+    marginLeft: 8,
   },
   title: {
     fontFamily: 'Inter-Bold',
-    fontSize: 17,
-    color: 'rgba(0, 11, 35, 1)',
-    marginBottom: 8,
+    fontSize: 22,
+    color: '#141b41',
     fontWeight: '900',
   },
   description: {
@@ -124,23 +109,5 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#141b41',
     fontWeight: '800',
-  },
-  edit: {
-    backgroundColor: '#fff',
-    borderRadius: 5,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderWidth: 1,
-    borderColor: 'rgba(175, 175, 175, 1)',
-    display: 'flex',
-    gap: 4,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  edit_text: {
-    fontFamily: 'Inter-Regular',
-    fontSize: 12,
-    color: 'rgba(0, 0, 0, 1)',
-    // lineHeight: 24,
   },
 });

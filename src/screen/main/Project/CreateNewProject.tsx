@@ -70,9 +70,7 @@ const CreateNewProject = () => {
           <View style={styles.logoSection}>
             <View style={styles.img_container}>
               <Image
-                source={
-                  selectedImage ? { uri: selectedImage.uri } : defaultLogo
-                }
+                source={selectedImage ? { uri: selectedImage.uri } : 'NA'}
                 style={styles.companyLogo}
                 resizeMode="contain"
               />

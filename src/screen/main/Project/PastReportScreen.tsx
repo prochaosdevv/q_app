@@ -22,11 +22,16 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import jsw from '../../../assets/images/jsw_icon.png';
 import WeeklyGoal from '../../../components/WeeklyGoal';
 import { useState } from 'react';
+import { useAuthStore } from '../../../zustand/store/authStore';
+import PastReport from '../../../components/PastReport';
 
 const PastReportScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
   const route = useRoute();
   const { id } = route.params;
+
+  const { user } = useAuthStore.getState();
+  const currentUserName = user?.fullname;
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -43,7 +48,12 @@ const PastReportScreen = () => {
       <StatusBar barStyle="light-content" backgroundColor="#0A2342" />
 
       <View style={styles.header}>
-        <Text style={styles.greeting}>Hi, John Doe</Text>
+        <Text style={styles.greeting}>
+          Hi,
+          {currentUserName.length > 6
+            ? currentUserName.substring(0, 6) + '...'
+            : currentUserName}
+        </Text>
         <View style={styles.img_container}>
           <Image
             source={typeof jsw === 'string' ? { uri: jsw } : jsw}
@@ -60,12 +70,12 @@ const PastReportScreen = () => {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            colors={['#141b41']} // Android spinner color
-            tintColor="#141b41" // iOS spinner color
+            colors={['#141b41']}
+            tintColor="#141b41"
           />
         }
       >
-        <WeeklyGoal id={id} refreshing={refreshing} />
+        <PastReport id={id} refreshing={refreshing} />
       </ScrollView>
     </SafeAreaView>
   );

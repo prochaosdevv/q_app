@@ -3,7 +3,6 @@ import { Alert, Image } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { useNavigation } from '@react-navigation/native';
 
-import defaultLogo from '../assets/images/jsw_icon.png';
 import api from '../utils/api';
 
 export const useCreateNewProject = () => {
@@ -30,11 +29,12 @@ export const useCreateNewProject = () => {
       response => {
         if (response.didCancel) return;
         if (response.errorCode) {
-          Alert.alert('Error', 'Failed to pick image.');
+          setError('Failed to pick image.');
           return;
         }
         if (response.assets && response.assets.length > 0) {
           setSelectedImage(response.assets[0]);
+          setError(''); // Clear previous error if any
         }
       },
     );
@@ -75,9 +75,19 @@ export const useCreateNewProject = () => {
   const handleCreateProject = async () => {
     setError('');
     setLoading(true);
+
     const invalidContributor = contributors.some(c => !c.email.trim());
+
+    // Check for missing fields
     if (!projectName || !description) {
       setError('Please fill all required fields before creating the project.');
+      setLoading(false);
+      return;
+    }
+
+    // ✅ Check if image is selected
+    if (!selectedImage) {
+      setError('Please choose the image.');
       setLoading(false);
       return;
     }
@@ -87,11 +97,9 @@ export const useCreateNewProject = () => {
       formData.append('name', projectName);
       formData.append('description', description);
       formData.append('image', {
-        uri: selectedImage
-          ? selectedImage.uri
-          : Image.resolveAssetSource(defaultLogo).uri,
-        name: selectedImage?.fileName || 'default-logo.jpg',
-        type: selectedImage?.type || 'image/jpeg',
+        uri: selectedImage.uri,
+        name: selectedImage.fileName || 'project-image.jpg',
+        type: selectedImage.type || 'image/jpeg',
       });
 
       const response = await api.post('/project/create', formData, {
@@ -101,9 +109,7 @@ export const useCreateNewProject = () => {
       if (response.data?.success) {
         const projectId = response.data.project._id;
         console.log('Data has been saved...!!');
-        navigation.navigate('bottom', {
-          id: projectId,
-        });
+        navigation.navigate('bottom', { id: projectId });
       } else {
         setError('Failed to create project. Please try again.');
       }
@@ -111,6 +117,7 @@ export const useCreateNewProject = () => {
       console.log('Error:', error);
       setError('An unexpected error occurred. Please try again later.');
     }
+
     setLoading(false);
   };
 

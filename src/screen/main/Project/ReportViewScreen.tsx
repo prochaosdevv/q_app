@@ -19,7 +19,6 @@ import {
   ClockAlert,
 } from 'lucide-react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import WeeklyReport from '../../../components/WeeklyReport';
 
 const ReportViewScreen = () => {
   const navigation = useNavigation();
@@ -57,7 +56,7 @@ const ReportViewScreen = () => {
           <Text style={styles.goalDescription}>{description}</Text>
         </View>
 
-        <WeeklyReport />
+        {/* <WeeklyReport /> */}
       </ScrollView>
     </SafeAreaView>
   );

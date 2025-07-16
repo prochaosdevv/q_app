@@ -38,7 +38,7 @@ const ReportDetailScreen = () => {
       const response = await api.get(`/project/daily-report/${reportId}`);
       const data = response.data.report;
       setDailyReport(data);
-      console.log('data', dailyReport);
+      console.log('Lumesh', dailyReport);
     } catch (error) {
       console.log('Error Fetching to daily report by id : ', error);
     }
@@ -96,7 +96,11 @@ const ReportDetailScreen = () => {
               <View style={styles.popupMenu}>
                 <Pressable
                   style={styles.popupItem}
-                  onPress={()=>navigation.navigate('edit-daily-report',{ report: dailyReport })}
+                  onPress={() =>
+                    navigation.navigate('edit-daily-report', {
+                      report: dailyReport,
+                    })
+                  }
                 >
                   <Text style={styles.popupTextBold}>Edit log</Text>
                 </Pressable>

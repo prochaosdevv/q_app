@@ -21,10 +21,18 @@ const ForgotPasswordScreen = () => {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Email validation function
   const validateEmail = email => {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return regex.test(email);
   };
+
+  const handleEmailChange = text => {
+    setEmail(text);
+    if (error) setError('');
+  };
+
   const handleResetPassword = async () => {
     const trimmedEmail = email.trim().toLowerCase();
     if (!trimmedEmail) return setError('Email is required.');
@@ -33,11 +41,18 @@ const ForgotPasswordScreen = () => {
     try {
       setLoading(true);
       setError('');
-      const res = await api.post('/auth/forgot-password', {
+      const response = await api.post('/user/request-otp', {
         email: trimmedEmail,
       });
 
-      if (!res.data?.success) {
+      const res = response.data;
+
+      if (res.data?.success) {
+        navigation.navigate('otp-verify', {
+          token: res.token,
+          email: trimmedEmail,
+        });
+      } else {
         setError(res.data?.message || 'Something went wrong.');
       }
     } catch (err) {
@@ -70,7 +85,7 @@ const ForgotPasswordScreen = () => {
               keyboardType="email-address"
               autoCapitalize="none"
               value={email}
-              onChangeText={setEmail}
+              onChangeText={handleEmailChange}
             />
           </View>
         </View>

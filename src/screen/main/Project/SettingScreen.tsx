@@ -56,7 +56,7 @@ const SettingScreen = () => {
       navigation.navigate('login');
     } catch (error) {
       console.log('❌ Logout Error:', error);
-      Alert.alert('Error', 'Something went wrong while logging out...!!');
+      
     }
   };
 
