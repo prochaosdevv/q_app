@@ -53,6 +53,7 @@ const ProjectScreen = () => {
       onPress={() =>
         navigation.navigate('bottom', {
           id: item._id,
+          image: item.image,
         })
       }
     >

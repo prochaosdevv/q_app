@@ -28,7 +28,7 @@ import PastReport from '../../../components/PastReport';
 const PastReportScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
   const route = useRoute();
-  const { id } = route.params;
+  const { id, image } = route.params;
 
   const { user } = useAuthStore.getState();
   const currentUserName = user?.fullname;
@@ -56,9 +56,9 @@ const PastReportScreen = () => {
         </Text>
         <View style={styles.img_container}>
           <Image
-            source={typeof jsw === 'string' ? { uri: jsw } : jsw}
+            source={{ uri: image }}
             style={styles.companyLogo}
-            resizeMode="cover"
+            resizeMode="contain"
           />
         </View>
       </View>

@@ -85,7 +85,7 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
 // ✅ Main Bottom Tab Navigation
 const BottomNavigationScreen = () => {
   const route = useRoute();
-  const { id } = route.params;
+  const { id, image } = route.params;
 
   return (
     <>
@@ -98,12 +98,12 @@ const BottomNavigationScreen = () => {
         <Tab.Screen
           name="dashboard"
           component={DashboardScreen}
-          initialParams={{ id }}
+          initialParams={{ id, image }}
         />
         <Tab.Screen
           name="past-report"
           component={PastReportScreen}
-          initialParams={{ id }}
+          initialParams={{ id, image }}
         />
         <Tab.Screen name="setting" component={SettingScreen} />
       </Tab.Navigator>

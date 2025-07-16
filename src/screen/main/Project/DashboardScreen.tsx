@@ -22,7 +22,6 @@ import {
   Check,
 } from 'lucide-react-native';
 import { Popover } from '../../../components/Popover';
-import jsw from '../../../assets/images/jsw_icon.png';
 import { LinearGradient } from 'react-native-linear-gradient';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import WeeklyGoal from '../../../components/WeeklyGoal';
@@ -39,7 +38,8 @@ const DashboardScreen = () => {
 
   const navigation = useNavigation();
   const route = useRoute();
-  const { id } = route.params;
+  const { id, image } = route.params;
+
   const handleOptionSelect = (option: string) => {
     // Handle option selection
     console.log('Selected option:', option);
@@ -70,9 +70,9 @@ const DashboardScreen = () => {
         </Text>
         <View style={styles.img_container}>
           <Image
-            source={typeof jsw === 'string' ? { uri: jsw } : jsw}
+            source={{ uri: image }}
             style={styles.companyLogo}
-            resizeMode="cover"
+            resizeMode="contain"
           />
         </View>
       </View>
