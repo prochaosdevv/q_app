@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,82 +10,77 @@ import {
   Alert,
   Image,
   Modal,
+  ActivityIndicator,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import moment from 'moment';
 import { Check, ChevronLeft, Plus, Trash2 } from 'lucide-react-native';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
-import api from '../../../utils/api';
+import { useEditDailyReportForm } from '../../../hooks/useEditDailyReportForm';
+
 const MAX_IMAGES = 5;
 
 export default function EditDailyReportScreen() {
   const navigation = useNavigation();
   const route = useRoute();
   const { report } = route.params;
-  console.log('My Id', report._id);
 
   const [progressReport, setProgressReport] = useState(report.progressReport);
   const [plant, setPlant] = useState(report.plant);
-  const [delays, setDelays] = useState(report.delays || '');
-  const [weather, setWeather] = useState(report.weather?.condition || '');
-  const [labour, setLabour] = useState(report.labour || []);
-  const [material, setMaterial] = useState(report.material || []);
-  const [photos, setPhotos] = useState(report.photos || []);
+  const [delays, setDelays] = useState(String(report.delays));
+  const [weather, setWeather] = useState(report.weather?.condition);
+  const [labour, setLabour] = useState(report.labour);
+  const [material, setMaterial] = useState(report.material);
+  const [photos, setPhotos] = useState(report.photos);
 
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showPhotoModal, setShowPhotoModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
-  const imagePickerOptions = {
-    mediaType: 'photo',
-    quality: 0.7,
-    selectionLimit: MAX_IMAGES - photos.length,
-  };
+  const { submitForm, loading, error, success, setSuccess } =
+    useEditDailyReportForm();
 
   const handleImageSelect = launchFunc => {
-    // Unified image picker
     if (photos.length >= MAX_IMAGES) return;
+    const options = {
+      mediaType: 'photo',
+      quality: 0.7,
+      selectionLimit: MAX_IMAGES - photos.length,
+    };
 
-    launchFunc(imagePickerOptions, res => {
+    launchFunc(options, res => {
       if (res?.assets) {
-        const newImages = res.assets.map(img => img.uri); // Extract image URIs
-        const combined = [...photos, ...newImages].slice(0, MAX_IMAGES); // Combine & limit
-        setPhotos(combined);
+        const newImages = res.assets.map(img => img.uri);
+        setPhotos(prev => [...prev, ...newImages].slice(0, MAX_IMAGES));
         setShowPhotoModal(false);
       }
     });
   };
 
-  const handleUpdate = async () => {
-    try {
-      const payload = {
-        progressReport,
-        plant,
-        delays: Number(delays),
-        weather: { condition: weather },
-        labour,
-        material,
-        photos,
-      };
-      console.log(payload);
-
-      await api.put(
-        `project/daily-report/update/${report._id}`,
-        { payload },
-        {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        },
-      );
-
-      setShowSuccessModal(true);
-    } catch (error) {
-      console.log('Error updating report:', error);
-    }
-  };
   const updateArrayValue = (array, index, key, value, setArray) => {
-    const updated = [...array]; // Copy array
-    updated[index][key] = key === 'qty' ? Number(value) : value; // Update key
+    const updated = [...array];
+    updated[index][key] = key === 'qty' ? Number(value) : value;
     setArray(updated);
   };
+
+  const handleSubmit = () => {
+    const formValues = {
+      progressReport,
+      plant,
+      delays,
+      weather,
+      labour,
+      material,
+      photos,
+    };
+    submitForm(report._id, formValues);
+  };
+
+  useEffect(() => {
+    if (success) {
+      setShowSuccessModal(true);
+      setSuccess(false);
+    }
+  }, [success]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -116,6 +111,7 @@ export default function EditDailyReportScreen() {
           onChangeText={setProgressReport}
           placeholder="Enter progress"
           multiline
+          placeholderTextColor={'black'}
         />
 
         {/* Plant */}
@@ -125,6 +121,7 @@ export default function EditDailyReportScreen() {
           value={plant}
           onChangeText={setPlant}
           placeholder="Enter plant name"
+          placeholderTextColor={'black'}
         />
 
         {/* Delays */}
@@ -135,6 +132,7 @@ export default function EditDailyReportScreen() {
           onChangeText={setDelays}
           keyboardType="numeric"
           placeholder="Enter delay"
+          placeholderTextColor={'black'}
         />
 
         {/* Weather */}
@@ -144,36 +142,41 @@ export default function EditDailyReportScreen() {
           value={weather}
           onChangeText={setWeather}
           placeholder="Enter weather condition"
+          placeholderTextColor={'black'}
         />
 
         {/* Labour */}
         <Text style={styles.label}>Labour Details</Text>
+        <Text style={styles.label}>Labour</Text>
         {labour.map((item, index) => (
           <View key={index} style={styles.cardBox}>
             <TextInput
               style={styles.input}
-              value={item.name}
               placeholder="Name"
+              placeholderTextColor={'black'}
+              value={item.name}
               onChangeText={text =>
                 updateArrayValue(labour, index, 'name', text, setLabour)
               }
             />
+
             <TextInput
               style={styles.input}
-              value={item.qty}
-              placeholder="Qty"
-              keyboardType="numeric"
+              placeholder="Role"
               placeholderTextColor={'black'}
+              value={item.role}
               onChangeText={text =>
-                updateArrayValue(labour, index, 'qty', text, setLabour)
+                updateArrayValue(labour, index, 'role', text, setLabour)
               }
             />
             <TextInput
               style={styles.input}
-              value={item.role}
-              placeholder="Role"
+              placeholder="Qty"
+              placeholderTextColor={'black'}
+              keyboardType="numeric"
+              value={String(item.qty)}
               onChangeText={text =>
-                updateArrayValue(labour, index, 'role', text, setLabour)
+                updateArrayValue(labour, index, 'qty', text, setLabour)
               }
             />
           </View>
@@ -185,18 +188,19 @@ export default function EditDailyReportScreen() {
           <View key={index} style={styles.cardBox}>
             <TextInput
               style={styles.input}
-              value={item.type}
               placeholder="Type"
+              placeholderTextColor={'black'}
+              value={item.type}
               onChangeText={text =>
                 updateArrayValue(material, index, 'type', text, setMaterial)
               }
             />
             <TextInput
               style={styles.input}
-              value={item.qty}
               placeholder="Qty"
-              keyboardType="numeric"
               placeholderTextColor={'black'}
+              keyboardType="numeric"
+              value={String(item.qty)}
               onChangeText={text =>
                 updateArrayValue(material, index, 'qty', text, setMaterial)
               }
@@ -206,25 +210,21 @@ export default function EditDailyReportScreen() {
 
         {/* Photos */}
         <Text style={styles.label}>Photos</Text>
-        <Pressable style={styles.photoButton}>
+        <Pressable
+          style={styles.photoButton}
+          onPress={() => setShowPhotoModal(true)}
+        >
           <Text style={styles.photoButtonText}>Add new photos</Text>
-          <Pressable
-            style={styles.roundedOutlineButton}
-            onPress={() => setShowPhotoModal(true)}
-          >
-            <Plus color="rgba(0, 0, 0, 1)" size={18} />
-          </Pressable>
+          <Plus size={18} />
         </Pressable>
         <View style={styles.imageContainer}>
-          {' '}
-          {/* Photo previews */}
-          {photos.map((uri, idx) => (
-            <View key={idx} style={styles.imageWrapper}>
+          {photos.map((uri, index) => (
+            <View key={index} style={styles.imageWrapper}>
               <Image source={{ uri }} style={styles.image} />
               <Pressable
                 style={styles.removeIcon}
                 onPress={() => {
-                  const updated = photos.filter((_, i) => i !== idx); // Remove photo
+                  const updated = photos.filter((_, i) => i !== index);
                   setPhotos(updated);
                 }}
               >
@@ -234,8 +234,28 @@ export default function EditDailyReportScreen() {
           ))}
         </View>
 
-        <Pressable style={styles.button} onPress={handleUpdate}>
-          <Text style={styles.buttonText}>Submit</Text>
+        {error ? (
+          <Text
+            style={{
+              color: 'red',
+              marginTop: 30,
+              textAlign: 'center',
+              fontWeight: '500',
+            }}
+          >
+            {error}
+          </Text>
+        ) : null}
+        <Pressable
+          style={styles.button}
+          onPress={handleSubmit}
+          disabled={loading}
+        >
+          {loading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.buttonText}>Submit</Text>
+          )}
         </Pressable>
       </ScrollView>
 
