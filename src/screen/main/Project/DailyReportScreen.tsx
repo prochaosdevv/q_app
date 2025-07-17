@@ -11,7 +11,14 @@ import {
   Image,
   ActivityIndicator,
 } from 'react-native';
-import { ChevronLeft, ChevronDown, Plus, X } from 'lucide-react-native';
+import {
+  ChevronLeft,
+  ChevronDown,
+  Plus,
+  X,
+  Edit,
+  Trash2,
+} from 'lucide-react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import moment from 'moment';
 import {
@@ -68,25 +75,51 @@ const DailyReportScreen = () => {
   const [labour, setLabour] = useState('');
   const [labourRole, setLabourRole] = useState('');
   const [labourQty, setLabourQty] = useState('');
+  const [editingLabourIndex, setEditingLabourIndex] = useState(null);
 
   const [materialType, setMaterialType] = useState('');
   const [materialQty, setMaterialQty] = useState('');
+  const [editingMaterialIndex, setEditingMaterialIndex] = useState(null);
 
   const handleSubmit = async () => {
     setLoading(true);
     setError('');
 
-    if (!progressText.trim()) return setError('Progress report is required.');
-    if (!selectedWeather) return setError('Weather selection is required.');
-    if (!selectedDealy) return setError('Delay selection is required.');
-    if (!selectedPlant) return setError('Plant selection is required.');
-    if (labourEntries.length === 0)
-      return setError('Please add at least one labour entry.');
-    if (materialEntries.length === 0)
-      return setError('Please add at least one material entry.');
-    if (selectedImages.length === 0)
-      return setError('Please select at least one photo.');
-
+    if (!progressText.trim()) {
+      setError('Progress report is required.');
+      setLoading(false);
+      return;
+    }
+    if (!selectedWeather) {
+      setError('Weather selection is required.');
+      setLoading(false);
+      return;
+    }
+    if (!selectedDealy) {
+      setError('Delay selection is required.');
+      setLoading(false);
+      return;
+    }
+    if (!selectedPlant) {
+      setError('Plant selection is required.');
+      setLoading(false);
+      return;
+    }
+    if (labourEntries.length === 0) {
+      setError('Please add at least one labour entry.');
+      setLoading(false);
+      return;
+    }
+    if (materialEntries.length === 0) {
+      setError('Please add at least one material entry.');
+      setLoading(false);
+      return;
+    }
+    if (selectedImages.length === 0) {
+      setError('Please select at least one photo.');
+      setLoading(false);
+      return;
+    }
     const formData = new FormData();
 
     formData.append('projectId', projectId);
@@ -109,7 +142,7 @@ const DailyReportScreen = () => {
       JSON.stringify(
         materialEntries.map(item => ({
           type: item.type,
-          quantity: item.quantity,
+          qty: parseInt(item.qty),
         })),
       ),
     );
@@ -196,12 +229,29 @@ const DailyReportScreen = () => {
       <View style={styles.modalOverlay}>
         <Pressable
           style={styles.modalBackdrop}
-          onPress={() => setShowLabourModal(false)}
+          onPress={() => {
+            setShowLabourModal(false);
+            setEditingLabourIndex(null);
+            setLabour('');
+            setLabourRole('');
+            setLabourQty('');
+          }}
         />
         <View style={styles.modalBox}>
           <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Add Labour</Text>
-            <Pressable onPress={() => setShowLabourModal(false)}>
+            <Text style={styles.modalTitle}>
+              {' '}
+              {editingLabourIndex !== null ? 'Edit Labour' : 'Add Labour'}
+            </Text>
+            <Pressable
+              onPress={() => {
+                setShowLabourModal(false);
+                setEditingLabourIndex(null);
+                setLabour('');
+                setLabourRole('');
+                setLabourQty('');
+              }}
+            >
               <X size={24} color="#000" />
             </Pressable>
           </View>
@@ -235,17 +285,33 @@ const DailyReportScreen = () => {
                 setError('All labour fields are required.');
                 return;
               }
-              setLabourEntries(prev => [
-                ...prev,
-                { name: labour, role: labourRole, qty: labourQty },
-              ]);
+
+              if (editingLabourIndex !== null) {
+                const updated = [...labourEntries];
+                updated[editingLabourIndex] = {
+                  name: labour,
+                  role: labourRole,
+                  qty: labourQty,
+                };
+                setLabourEntries(updated);
+              } else {
+                setLabourEntries(prev => [
+                  ...prev,
+                  { name: labour, role: labourRole, qty: labourQty },
+                ]);
+              }
+
               setLabour('');
               setLabourRole('');
               setLabourQty('');
+              setEditingLabourIndex(null);
               setShowLabourModal(false);
             }}
           >
-            <Text style={styles.buttonText}>OK</Text>
+            <Text style={styles.buttonText}>
+              {' '}
+              {editingLabourIndex !== null ? 'Update' : 'Add'}
+            </Text>
           </Pressable>
         </View>
       </View>
@@ -262,12 +328,27 @@ const DailyReportScreen = () => {
       <View style={styles.modalOverlay}>
         <Pressable
           style={styles.modalBackdrop}
-          onPress={() => setShowMaterialModal(false)}
+          onPress={() => {
+            setShowMaterialModal(false);
+            setEditingMaterialIndex(null);
+            setMaterialType('');
+            setMaterialQty('');
+          }}
         />
         <View style={styles.modalBox}>
           <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Add Material</Text>
-            <Pressable onPress={() => setShowMaterialModal(false)}>
+            <Text style={styles.modalTitle}>
+              {' '}
+              {editingMaterialIndex !== null ? 'Edit Material' : 'Add Material'}
+            </Text>
+            <Pressable
+              onPress={() => {
+                setShowMaterialModal(false);
+                setEditingMaterialIndex(null);
+                setMaterialType('');
+                setMaterialQty('');
+              }}
+            >
               <X size={24} color="#000" />
             </Pressable>
           </View>
@@ -294,16 +375,31 @@ const DailyReportScreen = () => {
                 setError('All material fields are required.');
                 return;
               }
-              setMaterialEntries(prev => [
-                ...prev,
-                { type: materialType, quantity: materialQty },
-              ]);
+
+              if (editingMaterialIndex !== null) {
+                const updated = [...materialEntries];
+                updated[editingMaterialIndex] = {
+                  type: materialType,
+                  qty: materialQty,
+                };
+                setMaterialEntries(updated);
+              } else {
+                setMaterialEntries(prev => [
+                  ...prev,
+                  { type: materialType, qty: materialQty },
+                ]);
+              }
+
               setMaterialType('');
               setMaterialQty('');
+              setEditingMaterialIndex(null);
               setShowMaterialModal(false);
             }}
           >
-            <Text style={styles.buttonText}>OK</Text>
+            <Text style={styles.buttonText}>
+              {' '}
+              {editingMaterialIndex !== null ? 'Update' : 'Add'}
+            </Text>
           </Pressable>
         </View>
       </View>
@@ -398,11 +494,43 @@ const DailyReportScreen = () => {
           </Pressable>
         </View>
         {labourEntries.map((item, index) => (
-          <View key={index} style={styles.itemCard}>
-            <Text style={styles.itemCartText}>
-              {item.name} | {item.role}
-            </Text>
-            <Text style={styles.itemCartText}>{item.qty}</Text>
+          <View
+            key={index}
+            style={[
+              styles.itemCard,
+              {
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              },
+            ]}
+          >
+            <View>
+              <Text style={styles.itemCartText}>
+                {item.name} | {item.role} | {item.qty}
+              </Text>
+            </View>
+            <View style={{ flexDirection: 'row', gap: 10 }}>
+              <Pressable
+                onPress={() => {
+                  setLabour(item.name);
+                  setLabourRole(item.role);
+                  setLabourQty(item.qty.toString());
+                  setEditingLabourIndex(index);
+                  setShowLabourModal(true);
+                }}
+              >
+                <Edit color="black" size={20} />
+              </Pressable>
+              <Pressable
+                onPress={() => {
+                  const updated = labourEntries.filter((_, i) => i !== index);
+                  setLabourEntries(updated);
+                }}
+              >
+                <Trash2 color="red" size={20} />
+              </Pressable>
+            </View>
           </View>
         ))}
 
@@ -421,9 +549,40 @@ const DailyReportScreen = () => {
         </View>
 
         {materialEntries.map((item, index) => (
-          <View key={index} style={styles.itemCard}>
-            <Text style={styles.itemCartText}>{item.type}</Text>
-            <Text style={styles.itemCartText}>{item.quantity}</Text>
+          <View
+            key={index}
+            style={[
+              styles.itemCard,
+              {
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              },
+            ]}
+          >
+            <View>
+              <Text style={styles.itemCartText}>{item.type} | {item.qty}</Text>
+            </View>
+            <View style={{ flexDirection: 'row', gap: 8 }}>
+              <Pressable
+                onPress={() => {
+                  setMaterialType(item.type);
+                  setMaterialQty(item.qty.toString());
+                  setEditingMaterialIndex(index);
+                  setShowMaterialModal(true);
+                }}
+              >
+                <Edit color="black" size={22} />
+              </Pressable>
+              <Pressable
+                onPress={() => {
+                  const updated = materialEntries.filter((_, i) => i !== index);
+                  setMaterialEntries(updated);
+                }}
+              >
+                <Trash2 color="red" size={22} />
+              </Pressable>
+            </View>
           </View>
         ))}
 

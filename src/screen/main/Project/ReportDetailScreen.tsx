@@ -38,7 +38,6 @@ const ReportDetailScreen = () => {
       const response = await api.get(`/project/daily-report/${reportId}`);
       const data = response.data.report;
       setDailyReport(data);
-      console.log('Lumesh1', dailyReport);
     } catch (error) {
       console.log('Error Fetching to daily report by id : ', error);
     }
@@ -172,40 +171,85 @@ const ReportDetailScreen = () => {
           <Text style={styles.sectionTitle}>Plant</Text>
           <View style={styles.textBox_}>
             <Text style={styles.reportText}>{dailyReport.plant}</Text>
+            {console.log('Final', dailyReport)}
           </View>
         </View>
-        <View style={styles.section}>
+        <View style={styles.tableSection}>
           <Text style={styles.sectionTitle}>Labour</Text>
-          <View
-            style={[
-              styles.textBox_,
-              { flexDirection: 'row', justifyContent: 'space-between' },
-            ]}
-          >
-            {dailyReport.labour?.map((item, index) => (
-              <Text key={item._id} style={styles.reportText}>
-                {item.name} | {item.role}
+          <View style={styles.tableWrapper}>
+            {/* Table Header */}
+            <View style={styles.tableRow}>
+              <Text style={[styles.cell, styles.headerCell]}>Name</Text>
+              <Text
+                style={[
+                  styles.cell,
+                  styles.headerCell,
+                  { borderLeftWidth: 1, borderRightWidth: 1 },
+                ]}
+              >
+                Role
               </Text>
-            ))}
+              <Text
+                style={[
+                  styles.cell,
+                  styles.headerCell,
+                  {
+                    textAlign: 'center',
+                    borderLeftWidth: 1,
+                    borderRightWidth: 1,
+                  },
+                ]}
+              >
+                Qty
+              </Text>
+            </View>
 
+            {/* Table Rows */}
             {dailyReport.labour?.map((item, index) => (
-              <Text key={item._id} style={styles.reportText}>
-                {item.qty}
-              </Text>
+              <View key={item._id} style={styles.tableRow}>
+                <Text style={[styles.cell]}>{item.name}</Text>
+                <Text style={styles.cell}>{item.role}</Text>
+                <Text style={[styles.cell, { textAlign: 'center' }]}>
+                  {item.qty}
+                </Text>
+              </View>
             ))}
           </View>
         </View>
+
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Material</Text>
-          <View style={styles.textBox_}>
-            <Text style={styles.reportText}>
-              {' '}
-              {dailyReport.material?.map((item, index) => (
-                <Text key={item._id} style={styles.reportText}>
-                  {item.type} | {item.qty}
+
+          <View style={styles.tableWrapper}>
+            {/* Table Header */}
+            <View style={styles.tableRow}>
+              <Text style={[styles.cell, styles.headerCell]}>
+                Material Type
+              </Text>
+              <Text
+                style={[
+                  styles.cell,
+                  styles.headerCell,
+                  {
+                    textAlign: 'center',
+                    borderLeftWidth: 1,
+                    borderRightWidth: 1,
+                  },
+                ]}
+              >
+                Qty
+              </Text>
+            </View>
+
+            {/* Table Rows */}
+            {dailyReport.material?.map((item, index) => (
+              <View key={item._id} style={styles.tableRow}>
+                <Text style={styles.cell}>{item.type}</Text>
+                <Text style={[styles.cell, { textAlign: 'center' }]}>
+                  {item.qty}
                 </Text>
-              ))}
-            </Text>
+              </View>
+            ))}
           </View>
         </View>
       </ScrollView>
@@ -527,5 +571,32 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     marginBottom: 10,
+  },
+
+  // Table
+  tableSection: {
+    paddingHorizontal: 24,
+    marginBottom: 24,
+  },
+  tableWrapper: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(175, 175, 175, 1)',
+    overflow: 'hidden',
+  },
+  tableRow: {
+    flexDirection: 'row',
+  },
+  cell: {
+    flex: 1,
+    padding: 8,
+    fontSize: 12,
+    borderRightWidth: 1,
+    borderColor: 'rgba(175, 175, 175, 1)',
+  },
+  headerCell: {
+    backgroundColor: '#f0f0f0',
+    fontWeight: 'bold',
   },
 });

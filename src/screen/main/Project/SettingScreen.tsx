@@ -28,13 +28,15 @@ import { useNavigation } from '@react-navigation/native';
 import { useAuthStore } from '../../../zustand/store/authStore';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import api from '../../../utils/api';
-import jsw from '../../../assets/images/jsw_icon.png';
 import LogoutModal from '../../../components/LogoutModal';
+import { useProjectStore } from '../../../zustand/store/projectStore';
 const SettingScreen = () => {
   const [project, setProject] = useState([]);
   const [showLogouModal, setShowLogouModal] = useState(false);
   const navigation = useNavigation();
 
+  const setProjectId = useProjectStore(state => state.setProjectId);
+  const setProjectImage = useProjectStore(state => state.setProjectImage);
   const handleLogout = () => {
     setShowLogouModal(true);
   };
@@ -56,7 +58,6 @@ const SettingScreen = () => {
       navigation.navigate('login');
     } catch (error) {
       console.log('❌ Logout Error:', error);
-      
     }
   };
 
@@ -64,18 +65,29 @@ const SettingScreen = () => {
     try {
       const res = await api.get('/project/');
       const projects = res.data.projects;
-      console.log('Projects : ', projects);
-      setProject(projects);
+      const limitedProjects = projects.slice(0, 5);
+      setProject(limitedProjects);
     } catch (error) {
       console.log('Project Fetching Error', error);
     }
   };
+  const navigateToBottom = item => {
+    setProjectId(item._id);
+    setProjectImage(item.image);
+    navigation.navigate('bottom', {
+      screen: 'dashboard',
+    });
+  };
 
   const renderItem = ({ item }) => (
-    <Pressable key={item._id} style={styles.projectItem}>
+    <Pressable
+      key={item._id}
+      style={styles.projectItem}
+      onPress={() => navigateToBottom(item)}
+    >
       <View style={styles.projectLogo_container}>
         <Image
-          source={item.image ? { uri: item.image } : jsw}
+          source={{ uri: item.image }}
           style={styles.projectLogo}
           resizeMode="contain"
         />
@@ -83,6 +95,9 @@ const SettingScreen = () => {
       <Text style={styles.projectName}>{item.name}</Text>
     </Pressable>
   );
+  const handleMoreProjects = () => {
+    navigation.navigate('projects');
+  };
 
   useEffect(() => {
     getProject();
@@ -188,6 +203,10 @@ const SettingScreen = () => {
               </Text>
             </View>
           )}
+
+          <Text onPress={handleMoreProjects} style={styles.moreText}>
+            More Projects...
+          </Text>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -284,6 +303,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: 'rgba(0, 11, 35, 1)',
     marginLeft: 12,
+    fontWeight: 'bold',
+  },
+  moreText: {
+    fontFamily: 'Inter-Medium',
+    fontSize: 14,
+    color: '#14274A',
+    paddingHorizontal: 24,
+    marginVertical: 10,
     fontWeight: 'bold',
   },
 });
