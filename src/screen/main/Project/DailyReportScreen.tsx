@@ -561,7 +561,9 @@ const DailyReportScreen = () => {
             ]}
           >
             <View>
-              <Text style={styles.itemCartText}>{item.type} | {item.qty}</Text>
+              <Text style={styles.itemCartText}>
+                {item.type} | {item.qty}
+              </Text>
             </View>
             <View style={{ flexDirection: 'row', gap: 8 }}>
               <Pressable
