@@ -107,9 +107,7 @@ export const useCreateNewProject = () => {
       });
 
       if (response.data?.success) {
-        const projectId = response.data.project._id;
-        console.log('Data has been saved...!!');
-        navigation.navigate('bottom', { id: projectId });
+        navigation.navigate('projects');
       } else {
         setError('Failed to create project. Please try again.');
       }

@@ -61,11 +61,14 @@ const AppNavigationScreen = () => {
           />
         ) : null}
         {userEmail ? (
-          <Stack.Screen
-            name="projects"
-            component={ProjectScreen}
-            options={{ headerShown: false, statusBarStyle: 'dark' }}
-          />
+          <>
+            <Stack.Screen
+              name="projects"
+              component={ProjectScreen}
+              options={{ headerShown: false, statusBarStyle: 'dark' }}
+            />
+            
+          </>
         ) : (
           <Stack.Screen
             name="onboarding"

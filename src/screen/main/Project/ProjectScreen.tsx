@@ -19,12 +19,15 @@ import { useNavigation } from '@react-navigation/native';
 import api from '../../../utils/api';
 import { useAuthStore } from '../../../zustand/store/authStore';
 import moment from 'moment';
+import { useProjectStore } from '../../../zustand/store/projectStore';
 
 const ProjectScreen = () => {
   const navigation = useNavigation();
   const { user } = useAuthStore.getState();
   const [project, setProject] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
+  const setProjectId = useProjectStore(state => state.setProjectId);
+  const setProjectImage = useProjectStore(state => state.setProjectImage);
 
   const currentEmail = user?.email;
   const getProject = async () => {
@@ -47,15 +50,16 @@ const ProjectScreen = () => {
     getProject();
   }, []);
 
+  // Set project id
+  const navigateToBottom = item => {
+    setProjectId(item._id);
+    setProjectImage(item.image);
+    navigation.navigate('bottom');
+  };
   const renderItem = ({ item }) => (
     <Pressable
       style={styles.projectCard}
-      onPress={() =>
-        navigation.navigate('bottom', {
-          id: item._id,
-          image: item.image,
-        })
-      }
+      onPress={() => navigateToBottom(item)}
     >
       <View style={styles.img_container}>
         <Image

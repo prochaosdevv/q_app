@@ -169,9 +169,43 @@ const ReportDetailScreen = () => {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>plant</Text>
+          <Text style={styles.sectionTitle}>Plant</Text>
           <View style={styles.textBox_}>
             <Text style={styles.reportText}>{dailyReport.plant}</Text>
+          </View>
+        </View>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Labour</Text>
+          <View
+            style={[
+              styles.textBox_,
+              { flexDirection: 'row', justifyContent: 'space-between' },
+            ]}
+          >
+            {dailyReport.labour?.map((item, index) => (
+              <Text key={item._id} style={styles.reportText}>
+                {item.name} | {item.role}
+              </Text>
+            ))}
+
+            {dailyReport.labour?.map((item, index) => (
+              <Text key={item._id} style={styles.reportText}>
+                {item.qty}
+              </Text>
+            ))}
+          </View>
+        </View>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Material</Text>
+          <View style={styles.textBox_}>
+            <Text style={styles.reportText}>
+              {' '}
+              {dailyReport.material?.map((item, index) => (
+                <Text key={item._id} style={styles.reportText}>
+                  {item.type} | {item.qty}
+                </Text>
+              ))}
+            </Text>
           </View>
         </View>
       </ScrollView>

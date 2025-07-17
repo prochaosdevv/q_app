@@ -18,6 +18,7 @@ import {
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import api from '../../../utils/api';
+import { useProjectStore } from '../../../zustand/store/projectStore';
 
 type Member = {
   email: string;
@@ -32,8 +33,8 @@ const ManageMembers = () => {
 
   // Navigation
   const navigation = useNavigation();
-  const route = useRoute();
-  const { id } = route.params;
+
+  const id = useProjectStore(state => state.id);
 
   // Get Members by Project ID
   const getMembersByProjectId = useCallback(async () => {

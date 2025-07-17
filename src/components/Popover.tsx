@@ -3,6 +3,7 @@ import { Check } from 'lucide-react-native';
 import { useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import api from '../utils/api';
+import { useProjectStore } from '../zustand/store/projectStore';
 
 interface PopoverProps {
   visible: boolean;
@@ -11,10 +12,9 @@ interface PopoverProps {
 }
 
 export function Popover({ visible, onClose, onSelect }: PopoverProps) {
-  const navigation = useNavigation();
-  const route = useRoute();
   if (!visible) return null;
-  const { id } = route.params;
+  const navigation = useNavigation();
+  const id = useProjectStore(state => state.id);
   const options = [
     { id: 'add_day_log', label: 'Add new day log' },
     { id: 'send_report', label: 'Send Report' },

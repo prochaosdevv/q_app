@@ -4,15 +4,16 @@ import { Check, ClockAlert, Sun } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import api from '../utils/api';
 import moment from 'moment';
-export default function DailySubmission({ id, refreshing }) {
+import { useProjectStore } from '../zustand/store/projectStore';
+export default function DailySubmission({ refreshing }) {
   const [dailyReport, setDailyReport] = useState([]);
   const navigation = useNavigation();
-
-  const getDailyReport = async id => {
-    console.log('Project id is', id);
-
+  const projectId = useProjectStore(state => state.id);
+  const getDailyReport = async projectId => {
     try {
-      const response = await api.get(`/project/get/daily-report/by/${id}`);
+      const response = await api.get(
+        `/project/get/daily-report/by/${projectId}`,
+      );
       const data = response?.data.reports;
       setDailyReport(data || []);
     } catch (error) {
@@ -26,10 +27,10 @@ export default function DailySubmission({ id, refreshing }) {
   };
 
   useEffect(() => {
-    if (id) {
-      getDailyReport(id);
+    if (projectId) {
+      getDailyReport(projectId);
     }
-  }, [id, refreshing]);
+  }, [projectId, refreshing]);
 
   const renderItem = ({ item }) => {
     const reportId = item._id;

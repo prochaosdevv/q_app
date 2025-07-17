@@ -24,11 +24,11 @@ import WeeklyGoal from '../../../components/WeeklyGoal';
 import { useState } from 'react';
 import { useAuthStore } from '../../../zustand/store/authStore';
 import PastReport from '../../../components/PastReport';
+import { useProjectStore } from '../../../zustand/store/projectStore';
 
 const PastReportScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
-  const route = useRoute();
-  const { id, image } = route.params;
+  const projectImage = useProjectStore(state => state.image);
 
   const { user } = useAuthStore.getState();
   const currentUserName = user?.fullname;
@@ -56,7 +56,7 @@ const PastReportScreen = () => {
         </Text>
         <View style={styles.img_container}>
           <Image
-            source={{ uri: image }}
+            source={{ uri: projectImage }}
             style={styles.companyLogo}
             resizeMode="contain"
           />
@@ -75,7 +75,7 @@ const PastReportScreen = () => {
           />
         }
       >
-        <PastReport id={id} refreshing={refreshing} />
+        <PastReport refreshing={refreshing} />
       </ScrollView>
     </SafeAreaView>
   );

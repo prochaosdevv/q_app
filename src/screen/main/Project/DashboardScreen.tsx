@@ -29,16 +29,19 @@ import { useAuthStore } from '../../../zustand/store/authStore';
 import moment from 'moment';
 import CircularProgress from './CircularProgress ';
 import DailySubmission from '../../../components/DailySubmission';
+import { useProjectStore } from '../../../zustand/store/projectStore';
 const DashboardScreen = () => {
+  const projectId = useProjectStore(state => state.id);
+  const projectImage = useProjectStore(state => state.image);
+
   const [isPopoverVisible, setIsPopoverVisible] = useState(false);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+
   const { user } = useAuthStore.getState();
   const currentUserName = user?.fullname;
 
   const navigation = useNavigation();
-  const route = useRoute();
-  const { id, image } = route.params;
 
   const handleOptionSelect = (option: string) => {
     // Handle option selection
@@ -70,7 +73,7 @@ const DashboardScreen = () => {
         </Text>
         <View style={styles.img_container}>
           <Image
-            source={{ uri: image }}
+            source={{ uri: projectImage }}
             style={styles.companyLogo}
             resizeMode="contain"
           />
@@ -113,11 +116,7 @@ const DashboardScreen = () => {
 
                 <Pressable
                   style={styles.continueButton}
-                  onPress={() =>
-                    navigation.navigate('daily-report', {
-                      id,
-                    })
-                  }
+                  onPress={() => navigation.navigate('daily-report')}
                 >
                   <Text style={styles.continueButtonText}>Continue</Text>
                 </Pressable>
@@ -138,12 +137,12 @@ const DashboardScreen = () => {
           </View>
           {/* Weekly Report */}
           <Text style={styles.sectionTitle}>Weeks goal</Text>
-          <WeeklyGoal id={id} refreshing={refreshing} />
+          <WeeklyGoal refreshing={refreshing} />
 
           {/* Daily Submission */}
           <Text style={styles.sectionTitle}>Submissions this week</Text>
 
-          <DailySubmission id={id} refreshing={refreshing} />
+          <DailySubmission refreshing={refreshing} />
         </View>
       </ScrollView>
 

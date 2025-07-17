@@ -6,16 +6,16 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import api from '../utils/api';
 import { CalendarDays, Pencil } from 'lucide-react-native';
 import EditWeekGoalModal from './modal/EditWeekGoalModal';
+import { useProjectStore } from '../zustand/store/projectStore';
 export default function WeeklyGoal({ refreshing }) {
   const [weeklyGoal, setWeeklyGoal] = useState();
   const [showWeekGoalEditModal, setShowWeekGoalEditModal] = useState(false);
   const navigation = useNavigation();
-  const route = useRoute();
-  const { id } = route.params;
+  const projectId = useProjectStore(state => state.id);
 
   const getWeeklyGoal = async () => {
     try {
-      const response = await api.get(`/project/weekly/goal/by/${id}`);
+      const response = await api.get(`/project/weekly/goal/by/${projectId}`);
       const data = response.data.weeklyGoals;
       setWeeklyGoal(data);
     } catch (error) {
@@ -23,10 +23,10 @@ export default function WeeklyGoal({ refreshing }) {
     }
   };
   useEffect(() => {
-    if (id) {
-      getWeeklyGoal(id);
+    if (projectId) {
+      getWeeklyGoal(projectId);
     }
-  }, [id, refreshing]);
+  }, [projectId, refreshing]);
 
   const renderItem = ({ item }) => (
     <Pressable style={styles.card}>

@@ -5,15 +5,17 @@ import moment from 'moment';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import api from '../utils/api';
 import { CalendarDays } from 'lucide-react-native';
+import { useProjectStore } from '../zustand/store/projectStore';
 export default function PastReport({ refreshing }) {
   const [pastReport, setPastReport] = useState([]);
   const navigation = useNavigation();
-  const route = useRoute();
-  const { id } = route.params;
+  const projectId = useProjectStore(state => state.id);
 
   const getPastReport = async () => {
     try {
-      const response = await api.get(`/project/get/past-report/by/${id}`);
+      const response = await api.get(
+        `/project/get/past-report/by/${projectId}`,
+      );
       const data = response.data.reports;
       setPastReport(data);
     } catch (error) {
@@ -21,10 +23,10 @@ export default function PastReport({ refreshing }) {
     }
   };
   useEffect(() => {
-    if (id) {
-      getPastReport(id);
+    if (projectId) {
+      getPastReport(projectId);
     }
-  }, [id, refreshing]);
+  }, [projectId, refreshing]);
 
   const renderItem = ({ item }) => (
     <Pressable style={styles.card}>

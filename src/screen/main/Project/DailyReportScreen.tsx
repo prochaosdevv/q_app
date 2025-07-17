@@ -25,6 +25,7 @@ import {
   plantOptions,
 } from '../../../hooks/useDailyReport';
 import api from '../../../utils/api';
+import { useProjectStore } from '../../../zustand/store/projectStore';
 
 const DailyReportScreen = () => {
   const {
@@ -55,8 +56,8 @@ const DailyReportScreen = () => {
   } = useDailyReport();
 
   const navigation = useNavigation();
-  const { id, image } = useRoute().params;
 
+  const projectId = useProjectStore(state => state.id);
   const [showLabourModal, setShowLabourModal] = useState(false);
   const [labourEntries, setLabourEntries] = useState([]);
   const [showMaterialModal, setShowMaterialModal] = useState(false);
@@ -88,7 +89,7 @@ const DailyReportScreen = () => {
 
     const formData = new FormData();
 
-    formData.append('projectId', id);
+    formData.append('projectId', projectId);
     formData.append('progressReport', progressText);
     formData.append('weather', JSON.stringify({ condition: selectedWeather }));
     formData.append('delays', parseInt(selectedDealy));
@@ -126,10 +127,7 @@ const DailyReportScreen = () => {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
-      navigation.navigate('bottom', {
-        screen: 'dashboard',
-        params: { id, image },
-      });
+      navigation.navigate('bottom');
     } catch (err) {
       console.log('Submission Error:', err.message || err);
       setError('Failed to submit. Please try again later.');

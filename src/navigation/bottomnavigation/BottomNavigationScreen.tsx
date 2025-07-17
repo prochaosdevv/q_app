@@ -12,7 +12,6 @@ import {
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { useRoute } from '@react-navigation/native';
 
 import DashboardScreen from '../../screen/main/Project/DashboardScreen';
 import PastReportScreen from '../../screen/main/Project/PastReportScreen';
@@ -84,9 +83,6 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
 
 // ✅ Main Bottom Tab Navigation
 const BottomNavigationScreen = () => {
-  const route = useRoute();
-  const { id, image } = route.params;
-
   return (
     <>
       <StatusBar barStyle="light-content" backgroundColor="#0A2342" />
@@ -95,15 +91,10 @@ const BottomNavigationScreen = () => {
         screenOptions={{ headerShown: false }}
         tabBar={props => <CustomTabBar {...props} />}
       >
-        <Tab.Screen
-          name="dashboard"
-          component={DashboardScreen}
-          initialParams={{ id, image }}
-        />
+        <Tab.Screen name="dashboard" component={DashboardScreen} />
         <Tab.Screen
           name="past-report"
           component={PastReportScreen}
-          initialParams={{ id, image }}
         />
         <Tab.Screen name="setting" component={SettingScreen} />
       </Tab.Navigator>
