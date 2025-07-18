@@ -1,76 +1,98 @@
 import { useState } from 'react';
-import api from '../utils/api';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+
+export const weatherOptions = [
+  'Sunny',
+  'Cloudy',
+  'Rain',
+  'Storm',
+  'Snow',
+  'Fog',
+];
+
+export const delayOptions = [
+  '0 hours',
+  '1 hour',
+  '2 hours',
+  '3 hours',
+  '4 hours',
+  '5 hours',
+];
+
+export const plantOptions = ['BSP', 'SAIL', 'Vedanta', 'KEC'];
 
 export const useEditDailyReportForm = () => {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
+  const [progressText, setProgressText] = useState('');
+  const [selectedWeather, setSelectedWeather] = useState('');
+  const [showWeatherDropdown, setShowWeatherDropdown] = useState(false);
+  const [selectedDealy, setSelectedDealy] = useState('');
+  const [showDealyDropdown, setShowDealyDropdown] = useState(false);
+  const [selectedPlant, setSelectedPlant] = useState('');
+  const [showPlantDropdown, setShowPlantDropdown] = useState(false);
+  const [showPhotoModal, setShowPhotoModal] = useState(false);
+  const [selectedImages, setSelectedImages] = useState([]);
 
-  const submitForm = async (reportId, formValues) => {
-    try {
-      setLoading(true);
-      setError('');
-      setSuccess(false);
+  const imagePickerOptions = {
+    mediaType: 'photo',
+    quality: 1,
+    selectionLimit: 5, // multiple images
+  };
 
-      const {
-        progressReport,
-        plant,
-        delays,
-        weather,
-        labour,
-        material,
-        photos,
-      } = formValues;
+  const openGallery = () => {
+    launchImageLibrary(imagePickerOptions, response => {
+      if (response?.assets?.length > 0) {
+        setSelectedImages(prev => [...prev, ...response.assets]);
+        setShowPhotoModal(false);
+      }
+    });
+  };
 
-      const formData = new FormData();
+  const openCamera = () => {
+    launchCamera(imagePickerOptions, response => {
+      if (response?.assets?.length > 0) {
+        setSelectedImages(prev => [...prev, ...response.assets]);
+        setShowPhotoModal(false);
+      }
+    });
+  };
 
-      formData.append('progressReport', progressReport);
-      formData.append('plant', plant);
-      formData.append('delays', String(delays));
-      formData.append('weather', JSON.stringify({ condition: weather }));
-      formData.append('labour', JSON.stringify(labour));
-      formData.append('material', JSON.stringify(material));
-
-      photos.forEach(photo => {
-        // If it's a URI string from local file or remote
-        if (typeof photo === 'string') {
-          const filename = photo.split('/').pop();
-          const match = /\.(\w+)$/.exec(filename || '');
-          const type = match ? `image/${match[1]}` : `image`;
-
-          formData.append('photos', {
-            uri: photo,
-            name: filename,
-            type,
-          });
-        } else {
-          // If already a file object (from picker or pre-uploaded)
-          formData.append('photos', photo);
-        }
-      });
-
-      console.log('FormData Preview', formData, reportId);
-
-      await api.put(`/project/daily-report/update/${reportId}`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-
-      setSuccess(true);
-    } catch (err) {
-      console.log('Submit Error:', err);
-      setError('Failed to update daily report');
-    } finally {
-      setLoading(false);
-    }
+  const removeImage = (indexToRemove: number) => {
+    setSelectedImages(prev => prev.filter((_, i) => i !== indexToRemove));
   };
 
   return {
-    submitForm,
-    loading,
-    error,
-    success,
-    setSuccess,
+    progressText,
+    setProgressText,
+    selectedWeather,
+    showWeatherDropdown,
+    setShowWeatherDropdown,
+    setSelectedWeather,
+    handleWeatherSelect: value => {
+      setSelectedWeather(value);
+      setShowWeatherDropdown(false);
+    },
+    selectedDealy,
+    showDealyDropdown,
+    setShowDealyDropdown,
+    setSelectedDealy,
+    handleDelaySelect: value => {
+      setSelectedDealy(value);
+      setShowDealyDropdown(false);
+    },
+    selectedPlant,
+    showPlantDropdown,
+    setShowPlantDropdown,
+    setSelectedPlant,
+    handlePlantSelect: value => {
+      setSelectedPlant(value);
+      setShowPlantDropdown(false);
+    },
+    showPhotoModal,
+    setShowPhotoModal,
+    openGallery,
+    openCamera,
+    selectedImages,
+    setSelectedImages,
+    removeImage,
   };
 };

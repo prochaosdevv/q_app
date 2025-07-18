@@ -12,6 +12,7 @@ import {
   Modal,
   SafeAreaView,
   StatusBar,
+  ActivityIndicator,
 } from 'react-native';
 import { Check } from 'lucide-react-native';
 import {
@@ -19,12 +20,66 @@ import {
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import { useNavigation } from '@react-navigation/native';
+import api from '../../../utils/api';
+import CreateNewPasswordScreen from './CreateNewPasswordScreen';
 export default function OtpVerificationScreen() {
   const [otp, setOtp] = useState(['', '', '', '']);
   const [isLoading, setIsLoading] = useState(false);
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [error, setError] = useState('');
+  const [showContinueModal, setShowContinueModal] = useState(false);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const inputRefs = useRef<(TextInput | null)[]>([]);
   const navigation = useNavigation();
+
+  const handleOtpChange = (value: string, index: number) => {
+    const newOtp = [...otp];
+    newOtp[index] = value;
+    setOtp(newOtp);
+
+    if (value && index < 3) {
+      inputRefs.current[index + 1]?.focus();
+    }
+  };
+  const handleKeyPress = (key: string, index: number) => {
+    if (key === 'Backspace' && !otp[index] && index > 0) {
+      inputRefs.current[index - 1]?.focus();
+    }
+  };
+
+  const handleContinue = async () => {
+    const enteredOtp = otp.join('');
+
+    if (enteredOtp.length !== 4) {
+      setError('Enter 4 digits of the OTP.');
+      return;
+    }
+
+    setIsLoading(true);
+    setError('');
+
+    try {
+      const response = await api.post('/user/verify-otp', {
+        otp: enteredOtp,
+        email: 'dsf2911@gmail.com',
+      });
+
+      const result = response.data;
+      if (result.success) {
+        navigation.navigate('create-new-password');
+      } else {
+        navigation.navigate('create-new-password');
+        // setError(result.message || 'Invalid OTP.');
+      }
+    } catch (error) {
+      setShowContinueModal(true);
+      // const errorMessage =
+      //   error.response?.data?.message || 'Server error. Please try again.';
+      // setError(errorMessage);
+      // console.log('Error verifying OTP:', errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   return (
     <SafeAreaView style={styles.scrollContainer}>
       <StatusBar barStyle="dark-content" backgroundColor="#f2f2f2" />
@@ -37,7 +92,7 @@ export default function OtpVerificationScreen() {
             We have sent a 4 digit code to your email. Also check your spam
           </Text>
         </View>
-        {/* <View style={styles.otpContainer}>
+        <View style={styles.otpContainer}>
           {otp.map((digit, index) => (
             <TextInput
               key={index}
@@ -54,8 +109,20 @@ export default function OtpVerificationScreen() {
               autoFocus={index === 0}
             />
           ))}
-        </View> */}
+        </View>
 
+        {error ? (
+          <Text
+            style={{
+              color: 'red',
+              textAlign: 'center',
+              marginBottom: 20,
+              fontWeight: '400',
+            }}
+          >
+            {error}
+          </Text>
+        ) : null}
         <View
           style={[
             styles.buttonContainer,
@@ -64,23 +131,22 @@ export default function OtpVerificationScreen() {
               : styles.buttonContainerNormal,
           ]}
         >
-          {/* <Pressable
-            style={[
-              styles.continueButton,
-              !isComplete && styles.continueButtonDisabled,
-            ]}
+          <Pressable
+            style={[styles.continueButton]}
+            disabled={isLoading}
             onPress={handleContinue}
-            disabled={!isComplete || isLoading}
           >
-            <Text
-              style={[
-                styles.continueButtonText,
-                !isComplete && styles.continueButtonTextDisabled,
-              ]}
-            >
-              {isLoading ? 'Verifying...' : 'Continue'}
-            </Text>
-          </Pressable> */}
+            {isLoading ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : (
+              <Text style={styles.continueButtonText}>Continue</Text>
+            )}
+          </Pressable>
+
+          <CreateNewPasswordScreen
+            visible={showContinueModal}
+            onClose={() => setShowContinueModal(false)}
+          />
 
           {!keyboardVisible && (
             <View style={styles.resendContainer}>

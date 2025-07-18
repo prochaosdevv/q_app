@@ -22,38 +22,30 @@ const ForgotPasswordScreen = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Email validation function
   const validateEmail = email => {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(email);
-  };
-
-  const handleEmailChange = text => {
-    setEmail(text);
-    if (error) setError('');
+    return /\S+@\S+\.\S+/.test(email);
   };
 
   const handleResetPassword = async () => {
-    const trimmedEmail = email.trim().toLowerCase();
-    if (!trimmedEmail) return setError('Email is required.');
-    if (!validateEmail(trimmedEmail)) return setError('Enter a valid email.');
+    const userEmail = email.trim().toLowerCase();
+
+    if (!userEmail) return setError('Email is required.');
+    if (!validateEmail(userEmail)) return setError('Enter a valid email.');
+
+    setLoading(true);
+    setError('');
 
     try {
-      setLoading(true);
-      setError('');
       const response = await api.post('/user/request-otp', {
-        email: trimmedEmail,
+        email: userEmail,
       });
+      const result = response.data;
 
-      const res = response.data;
-
-      if (res.data?.success) {
-        navigation.navigate('otp-verify', {
-          token: res.token,
-          email: trimmedEmail,
-        });
+      if (result.data?.success) {
+        navigation.navigate('otp-verify');
       } else {
-        setError(res.data?.message || 'Something went wrong.');
+        navigation.navigate('otp-verify');
+        // setError(result.data?.message || 'Something went wrong.');
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Server error.');
@@ -79,13 +71,13 @@ const ForgotPasswordScreen = () => {
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Email</Text>
             <TextInput
+              value={email}
+              onChangeText={setEmail}
               style={styles.input}
               placeholder="email@gmail.com"
               placeholderTextColor="#93a5b1"
               keyboardType="email-address"
               autoCapitalize="none"
-              value={email}
-              onChangeText={handleEmailChange}
             />
           </View>
         </View>
