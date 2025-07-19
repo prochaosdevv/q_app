@@ -11,25 +11,14 @@ export const weatherOptions = [
   'Fog',
 ];
 
-export const delayOptions = [
-  '0 hours',
-  '1 hour',
-  '2 hours',
-  '3 hours',
-  '4 hours',
-  '5 hours',
-];
-
-export const plantOptions = ['BSP', 'SAIL', 'Vedanta', 'KEC'];
-
 export const useDailyReport = () => {
   const [progressText, setProgressText] = useState('');
   const [selectedWeather, setSelectedWeather] = useState('');
   const [showWeatherDropdown, setShowWeatherDropdown] = useState(false);
   const [selectedDealy, setSelectedDealy] = useState('');
-  const [showDealyDropdown, setShowDealyDropdown] = useState(false);
+
   const [selectedPlant, setSelectedPlant] = useState('');
-  const [showPlantDropdown, setShowPlantDropdown] = useState(false);
+
   const [showPhotoModal, setShowPhotoModal] = useState(false);
   const [selectedImages, setSelectedImages] = useState([]);
 
@@ -71,24 +60,13 @@ export const useDailyReport = () => {
     handleWeatherSelect: value => {
       setSelectedWeather(value);
       setShowWeatherDropdown(false);
-      
     },
     selectedDealy,
-    showDealyDropdown,
-    setShowDealyDropdown,
     setSelectedDealy,
-    handleDelaySelect: value => {
-      setSelectedDealy(value);
-      setShowDealyDropdown(false);
-    },
+
     selectedPlant,
-    showPlantDropdown,
-    setShowPlantDropdown,
     setSelectedPlant,
-    handlePlantSelect: value => {
-      setSelectedPlant(value);
-      setShowPlantDropdown(false);
-    },
+
     showPhotoModal,
     setShowPhotoModal,
     openGallery,

@@ -25,12 +25,7 @@ import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
-import {
-  useDailyReport,
-  weatherOptions,
-  delayOptions,
-  plantOptions,
-} from '../../../hooks/useDailyReport';
+import { useDailyReport, weatherOptions } from '../../../hooks/useDailyReport';
 import api from '../../../utils/api';
 import { useProjectStore } from '../../../zustand/store/projectStore';
 
@@ -45,14 +40,10 @@ const DailyReportScreen = () => {
     handleWeatherSelect,
 
     selectedDealy,
-    showDealyDropdown,
-    setShowDealyDropdown,
-    handleDelaySelect,
+    setSelectedDealy,
 
     selectedPlant,
-    showPlantDropdown,
-    setShowPlantDropdown,
-    handlePlantSelect,
+    setSelectedPlant,
 
     showPhotoModal,
     setShowPhotoModal,
@@ -463,21 +454,29 @@ const DailyReportScreen = () => {
 
         {/* Delay Dropdown */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Delays</Text>
-          <Pressable
-            style={styles.select}
-            onPress={() => setShowDealyDropdown(true)}
-          >
-            <Text
-              style={[
-                styles.selectText,
-                selectedDealy && styles.selectTextSelected,
-              ]}
-            >
-              {selectedDealy || '0 hours'}
-            </Text>
-            <ChevronDown color="rgba(0, 0, 0, 1)" size={20} />
-          </Pressable>
+          <Text style={styles.sectionTitle}>Delays (In hours)</Text>
+          <TextInput
+            style={[
+              styles.input,
+              {
+                backgroundColor: 'rgba(255, 255, 255, 1)',
+                borderRadius: 28,
+                paddingHorizontal: 16,
+                height: 56,
+                width: wp('87%'),
+                borderWidth: 1,
+                borderColor: 'rgba(232, 233, 234, 1)',
+              },
+            ]}
+            placeholder="Enter delay in hours"
+            placeholderTextColor="black"
+            value={selectedDealy}
+            onChangeText={text => {
+              setSelectedDealy(text);
+              setError('');
+            }}
+            keyboardType="numeric"
+          />
         </View>
 
         {/* Labour Section */}
@@ -591,20 +590,27 @@ const DailyReportScreen = () => {
         {/* Plant Dropdown */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Plant</Text>
-          <Pressable
-            style={styles.select}
-            onPress={() => setShowPlantDropdown(true)}
-          >
-            <Text
-              style={[
-                styles.selectText,
-                selectedPlant && styles.selectTextSelected,
-              ]}
-            >
-              {selectedPlant || 'Select Plant'}
-            </Text>
-            <ChevronDown color="rgba(0, 0, 0, 1)" size={20} />
-          </Pressable>
+          <TextInput
+            style={[
+              styles.input,
+              {
+                backgroundColor: 'rgba(255, 255, 255, 1)',
+                borderRadius: 28,
+                paddingHorizontal: 16,
+                height: 56,
+                width: wp('87%'),
+                borderWidth: 1,
+                borderColor: 'rgba(232, 233, 234, 1)',
+              },
+            ]}
+            placeholder="Enter plant name"
+            placeholderTextColor="black"
+            value={selectedPlant}
+            onChangeText={text => {
+              setSelectedPlant(text);
+              setError('');
+            }}
+          />
         </View>
 
         {/* Photo Upload */}
@@ -710,22 +716,6 @@ const DailyReportScreen = () => {
           selected: selectedWeather,
           onSelect: handleWeatherSelect,
           title: 'Select Weather',
-        },
-        {
-          visible: showDealyDropdown,
-          setVisible: setShowDealyDropdown,
-          options: delayOptions,
-          selected: selectedDealy,
-          onSelect: handleDelaySelect,
-          title: 'Select Delay',
-        },
-        {
-          visible: showPlantDropdown,
-          setVisible: setShowPlantDropdown,
-          options: plantOptions,
-          selected: selectedPlant,
-          onSelect: handlePlantSelect,
-          title: 'Select Plant',
         },
       ].map((item, index) =>
         renderDropdownModal(

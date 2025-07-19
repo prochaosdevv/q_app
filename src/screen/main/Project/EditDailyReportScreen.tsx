@@ -28,8 +28,6 @@ import {
 } from 'react-native-responsive-screen';
 import {
   weatherOptions,
-  delayOptions,
-  plantOptions,
   useEditDailyReportForm,
 } from '../../../hooks/useEditDailyReportForm';
 import api from '../../../utils/api';
@@ -46,15 +44,9 @@ export default function EditDailyReportScreen() {
     setSelectedWeather,
 
     selectedDealy,
-    showDealyDropdown,
-    setShowDealyDropdown,
-    handleDelaySelect,
     setSelectedDealy,
 
     selectedPlant,
-    showPlantDropdown,
-    setShowPlantDropdown,
-    handlePlantSelect,
     setSelectedPlant,
 
     showPhotoModal,
@@ -94,17 +86,8 @@ export default function EditDailyReportScreen() {
         setSelectedWeather(report.weather.condition);
       }
 
-      if (
-        report?.delays !== undefined &&
-        delayOptions.includes(`${report.delays} hours`)
-      ) {
-        setSelectedDealy(`${report.delays} hours`);
-
-      }
-
-      if (report?.plant && plantOptions.includes(report.plant)) {
-        setSelectedPlant(report.plant);
-      }
+      setSelectedDealy(`${report.delays} hours`);
+      setSelectedPlant(report.plant);
 
       if (report?.photos?.length) {
         const formatted = report.photos.map(url => ({ uri: url }));
@@ -112,7 +95,7 @@ export default function EditDailyReportScreen() {
       }
     }
   }, [report]);
-  console.log("report.delays:", report.delays);
+  console.log('report.delays:', report.delays);
 
   const [showLabourModal, setShowLabourModal] = useState(false);
   const [labourEntries, setLabourEntries] = useState([]);
@@ -535,21 +518,19 @@ export default function EditDailyReportScreen() {
 
         {/* Delay Dropdown */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Delays</Text>
-          <Pressable
-            style={styles.select}
-            onPress={() => setShowDealyDropdown(true)}
-          >
-            <Text
-              style={[
-                styles.selectText,
-                selectedDealy && styles.selectTextSelected,
-              ]}
-            >
-              {selectedDealy || '0 hours'}
-            </Text>
-            <ChevronDown color="rgba(0, 0, 0, 1)" size={20} />
-          </Pressable>
+          <Text style={styles.sectionTitle}>Delays (In hours)</Text>
+
+          <TextInput
+            style={styles.input}
+            placeholder="Enter delay in hours"
+            placeholderTextColor="black"
+            value={selectedDealy}
+            onChangeText={text => {
+              setSelectedDealy(text);
+              setError('');
+            }}
+            keyboardType="numeric"
+          />
         </View>
 
         {/* Labour Section */}
@@ -663,20 +644,16 @@ export default function EditDailyReportScreen() {
         {/* Plant Dropdown */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Plant</Text>
-          <Pressable
-            style={styles.select}
-            onPress={() => setShowPlantDropdown(true)}
-          >
-            <Text
-              style={[
-                styles.selectText,
-                selectedPlant && styles.selectTextSelected,
-              ]}
-            >
-              {selectedPlant || 'Select Plant'}
-            </Text>
-            <ChevronDown color="rgba(0, 0, 0, 1)" size={20} />
-          </Pressable>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter plant name"
+            placeholderTextColor="black"
+            value={selectedPlant}
+            onChangeText={text => {
+              setSelectedPlant(text);
+              setError('');
+            }}
+          />
         </View>
 
         {/* Photo Upload */}
@@ -823,9 +800,10 @@ export default function EditDailyReportScreen() {
                 width: '80%',
                 alignSelf: 'center',
               }}
-              onPress={() =>
-                navigation.navigate('bottom', { screen: 'dashboard' })
-              }
+              onPress={() => {
+                setShowSuccessModal(false);
+                navigation.navigate('bottom', { screen: 'dashboard' });
+              }}
             >
               <Text
                 style={{
@@ -854,22 +832,6 @@ export default function EditDailyReportScreen() {
           selected: selectedWeather,
           onSelect: handleWeatherSelect,
           title: 'Select Weather',
-        },
-        {
-          visible: showDealyDropdown,
-          setVisible: setShowDealyDropdown,
-          options: delayOptions,
-          selected: selectedDealy,
-          onSelect: handleDelaySelect,
-          title: 'Select Delay',
-        },
-        {
-          visible: showPlantDropdown,
-          setVisible: setShowPlantDropdown,
-          options: plantOptions,
-          selected: selectedPlant,
-          onSelect: handlePlantSelect,
-          title: 'Select Plant',
         },
       ].map((item, index) =>
         renderDropdownModal(
