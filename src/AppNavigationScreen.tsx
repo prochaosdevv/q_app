@@ -35,6 +35,9 @@ import WeekViewScreen from './screen/main/Project/WeekViewScreen';
 import WeeklyWeekReport from './screen/main/Project/WeeklyWeekReport';
 import OtpVerificationScreen from './screen/auth/ForgotPassword/OtpVerificationScreen';
 import CreateNewPasswordScreen from './screen/auth/ForgotPassword/CreateNewPasswordScreen';
+import CreateWeeklyGoalScreen from './screen/main/Project/weekly/CreateWeeklyGoalScreen';
+import WeeklyGoalListScreen from './screen/main/Project/weekly/WeeklyGoalListScreen';
+import UpdateWeeklyGoalScreen from './screen/main/Project/weekly/UpdateWeeklyGoalScreen';
 
 const Stack = createNativeStackNavigator();
 const AppNavigationScreen = () => {
@@ -67,7 +70,6 @@ const AppNavigationScreen = () => {
               component={ProjectScreen}
               options={{ headerShown: false, statusBarStyle: 'dark' }}
             />
-            
           </>
         ) : (
           <Stack.Screen
@@ -114,6 +116,17 @@ const AppNavigationScreen = () => {
           options={{ headerShown: false }}
         />
         <Stack.Screen
+          name="create-weekly-goal"
+          component={CreateWeeklyGoalScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="weekly-list"
+          component={WeeklyGoalListScreen}
+          options={{ headerShown: false }}
+        />
+
+        <Stack.Screen
           name="daily-report"
           component={DailyReportScreen}
           options={{ headerShown: false }}
@@ -152,6 +165,11 @@ const AppNavigationScreen = () => {
         <Stack.Screen
           name="weekly-week-report"
           component={WeeklyWeekReport}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="update-weekly-report"
+          component={UpdateWeeklyGoalScreen}
           options={{ headerShown: false }}
         />
         {/* Settings Screens */}

@@ -4,6 +4,7 @@ import { launchImageLibrary } from 'react-native-image-picker';
 import { useNavigation } from '@react-navigation/native';
 
 import api from '../utils/api';
+import { useProjectStore } from '../zustand/store/projectStore';
 
 export const useCreateNewProject = () => {
   const [projectName, setProjectName] = useState('');
@@ -17,6 +18,7 @@ export const useCreateNewProject = () => {
   const [activeRoleMenu, setActiveRoleMenu] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  const setProjectId = useProjectStore(state => state.setProjectId);
   const navigation = useNavigation();
 
   // Open image picker and set selected image
@@ -107,7 +109,9 @@ export const useCreateNewProject = () => {
       });
 
       if (response.data?.success) {
-        navigation.navigate('projects');
+        const projectId = response.data.project._id;
+        setProjectId(projectId);
+        navigation.navigate('create-weekly-goal');
       } else {
         setError('Failed to create project. Please try again.');
       }

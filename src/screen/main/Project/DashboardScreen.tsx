@@ -251,7 +251,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#fff',
   },
-
   floatingButton: {
     position: 'absolute',
     bottom: 20,
