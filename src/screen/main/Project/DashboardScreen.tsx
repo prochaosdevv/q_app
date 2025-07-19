@@ -20,6 +20,7 @@ import {
   FileText,
   Settings,
   Check,
+  CirclePlus,
 } from 'lucide-react-native';
 import { Popover } from '../../../components/Popover';
 import { LinearGradient } from 'react-native-linear-gradient';
@@ -136,7 +137,19 @@ const DashboardScreen = () => {
             )}
           </View>
           {/* Weekly Report */}
-          <Text style={styles.sectionTitle}>Weeks goal</Text>
+
+          <View
+            style={{ flexDirection: 'row', justifyContent: 'space-between' }}
+          >
+            <Text style={styles.sectionTitle}>Weeks goal</Text>
+            <Pressable
+              style={styles.add}
+              onPress={() => navigation.navigate('create-weekly-goal')}
+            >
+              <Text style={styles.add_text}>Add</Text>
+              <CirclePlus size={14} />
+            </Pressable>
+          </View>
           <WeeklyGoal refreshing={refreshing} />
 
           {/* Daily Submission */}
@@ -266,5 +279,25 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
+  },
+  add: {
+    backgroundColor: '#fff',
+    borderRadius: 5,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderWidth: 1,
+    borderColor: 'rgba(175, 175, 175, 1)',
+    display: 'flex',
+    gap: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+    marginRight: 3,
+  },
+  add_text: {
+    fontFamily: 'Inter-Regular',
+    fontSize: 12,
+    color: 'rgba(0, 0, 0, 1)',
+    // lineHeight: 24,
   },
 });

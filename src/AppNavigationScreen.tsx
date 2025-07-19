@@ -38,6 +38,7 @@ import CreateNewPasswordScreen from './screen/auth/ForgotPassword/CreateNewPassw
 import CreateWeeklyGoalScreen from './screen/main/Project/weekly/CreateWeeklyGoalScreen';
 import WeeklyGoalListScreen from './screen/main/Project/weekly/WeeklyGoalListScreen';
 import UpdateWeeklyGoalScreen from './screen/main/Project/weekly/UpdateWeeklyGoalScreen';
+import UpdateWeeklyGoalByIdScreen from './screen/main/Project/weekly/UpdateWeeklyGoalByIdScreen';
 
 const Stack = createNativeStackNavigator();
 const AppNavigationScreen = () => {
@@ -170,6 +171,11 @@ const AppNavigationScreen = () => {
         <Stack.Screen
           name="update-weekly-report"
           component={UpdateWeeklyGoalScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="update-weekly-report-by-id"
+          component={UpdateWeeklyGoalByIdScreen}
           options={{ headerShown: false }}
         />
         {/* Settings Screens */}
