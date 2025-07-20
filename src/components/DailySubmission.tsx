@@ -5,6 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import api from '../utils/api';
 import moment from 'moment';
 import { useProjectStore } from '../zustand/store/projectStore';
+import { WeatherIconsMap } from './WeatherIconsMap';
 export default function DailySubmission({ refreshing }) {
   const [dailyReport, setDailyReport] = useState([]);
   const navigation = useNavigation();
@@ -34,6 +35,7 @@ export default function DailySubmission({ refreshing }) {
 
   const renderItem = ({ item }) => {
     const reportId = item._id;
+
     return (
       <View style={styles.reportCard}>
         <View style={styles.reportHeader}>
@@ -56,7 +58,9 @@ export default function DailySubmission({ refreshing }) {
             <ClockAlert size={16} color="#666" />
           </View>
           <View style={styles.stat}>
-            <Sun size={16} color="#666" />
+            <Text style={[styles.statText, { marginRight: 2 }]}>
+              {WeatherIconsMap[item.weather.condition]}
+            </Text>
           </View>
           <View style={styles.stat}>
             <Text style={styles.statText}>£0 extra costs</Text>

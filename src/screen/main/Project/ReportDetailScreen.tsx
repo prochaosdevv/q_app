@@ -200,6 +200,19 @@ const ReportDetailScreen = () => {
                   },
                 ]}
               >
+                Hours
+              </Text>
+              <Text
+                style={[
+                  styles.cell,
+                  styles.headerCell,
+                  {
+                    textAlign: 'center',
+                    borderLeftWidth: 1,
+                    borderRightWidth: 1,
+                  },
+                ]}
+              >
                 Qty
               </Text>
             </View>
@@ -209,6 +222,9 @@ const ReportDetailScreen = () => {
               <View key={item._id} style={styles.tableRow}>
                 <Text style={[styles.cell]}>{item.name}</Text>
                 <Text style={styles.cell}>{item.role}</Text>
+                <Text style={[styles.cell, { textAlign: 'center' }]}>
+                  {item.hours}
+                </Text>
                 <Text style={[styles.cell, { textAlign: 'center' }]}>
                   {item.qty}
                 </Text>
@@ -237,6 +253,19 @@ const ReportDetailScreen = () => {
                   },
                 ]}
               >
+                Unit
+              </Text>
+              <Text
+                style={[
+                  styles.cell,
+                  styles.headerCell,
+                  {
+                    textAlign: 'center',
+                    borderLeftWidth: 1,
+                    borderRightWidth: 1,
+                  },
+                ]}
+              >
                 Qty
               </Text>
             </View>
@@ -245,6 +274,9 @@ const ReportDetailScreen = () => {
             {dailyReport.material?.map((item, index) => (
               <View key={item._id} style={styles.tableRow}>
                 <Text style={styles.cell}>{item.type}</Text>
+                <Text style={[styles.cell, { textAlign: 'center' }]}>
+                  {item.unit}
+                </Text>
                 <Text style={[styles.cell, { textAlign: 'center' }]}>
                   {item.qty}
                 </Text>

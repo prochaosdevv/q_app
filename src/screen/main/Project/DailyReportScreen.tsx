@@ -65,10 +65,12 @@ const DailyReportScreen = () => {
 
   const [labour, setLabour] = useState('');
   const [labourRole, setLabourRole] = useState('');
+  const [labourHours, setLabourHours] = useState('');
   const [labourQty, setLabourQty] = useState('');
   const [editingLabourIndex, setEditingLabourIndex] = useState(null);
 
   const [materialType, setMaterialType] = useState('');
+  const [materialUnit, setMaterialUnit] = useState('');
   const [materialQty, setMaterialQty] = useState('');
   const [editingMaterialIndex, setEditingMaterialIndex] = useState(null);
 
@@ -124,6 +126,7 @@ const DailyReportScreen = () => {
         labourEntries.map(item => ({
           name: item.name,
           role: item.role,
+          hours: item.hours,
           qty: parseInt(item.qty),
         })),
       ),
@@ -133,6 +136,7 @@ const DailyReportScreen = () => {
       JSON.stringify(
         materialEntries.map(item => ({
           type: item.type,
+          unit: item.unit,
           qty: parseInt(item.qty),
         })),
       ),
@@ -262,6 +266,14 @@ const DailyReportScreen = () => {
             placeholderTextColor="black"
           />
           <TextInput
+            placeholder="Hours"
+            value={labourHours}
+            onChangeText={setLabourHours}
+            keyboardType="numeric"
+            style={styles.input}
+            placeholderTextColor="black"
+          />
+          <TextInput
             placeholder="Qty"
             value={labourQty}
             onChangeText={setLabourQty}
@@ -272,7 +284,7 @@ const DailyReportScreen = () => {
           <Pressable
             style={styles.okButton}
             onPress={() => {
-              if (!labour || !labourRole || !labourQty) {
+              if (!labour || !labourRole || !labourHours || !labourQty) {
                 setError('All labour fields are required.');
                 return;
               }
@@ -282,18 +294,25 @@ const DailyReportScreen = () => {
                 updated[editingLabourIndex] = {
                   name: labour,
                   role: labourRole,
+                  hours: labourHours,
                   qty: labourQty,
                 };
                 setLabourEntries(updated);
               } else {
                 setLabourEntries(prev => [
                   ...prev,
-                  { name: labour, role: labourRole, qty: labourQty },
+                  {
+                    name: labour,
+                    role: labourRole,
+                    hours: labourHours,
+                    qty: labourQty,
+                  },
                 ]);
               }
 
               setLabour('');
               setLabourRole('');
+              setLabourHours('');
               setLabourQty('');
               setEditingLabourIndex(null);
               setShowLabourModal(false);
@@ -352,6 +371,13 @@ const DailyReportScreen = () => {
             placeholderTextColor="black"
           />
           <TextInput
+            placeholder="Unit"
+            value={materialUnit}
+            onChangeText={setMaterialUnit}
+            style={styles.input}
+            placeholderTextColor="black"
+          />
+          <TextInput
             placeholder="Qty"
             value={materialQty}
             onChangeText={setMaterialQty}
@@ -362,7 +388,7 @@ const DailyReportScreen = () => {
           <Pressable
             style={styles.okButton}
             onPress={() => {
-              if (!materialType || !materialQty) {
+              if (!materialType || !materialUnit || !materialQty) {
                 setError('All material fields are required.');
                 return;
               }
@@ -371,17 +397,19 @@ const DailyReportScreen = () => {
                 const updated = [...materialEntries];
                 updated[editingMaterialIndex] = {
                   type: materialType,
+                  unit: materialUnit,
                   qty: materialQty,
                 };
                 setMaterialEntries(updated);
               } else {
                 setMaterialEntries(prev => [
                   ...prev,
-                  { type: materialType, qty: materialQty },
+                  { type: materialType, unit: materialUnit, qty: materialQty },
                 ]);
               }
 
               setMaterialType('');
+              setMaterialUnit('');
               setMaterialQty('');
               setEditingMaterialIndex(null);
               setShowMaterialModal(false);
@@ -506,7 +534,8 @@ const DailyReportScreen = () => {
           >
             <View>
               <Text style={styles.itemCartText}>
-                {item.name} | {item.role} | {item.qty}
+                {item.name} | {item.role} | {item.hours}| {item.qty}
+                
               </Text>
             </View>
             <View style={{ flexDirection: 'row', gap: 10 }}>
@@ -514,6 +543,7 @@ const DailyReportScreen = () => {
                 onPress={() => {
                   setLabour(item.name);
                   setLabourRole(item.role);
+                  setLabourHours(item.hours?.toString() || '');
                   setLabourQty(item.qty.toString());
                   setEditingLabourIndex(index);
                   setShowLabourModal(true);
@@ -561,13 +591,14 @@ const DailyReportScreen = () => {
           >
             <View>
               <Text style={styles.itemCartText}>
-                {item.type} | {item.qty}
+                {item.type} | {item.unit} | {item.qty}
               </Text>
             </View>
             <View style={{ flexDirection: 'row', gap: 8 }}>
               <Pressable
                 onPress={() => {
                   setMaterialType(item.type);
+                  setMaterialUnit(item.unit || '');
                   setMaterialQty(item.qty.toString());
                   setEditingMaterialIndex(index);
                   setShowMaterialModal(true);
