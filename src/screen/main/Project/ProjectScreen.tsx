@@ -77,7 +77,10 @@ const ProjectScreen = () => {
           Authorization: `Bearer ${token}`,
         },
       });
+      // console.log("Success");
+
       setShowSuccessModal(true);
+      setActivePopupId(null);
     } catch (error) {
       console.log('Error deleting project :', error);
     }
@@ -128,7 +131,13 @@ const ProjectScreen = () => {
           style={styles.popupMenu}
           onPress={() => setActivePopupId(null)}
         >
-          <Pressable style={styles.popupItem} onPress={handleArchive}>
+          <Pressable
+            style={styles.popupItem}
+            onPress={() => {
+              setSelectedProjectId(item._id);
+              handleArchive();
+            }}
+          >
             <Text style={styles.popupTextBold}>Archive</Text>
           </Pressable>
 

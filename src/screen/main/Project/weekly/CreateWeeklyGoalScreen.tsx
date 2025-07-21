@@ -26,12 +26,13 @@ export default function CreateWeeklyGoalScreen() {
 
   const route = useRoute();
   const existingGoals = route.params?.existingGoals || [];
-  const defaultStartDate =
-    route.params?.defaultStartDate || moment().format('YYYY-MM-DD');
+  const defaultStartDate = route.params?.defaultStartDate
+    ? new Date(route.params.defaultStartDate)
+    : new Date();
 
   const [startDate, setStartDate] = useState(defaultStartDate);
   const [endDate, setEndDate] = useState(
-    moment(defaultStartDate).add(7, 'days').format('YYYY-MM-DD'),
+    moment(defaultStartDate).add(7, 'days').toDate(),
   );
   const [showStartPicker, setShowStartPicker] = useState(false);
   const [showEndPicker, setShowEndPicker] = useState(false);

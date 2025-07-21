@@ -12,8 +12,6 @@ export default function WeeklyWeekReport() {
   const route = useRoute();
   const { id } = route.params;
 
-  console.log('Final', id);
-  
   const getWeeklyReport = async id => {
     try {
       const response = await api.get(

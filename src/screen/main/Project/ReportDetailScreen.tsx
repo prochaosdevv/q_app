@@ -46,7 +46,7 @@ const ReportDetailScreen = () => {
   // Delete Daily Report
   const deleteDailyReport = () => {
     try {
-      const response = api.delete(`/project/daily-report/${reportId}`);
+      const response = api.delete(`/project/delete/daily-report/${reportId}`);
       setShowDeleteReport(false);
       setShowSuccessReport(true);
     } catch (error) {

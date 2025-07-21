@@ -1,15 +1,34 @@
-import { View, Text, Pressable, StyleSheet, FlatList } from 'react-native';
+import {
+  View,
+  Text,
+  Pressable,
+  StyleSheet,
+  FlatList,
+  Modal,
+} from 'react-native';
 import React, { useEffect, useState } from 'react';
-import { Check, ClockAlert, Sun } from 'lucide-react-native';
+import {
+  Check,
+  CheckCircle2,
+  CircleCheck,
+  ClockAlert,
+  Sun,
+} from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import api from '../utils/api';
 import moment from 'moment';
 import { useProjectStore } from '../zustand/store/projectStore';
 import { WeatherIconsMap } from './WeatherIconsMap';
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from 'react-native-responsive-screen';
 export default function DailySubmission({ refreshing }) {
   const [dailyReport, setDailyReport] = useState([]);
   const navigation = useNavigation();
   const projectId = useProjectStore(state => state.id);
+  const [showModal, setShowModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const getDailyReport = async projectId => {
     try {
       const response = await api.get(
@@ -36,16 +55,50 @@ export default function DailySubmission({ refreshing }) {
   const renderItem = ({ item }) => {
     const reportId = item._id;
 
+    const handleStatusUpdate = async status => {
+      try {
+        const response = await api.put(
+          `/project/daily-log/status/${reportId}`,
+          {
+            status: status,
+          },
+        );
+        setShowSuccessModal(true);
+        setShowModal(false);
+      } catch (error) {
+        console.log('Error while submitting.');
+      }
+    };
+
     return (
       <View style={styles.reportCard}>
         <View style={styles.reportHeader}>
           <Text style={styles.reportDate}>
             {moment(item.createdAt).format('dddd DD MMMM')}
           </Text>
-          <View style={styles.statusBadge}>
-            <Text style={styles.statusText}>submitted</Text>
-            <Check color="black" size={20} />
-          </View>
+
+          <Pressable
+            style={[
+              styles.statusBadge,
+              {
+                backgroundColor:
+                  item.status === 1
+                    ? '#f9aa83ff'
+                    : item.status === 2
+                    ? '#e4a6a6ff'
+                    : '#e8f5e9',
+              },
+            ]}
+            onPress={() => setShowModal(true)}
+          >
+            <Text style={styles.statusText}>
+              {item.status === 1
+                ? 'Approved'
+                : item.status === 2
+                ? 'Rejected'
+                : 'Submitted'}
+            </Text>
+          </Pressable>
         </View>
 
         <Text style={styles.reportDescription}>{item.progressReport}</Text>
@@ -55,7 +108,11 @@ export default function DailySubmission({ refreshing }) {
             <Text style={[styles.statText, { marginRight: 2 }]}>
               {item.delays}
             </Text>
-            <ClockAlert size={16} color="#666" />
+            {item.delays == 0 ? (
+              <CircleCheck size={16} color="#666" />
+            ) : (
+              <ClockAlert size={16} color="#666" />
+            )}
           </View>
           <View style={styles.stat}>
             <Text style={[styles.statText, { marginRight: 2 }]}>
@@ -73,6 +130,138 @@ export default function DailySubmission({ refreshing }) {
         >
           <Text style={styles.viewButtonText}>View</Text>
         </Pressable>
+        {/* Status update modal */}
+        <Modal
+          visible={showModal}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setShowModal(false)}
+        >
+          <Pressable
+            style={styles.modalOverlay}
+            onPress={() => setShowModal(false)}
+          >
+            <View style={styles.modalBox}>
+              <View
+                style={{
+                  backgroundColor: '#1D7903',
+                  borderRadius: 50,
+                  padding: 12,
+                  marginBottom: 16,
+                  width: '20%',
+                  alignSelf: 'center',
+                }}
+              >
+                <Check size={40} color="#fff" />
+              </View>
+              <Text
+                style={{
+                  fontSize: wp('4.5%'),
+                  fontWeight: '800',
+                  textAlign: 'center',
+                }}
+              >
+                Confirmation
+              </Text>
+              <Text
+                style={{
+                  fontSize: 14,
+                  marginBottom: 20,
+                  color: '#000',
+                  textAlign: 'center',
+                  fontWeight: '400',
+                  lineHeight: 25,
+                }}
+              >
+                Choose your daily report status
+              </Text>
+              <Pressable
+                style={styles.Btn}
+                onPress={() => handleStatusUpdate(1)}
+              >
+                <Text style={styles.BtnText}>Approved</Text>
+              </Pressable>
+              <Pressable
+                style={styles.Btn}
+                onPress={() => handleStatusUpdate(2)}
+              >
+                <Text style={styles.BtnText}>Rejected</Text>
+              </Pressable>
+            </View>
+          </Pressable>
+        </Modal>
+        {/* Success Modal */}
+        <Modal
+          visible={showSuccessModal}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setShowSuccessModal(false)}
+        >
+          <Pressable
+            style={styles.modalOverlay}
+            onPress={() => setShowSuccessModal(false)}
+          >
+            <View style={styles.modalBox}>
+              <View
+                style={{
+                  backgroundColor: '#1D7903',
+                  borderRadius: 50,
+                  padding: 12,
+                  marginBottom: 16,
+                  width: '20%',
+                  alignSelf: 'center',
+                }}
+              >
+                <Check size={40} color="#fff" />
+              </View>
+              <Text
+                style={{
+                  fontSize: wp('4.5%'),
+                  fontWeight: '800',
+                  textAlign: 'center',
+                }}
+              >
+                Success
+              </Text>
+              <Text
+                style={{
+                  fontSize: 14,
+                  marginBottom: 20,
+                  color: '#000',
+                  textAlign: 'center',
+                  fontWeight: '400',
+                  lineHeight: 25,
+                }}
+              >
+                Your status has been archived {'\n'} succesfully.
+              </Text>
+              <Pressable
+                style={{
+                  backgroundColor: '#181446',
+                  paddingVertical: 20,
+                  paddingHorizontal: 40,
+                  borderRadius: 35,
+                  width: '80%',
+                  alignSelf: 'center',
+                }}
+                onPress={() => {
+                  setShowSuccessModal(false);
+                  getDailyReport(projectId);
+                }}
+              >
+                <Text
+                  style={{
+                    color: 'white',
+                    textAlign: 'center',
+                    fontWeight: '500',
+                  }}
+                >
+                  Continue
+                </Text>
+              </Pressable>
+            </View>
+          </Pressable>
+        </Modal>
       </View>
     );
   };
@@ -117,9 +306,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   statusBadge: {
-    backgroundColor: '#e8f5e9',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
     borderRadius: 5,
     marginLeft: 12,
     flexDirection: 'row',
@@ -172,5 +360,40 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: 'rgba(24, 20, 70, 1)',
     fontWeight: 'bold',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  modalBox: {
+    width: wp('90%'),
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: wp('6%'),
+    zIndex: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.25,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  Btn: {
+    backgroundColor: 'rgba(24, 20, 70, 1)',
+    paddingVertical: 22,
+    paddingHorizontal: 24,
+    borderRadius: 50,
+    width: wp('80%'),
+    alignItems: 'center',
+    marginBottom: 12,
+    justifyContent: 'center',
+  },
+  BtnText: {
+    color: '#fff',
+    fontFamily: 'Inter-Medium',
+    fontSize: 14,
+    fontWeight: '600',
   },
 });
