@@ -9,6 +9,8 @@ import {
   StatusBar,
   SafeAreaView,
   FlatList,
+  TouchableOpacity,
+  Modal,
 } from 'react-native';
 import {
   widthPercentageToDP as wp,
@@ -20,7 +22,8 @@ import api from '../../../utils/api';
 import { useAuthStore } from '../../../zustand/store/authStore';
 import moment from 'moment';
 import { useProjectStore } from '../../../zustand/store/projectStore';
-
+import { Check, EllipsisVertical } from 'lucide-react-native';
+import { getAccessToken } from '../../../utils/tokenSetting';
 const ProjectScreen = () => {
   const navigation = useNavigation();
   const { user } = useAuthStore.getState();
@@ -28,8 +31,14 @@ const ProjectScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
   const setProjectId = useProjectStore(state => state.setProjectId);
   const setProjectImage = useProjectStore(state => state.setProjectImage);
+  const [activePopupId, setActivePopupId] = useState(null);
+  const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
+  const [selectedProjectId, setSelectedProjectId] = useState(null);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const token = getAccessToken();
 
   const currentEmail = user?.email;
+
   const getProject = async () => {
     try {
       const res = await api.get('/project/');
@@ -44,6 +53,34 @@ const ProjectScreen = () => {
     setRefreshing(true);
     await getProject(); // refresh project list
     setRefreshing(false);
+  };
+
+  const handleDelete = async () => {
+    try {
+      await api.delete(`/project/delete/by/${selectedProjectId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setShowDeleteConfirmModal(false);
+      setActivePopupId(null);
+      getProject();
+    } catch (error) {
+      console.log('Error deleting project :', error);
+    }
+  };
+
+  const handleArchive = async () => {
+    try {
+      await api.put(`/project/archive/by/${selectedProjectId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setShowSuccessModal(true);
+    } catch (error) {
+      console.log('Error deleting project :', error);
+    }
   };
 
   useEffect(() => {
@@ -75,6 +112,38 @@ const ProjectScreen = () => {
           {moment(item.createdAt).format('MMM YYYY')}
         </Text>
       </View>
+      {item.createdBy.email === currentEmail ? (
+        <Pressable
+          style={styles.menuIcon}
+          onPress={() =>
+            setActivePopupId(activePopupId === item._id ? null : item._id)
+          }
+        >
+          <EllipsisVertical size={22} color="black" />
+        </Pressable>
+      ) : null}
+
+      {activePopupId === item._id && (
+        <TouchableOpacity
+          style={styles.popupMenu}
+          onPress={() => setActivePopupId(null)}
+        >
+          <Pressable style={styles.popupItem} onPress={handleArchive}>
+            <Text style={styles.popupTextBold}>Archive</Text>
+          </Pressable>
+
+          <Pressable
+            style={styles.popupItem}
+            onPress={() => {
+              setSelectedProjectId(item._id);
+              setShowDeleteConfirmModal(true);
+              setActivePopupId(null);
+            }}
+          >
+            <Text style={styles.popupTextBold}>Delete</Text>
+          </Pressable>
+        </TouchableOpacity>
+      )}
     </Pressable>
   );
 
@@ -138,6 +207,111 @@ const ProjectScreen = () => {
           )}
         </View>
       </View>
+
+      <Modal
+        visible={showDeleteConfirmModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowDeleteConfirmModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <Pressable
+            style={styles.modalBackdrop}
+            onPress={() => setShowDeleteConfirmModal(false)}
+          />
+          <View style={styles.deleteModalBox}>
+            <Text style={styles.deleteTitle}>
+              Are you sure you want to delete?
+            </Text>
+            <Text style={styles.deleteMessage}>
+              This week goal will be lost. You will not be able to undo.
+            </Text>
+
+            <Pressable style={styles.deleteButton} onPress={handleDelete}>
+              <Text style={styles.deleteButtonText}>Okay</Text>
+            </Pressable>
+            <Pressable
+              style={styles.cancelButton_}
+              onPress={() => setShowDeleteConfirmModal(false)}
+            >
+              <Text style={styles.cancelButtonText}>Cancel</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
+      {/* Success Modal */}
+      <Modal
+        visible={showSuccessModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowSuccessModal(false)}
+      >
+        <Pressable
+          style={styles.modalOverlay}
+          onPress={() => setShowSuccessModal(false)}
+        >
+          <View style={styles.modalBox}>
+            <View
+              style={{
+                backgroundColor: '#1D7903',
+                borderRadius: 50,
+                padding: 12,
+                marginBottom: 16,
+                width: '20%',
+                alignSelf: 'center',
+              }}
+            >
+              <Check size={40} color="#fff" />
+            </View>
+            <Text
+              style={{
+                fontSize: wp('4.5%'),
+                fontWeight: '800',
+                textAlign: 'center',
+              }}
+            >
+              Success
+            </Text>
+            <Text
+              style={{
+                fontSize: 14,
+                marginBottom: 20,
+                color: '#000',
+                textAlign: 'center',
+                fontWeight: '400',
+                lineHeight: 25,
+              }}
+            >
+              Your project has been archived {'\n'} succesfully.
+            </Text>
+            <Pressable
+              style={{
+                backgroundColor: '#181446',
+                paddingVertical: 20,
+                paddingHorizontal: 40,
+                borderRadius: 35,
+                width: '80%',
+                alignSelf: 'center',
+              }}
+              onPress={() => {
+                setShowSuccessModal(false);
+                setActivePopupId(null);
+                getProject();
+              }}
+            >
+              <Text
+                style={{
+                  color: 'white',
+                  textAlign: 'center',
+                  fontWeight: '500',
+                }}
+              >
+                Continue
+              </Text>
+            </Pressable>
+          </View>
+        </Pressable>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -246,5 +420,149 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Medium',
     fontSize: hp('2%'),
     color: '#fff',
+  },
+  menuIcon: {
+    position: 'absolute',
+    top: 20,
+    right: 15,
+    padding: 4,
+    zIndex: 1,
+  },
+  // Pop up modal
+
+  popupMenu: {
+    position: 'absolute',
+    right: 10,
+    top: 50,
+    bottom: -4,
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    paddingVertical: 10,
+    paddingHorizontal: 8,
+    width: 140,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 5,
+    zIndex: 100,
+  },
+  popupItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+  },
+  popupIcon: {
+    marginRight: 12,
+  },
+  popupTextBold: {
+    fontFamily: 'Inter-Bold',
+    fontSize: 14,
+    color: 'rgba(0, 11, 35, 1)',
+    fontWeight: '800',
+  },
+  cancelButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    marginBottom: 20,
+  },
+  cancelText: {
+    fontFamily: 'Inter-Bold',
+    fontSize: 14,
+    color: 'rgba(0, 11, 35, 1)',
+  },
+
+  // Delete Modal
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalBackdrop: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
+  deleteModalBox: {
+    backgroundColor: '#fff',
+    paddingVertical: 24,
+    paddingHorizontal: 20,
+    borderRadius: 16,
+    width: 300,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 5,
+    alignItems: 'center',
+  },
+  deleteTitle: {
+    fontFamily: 'Inter-Bold',
+    fontSize: 18,
+    color: '#1a1447',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  deleteMessage: {
+    fontFamily: 'Inter-Regular',
+    fontSize: 16,
+    color: 'rgba(0, 0, 0, 1)',
+    textAlign: 'center',
+    marginBottom: 20,
+    lineHeight: 20,
+  },
+  deleteButton: {
+    backgroundColor: 'rgba(24, 20, 70, 1)',
+    paddingVertical: 18,
+    paddingHorizontal: 24,
+    borderRadius: 50,
+    width: '80%',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  deleteButtonText: {
+    color: '#fff',
+    fontFamily: 'Inter-Medium',
+    fontSize: 14,
+  },
+  cancelButton_: {
+    paddingVertical: 18,
+    paddingHorizontal: 10,
+    borderRadius: 50,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#1a1447',
+    width: '80%',
+  },
+  cancelButtonText: {
+    fontFamily: 'Inter-Regular',
+    fontSize: 14,
+    color: '#1a1447',
+    fontWeight: 'bold',
+  },
+  okButton: {
+    backgroundColor: 'rgba(24, 20, 70, 1)',
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    borderRadius: 24,
+    width: '100%',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  modalBox: {
+    width: wp('90%'),
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: wp('6%'),
+    zIndex: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.25,
+    shadowRadius: 20,
+    elevation: 10,
   },
 });
