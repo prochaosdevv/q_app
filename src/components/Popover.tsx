@@ -1,9 +1,10 @@
 import { View, Text, StyleSheet, Pressable, Modal } from 'react-native';
 import { Check } from 'lucide-react-native';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import api from '../utils/api';
 import { useProjectStore } from '../zustand/store/projectStore';
+import { useAuthStore } from '../zustand/store/authStore';
 
 interface PopoverProps {
   visible: boolean;
@@ -13,15 +14,20 @@ interface PopoverProps {
 
 export function Popover({ visible, onClose, onSelect }: PopoverProps) {
   if (!visible) return null;
+  const [role, setRole] = useState();
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [sendReport, setSendReport] = useState(false);
+
   const navigation = useNavigation();
   const id = useProjectStore(state => state.id);
+  const { user } = useAuthStore.getState();
+  const currentuser = user?._id;
+
   const options = [
     { id: 'add_day_log', label: 'Add new day log' },
     { id: 'send_report', label: 'Send Report' },
     { id: 'manage_members', label: 'Manage members' },
   ];
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [sendReport, setSendReport] = useState(false);
 
   const handleOptionPress = (optionId: string) => {
     if (optionId === 'manage_members') {
@@ -30,7 +36,7 @@ export function Popover({ visible, onClose, onSelect }: PopoverProps) {
       });
       onClose();
     }
-    if (optionId === 'add_day_log') {
+    if (optionId === 'add_day_log' && permission === 'can view') {
       navigation.navigate('daily-report', {
         id,
       });
@@ -54,6 +60,29 @@ export function Popover({ visible, onClose, onSelect }: PopoverProps) {
       console.log('Error fetching while sending report', error);
     }
   };
+
+  const getRole = async () => {
+    try {
+      const res = await api.get(`/project/contributors/${id}`);
+      const contributors = res.data.contributors;
+      setRole(contributors);
+    } catch (err) {
+      console.log('Error:', err);
+    }
+  };
+
+  const matchedContributor = role?.find(
+    item => item.userId._id === currentuser,
+  );
+
+  const isMatched = !!matchedContributor;
+  const permission = matchedContributor?.permission;
+  console.log(permission);
+
+  useEffect(() => {
+    getRole();
+  }, []);
+
   return (
     <View style={styles.container}>
       <Pressable style={styles.overlay} onPress={onClose} />
