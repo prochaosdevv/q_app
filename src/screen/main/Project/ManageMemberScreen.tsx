@@ -85,7 +85,7 @@ const ManageMembers = () => {
     try {
       const payload = {
         projectId: id,
-        contributors: [{ email, permission: 'can view' }],
+        contributors: [{ email, permission: 'can edit' }],
       };
 
       await api.post(`/project/add-contributors/`, payload);
@@ -280,10 +280,13 @@ const styles = StyleSheet.create({
   },
   membersList: {
     marginTop: 16,
+    borderWidth: 2,
+    marginBottom: 20,
   },
   memberItem: {
-    marginBottom: 12,
     position: 'relative',
+    paddingBottom: 20,
+    marginHorizontal: 1,
   },
   memberButton: {
     flexDirection: 'row',
@@ -315,10 +318,11 @@ const styles = StyleSheet.create({
   roleIconActive: {
     transform: [{ rotate: '180deg' }],
   },
+
   roleMenu: {
     position: 'absolute',
-    right: 0,
-    top: '110%',
+    right: 10, // move it a bit inside
+    top: 15, // move it above
     backgroundColor: '#fff',
     borderRadius: 12,
     padding: 8,
@@ -328,7 +332,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
-    zIndex: 1000,
+    zIndex: 9999,
   },
   roleMenuItem: {
     paddingVertical: 8,

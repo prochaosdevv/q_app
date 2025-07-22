@@ -144,15 +144,17 @@ const DashboardScreen = () => {
             style={{ flexDirection: 'row', justifyContent: 'space-between' }}
           >
             <Text style={styles.sectionTitle}>Weeks goal</Text>
-            {owner ? (
-              <Pressable
-                style={styles.add}
-                onPress={() => navigation.navigate('create-weekly-goal')}
-              >
-                <Text style={styles.add_text}>Add</Text>
-                <CirclePlus size={14} />
-              </Pressable>
-            ) : null}
+            <Pressable
+              style={styles.add}
+              onPress={() => {
+                if (owner) {
+                  navigation.navigate('create-weekly-goal');
+                }
+              }}
+            >
+              <Text style={styles.add_text}>Add</Text>
+              <CirclePlus size={14} />
+            </Pressable>
           </View>
           <WeeklyGoal refreshing={refreshing} />
 

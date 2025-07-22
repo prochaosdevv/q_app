@@ -229,7 +229,7 @@ export default function DailySubmission({ refreshing }) {
                   lineHeight: 25,
                 }}
               >
-                Your status has been archived {'\n'} succesfully.
+                Your status has been updated {'\n'} succesfully.
               </Text>
               <Pressable
                 style={{

@@ -16,32 +16,36 @@ export function Popover({ visible, onClose, onSelect }: PopoverProps) {
   if (!visible) return null;
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [sendReport, setSendReport] = useState(false);
-
   const navigation = useNavigation();
-  const id = useProjectStore(state => state.id);
-  const createdById = useProjectStore(state => state.createdBy);
-  const currentuser = useAuthStore.getState().user?._id;
+  const id = useProjectStore(state => state.id); //Project id
 
-  const owner = currentuser === createdById;
+  const { user } = useAuthStore.getState();
+  const currentUserId = user?.id;
+
+  const createdById = useProjectStore(state => state.createdBy);
+  const owner = currentUserId === createdById;
+
   const options = [
-    { id: 'add_day_log', label: 'Add new day log', disabled: !owner },
-    { id: 'send_report', label: 'Send Report', disabled: false },
-    { id: 'manage_members', label: 'Manage members', disabled: false },
+    { id: 'add_day_log', label: 'Add new day log' },
+    { id: 'send_report', label: 'Send Report' },
+    { id: 'manage_members', label: 'Manage members' },
   ];
 
   const handleOptionPress = (optionId: string) => {
-    switch (optionId) {
-      case 'manage_members':
-        navigation.navigate('manage-members', { id });
-        onClose();
-        break;
-      case 'add_day_log':
-        navigation.navigate('daily-report', { id });
-        onClose();
-        break;
-      case 'send_report':
-        setSendReport(true);
-        break;
+    if (optionId === 'manage_members') {
+      navigation.navigate('manage-members', {
+        id,
+      });
+      onClose();
+    }
+    if (optionId === 'add_day_log') {
+      navigation.navigate('daily-report', {
+        id,
+      });
+      onClose();
+    }
+    if (optionId === 'send_report') {
+      setSendReport(true);
     }
     onSelect(optionId);
   };
@@ -58,51 +62,28 @@ export function Popover({ visible, onClose, onSelect }: PopoverProps) {
     }
   };
 
-  const getRole = async () => {
-    try {
-      const res = await api.get(`/project/contributors/${id}`);
-      const contributors = res.data.contributors;
-      setRole(contributors);
-    } catch (err) {
-      console.log('Error:', err);
-    }
-  };
-
-  useEffect(() => {
-    getRole();
-  }, []);
-
   return (
     <View style={styles.container}>
       <Pressable style={styles.overlay} onPress={onClose} />
       <View style={styles.popoverContainer}>
         <View style={styles.popover}>
           {options.map(option => {
-            const isDisabled = option.disabled;
-
+            const isAddLog = option.id === 'add_day_log';
+            const isDisabled = isAddLog && !owner;
             return (
               <Pressable
                 key={option.id}
                 style={styles.option}
-                onPress={() => {
-                  if (!isDisabled) {
-                    handleOptionPress(option.id);
-                  }
-                }}
-                disabled={isDisabled}
+                onPress={() => !isDisabled && handleOptionPress(option.id)}
               >
                 <Text
-                  style={[
-                    styles.optionText,
-                    isDisabled && { color: 'rgba(0, 0, 0, 0.3)' },
-                  ]}
+                  style={[styles.optionText, isDisabled && { color: 'gray' }]}
                 >
                   {option.label}
                 </Text>
               </Pressable>
             );
           })}
-
           <Pressable style={styles.cancelButton} onPress={onClose}>
             <Text style={styles.cancelText}>Cancel</Text>
           </Pressable>

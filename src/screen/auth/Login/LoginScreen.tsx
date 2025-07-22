@@ -63,7 +63,7 @@ const LoginScreen = () => {
       }
     } catch (error) {
       console.error('Login error:', error);
-      setErrors({ general: 'Login failed. Please try again later...!!' });
+      setErrors({ general: 'Invalid email or password...!!' });
     }
   };
 
