@@ -132,11 +132,14 @@ const AccountManagementScreen = () => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Bio</Text>
           <TextInput
-            style={styles.input}
+            style={styles.textArea}
             placeholder="Enter bio"
             placeholderTextColor="black"
             value={bio}
             onChangeText={setBio}
+            multiline
+            numberOfLines={4}
+            textAlignVertical="top"
           />
         </View>
         {error && <Text style={styles.errorText}>{error}</Text>}
@@ -285,6 +288,17 @@ const styles = StyleSheet.create({
     fontSize: wp('3.8%'),
     color: 'black',
     marginBottom: hp('2%'),
+  },
+  textArea: {
+    backgroundColor: 'rgba(247, 248, 254, 1)',
+    borderRadius: 28,
+    padding: 16,
+    minHeight: 120,
+    fontFamily: 'Inter-Regular',
+    fontSize: 14,
+    color: 'rgba(0, 0, 0, 1)',
+    borderWidth: 1,
+    borderColor: 'rgba(232, 233, 234, 1)',
   },
   updateContainer: {
     marginTop: hp('2%'),

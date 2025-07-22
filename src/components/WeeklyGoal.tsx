@@ -11,7 +11,7 @@ import { useEffect, useState } from 'react';
 import moment from 'moment';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import api from '../utils/api';
-import { CalendarDays, Pencil } from 'lucide-react-native';
+import { CalendarDays, Pencil, Settings } from 'lucide-react-native';
 import { useProjectStore } from '../zustand/store/projectStore';
 export default function WeeklyGoal({ refreshing }) {
   const [weeklyGoal, setWeeklyGoal] = useState();
@@ -62,8 +62,7 @@ export default function WeeklyGoal({ refreshing }) {
             setActivePopupId(activePopupId === item._id ? null : item._id)
           }
         >
-          <Text style={styles.edit_text}>Edit</Text>
-          <Pencil size={14} />
+          <Settings size={16} />
         </Pressable>
       </View>
 
@@ -220,8 +219,8 @@ const styles = StyleSheet.create({
   edit: {
     backgroundColor: '#fff',
     borderRadius: 5,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingHorizontal: 18,
+    paddingVertical: 6,
     borderWidth: 1,
     borderColor: 'rgba(175, 175, 175, 1)',
     display: 'flex',
@@ -229,11 +228,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  edit_text: {
-    fontFamily: 'Inter-Regular',
-    fontSize: 12,
-    color: 'rgba(0, 0, 0, 1)',
-  },
+
   // Pop up modal
 
   popupMenu: {

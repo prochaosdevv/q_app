@@ -117,6 +117,26 @@ export default function EditDailyReportScreen() {
 
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
+  // Delay Option
+  const [delayOption, setDelayOption] = useState(false);
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  useEffect(() => {
+    api
+      .get('/project/get/all/delay-suggestions')
+      .then(res => setSuggestions(res.data.delays))
+      .catch(err => console.error(err));
+  }, []);
+
+  useEffect(() => {
+    if (selectedDealy) {
+      setDelayOption(true); // Yes selected
+    } else {
+      setDelayOption(false); // No selected
+    }
+  }, [selectedDealy]);
+
   const renderDropdownModal = (
     visible,
     setVisible,
@@ -397,11 +417,7 @@ export default function EditDailyReportScreen() {
       setLoading(false);
       return;
     }
-    if (!selectedDealy) {
-      setError('Delay selection is required.');
-      setLoading(false);
-      return;
-    }
+
     if (!selectedPlant) {
       setError('Plant selection is required.');
       setLoading(false);
@@ -431,7 +447,7 @@ export default function EditDailyReportScreen() {
 
     formData.append('progressReport', progressText);
     formData.append('weather', JSON.stringify({ condition: selectedWeather }));
-    formData.append('delays', delayHours); // ✅ Ensures proper number is passed
+    formData.append('delays', delayHours || '0');
     formData.append('plant', selectedPlant);
 
     formData.append(
@@ -550,17 +566,87 @@ export default function EditDailyReportScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Delays (In hours)</Text>
 
-          <TextInput
-            style={styles.input}
-            placeholder="Enter delay in hours"
-            placeholderTextColor="black"
-            value={selectedDealy}
-            onChangeText={text => {
-              setSelectedDealy(text);
-              setError('');
-            }}
-            keyboardType="numeric"
-          />
+          <View style={{ flexDirection: 'row', marginTop: 10 }}>
+            <Text style={styles.sectionTitle}>
+              Do you have delay suggestion?
+            </Text>
+            <View style={styles.radioContainer}>
+              <Pressable
+                style={styles.radioButton}
+                onPress={() => setDelayOption(true)}
+              >
+                <View
+                  style={[styles.radioCircle, delayOption && styles.selected]}
+                />
+                <Text style={styles.radioText}>Yes</Text>
+              </Pressable>
+              <Pressable
+                style={styles.radioButton}
+                onPress={() => {
+                  setDelayOption(false);
+                  setSelectedDealy('');
+                }}
+              >
+                <View
+                  style={[styles.radioCircle, !delayOption && styles.selected]}
+                />
+                <Text style={styles.radioText}>No</Text>
+              </Pressable>
+            </View>
+          </View>
+          {delayOption && (
+            <TextInput
+              style={[
+                styles.input,
+                {
+                  backgroundColor: 'rgba(255, 255, 255, 1)',
+                  borderRadius: 28,
+                  paddingHorizontal: 16,
+                  height: 56,
+                  width: wp('87%'),
+                  borderWidth: 1,
+                  borderColor: 'rgba(232, 233, 234, 1)',
+                },
+              ]}
+              placeholder="Enter delay in hours"
+              placeholderTextColor="black"
+              value={selectedDealy}
+              onChangeText={text => {
+                setSelectedDealy(text);
+                setShowSuggestions(!!text);
+              }}
+              keyboardType="numeric"
+            />
+          )}
+
+          {showSuggestions && (
+            <ScrollView
+              style={{
+                backgroundColor: '#fff',
+                paddingHorizontal: 5,
+                marginTop: -10,
+              }}
+              nestedScrollEnabled={true}
+            >
+              {suggestions
+                .filter(s => s.toString().includes(selectedDealy))
+                .map((s, i) => (
+                  <Pressable
+                    key={i}
+                    onPress={() => {
+                      setSelectedDealy(s.toString());
+                      setShowSuggestions(false);
+                    }}
+                    style={{
+                      borderBottomWidth: 1,
+                      borderColor: '#eee',
+                    }}
+                  >
+                    <Text style={{ padding: 10 }}>{s}</Text>
+                  </Pressable>
+                ))}
+            </ScrollView>
+          )}
         </View>
 
         {/* Labour Section */}
@@ -1250,5 +1336,34 @@ const styles = StyleSheet.create({
   },
   itemCartText: {
     color: 'black',
+  },
+
+  // Radio Section
+  radioContainer: {
+    flexDirection: 'row',
+    marginBottom: 20,
+    marginLeft: 20,
+  },
+  radioButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 10,
+  },
+  radioCircle: {
+    height: 18,
+    width: 18,
+    borderRadius: 9,
+    borderWidth: 2,
+    borderColor: 'rgba(24, 20, 70, 1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 6,
+  },
+  selected: {
+    backgroundColor: 'rgba(24, 20, 70, 1)',
+  },
+  radioText: {
+    fontSize: 12,
+    color: 'rgba(132, 132, 132, 1)',
   },
 });

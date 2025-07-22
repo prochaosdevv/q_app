@@ -83,13 +83,17 @@ export default function DailySubmission({ refreshing }) {
               {
                 backgroundColor:
                   item.status === 1
-                    ? '#f9aa83ff'
+                    ? '#f9c1a5ff'
                     : item.status === 2
-                    ? '#e4a6a6ff'
+                    ? '#edbabaff'
                     : '#e8f5e9',
               },
             ]}
-            onPress={() => setShowModal(true)}
+            onPress={() => {
+              if (item.status !== 1 && item.status !== 2) {
+                setShowModal(true);
+              }
+            }}
           >
             <Text style={styles.statusText}>
               {item.status === 1
@@ -104,19 +108,15 @@ export default function DailySubmission({ refreshing }) {
         <Text style={styles.reportDescription}>{item.progressReport}</Text>
 
         <View style={styles.statsContainer}>
+          {item.delays == 0 ? null : (
+            <View style={styles.stat}>
+              <ClockAlert size={16} color="red" />
+            </View>
+          )}
+
           <View style={styles.stat}>
             <Text style={[styles.statText, { marginRight: 2 }]}>
-              {item.delays}
-            </Text>
-            {item.delays == 0 ? (
-              <CircleCheck size={16} color="#666" />
-            ) : (
-              <ClockAlert size={16} color="#666" />
-            )}
-          </View>
-          <View style={styles.stat}>
-            <Text style={[styles.statText, { marginRight: 2 }]}>
-              {WeatherIconsMap[item.weather.condition]}
+              {WeatherIconsMap[item.weather?.condition]}
             </Text>
           </View>
           <View style={styles.stat}>
@@ -142,30 +142,19 @@ export default function DailySubmission({ refreshing }) {
             onPress={() => setShowModal(false)}
           >
             <View style={styles.modalBox}>
-              <View
-                style={{
-                  backgroundColor: '#1D7903',
-                  borderRadius: 50,
-                  padding: 12,
-                  marginBottom: 16,
-                  width: '20%',
-                  alignSelf: 'center',
-                }}
-              >
-                <Check size={40} color="#fff" />
-              </View>
               <Text
                 style={{
                   fontSize: wp('4.5%'),
                   fontWeight: '800',
                   textAlign: 'center',
+                  marginBottom: 4,
                 }}
               >
-                Confirmation
+                Please Confirm
               </Text>
               <Text
                 style={{
-                  fontSize: 14,
+                  fontSize: 16,
                   marginBottom: 20,
                   color: '#000',
                   textAlign: 'center',
@@ -173,20 +162,27 @@ export default function DailySubmission({ refreshing }) {
                   lineHeight: 25,
                 }}
               >
-                Choose your daily report status
+                Would you like to approve or reject the report?
               </Text>
-              <Pressable
-                style={styles.Btn}
-                onPress={() => handleStatusUpdate(1)}
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                }}
               >
-                <Text style={styles.BtnText}>Approved</Text>
-              </Pressable>
-              <Pressable
-                style={styles.Btn}
-                onPress={() => handleStatusUpdate(2)}
-              >
-                <Text style={styles.BtnText}>Rejected</Text>
-              </Pressable>
+                <Pressable
+                  style={styles.Btn}
+                  onPress={() => handleStatusUpdate(1)}
+                >
+                  <Text style={styles.BtnText}>Approve</Text>
+                </Pressable>
+                <Pressable
+                  style={styles.Btn}
+                  onPress={() => handleStatusUpdate(2)}
+                >
+                  <Text style={styles.BtnText}>Reject</Text>
+                </Pressable>
+              </View>
             </View>
           </Pressable>
         </Modal>
@@ -382,10 +378,10 @@ const styles = StyleSheet.create({
   },
   Btn: {
     backgroundColor: 'rgba(24, 20, 70, 1)',
-    paddingVertical: 22,
+    paddingVertical: 18,
     paddingHorizontal: 24,
     borderRadius: 50,
-    width: wp('80%'),
+    width: wp('38%'),
     alignItems: 'center',
     marginBottom: 12,
     justifyContent: 'center',
