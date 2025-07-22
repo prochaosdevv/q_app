@@ -32,8 +32,10 @@ import CircularProgress from './CircularProgress ';
 import DailySubmission from '../../../components/DailySubmission';
 import { useProjectStore } from '../../../zustand/store/projectStore';
 const DashboardScreen = () => {
-  const projectId = useProjectStore(state => state.id);
   const projectImage = useProjectStore(state => state.image);
+  const createdById = useProjectStore(state => state.createdBy);
+  const currentuser = useAuthStore.getState().user?._id;
+  const owner = currentuser === createdById;
 
   const [isPopoverVisible, setIsPopoverVisible] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -142,13 +144,15 @@ const DashboardScreen = () => {
             style={{ flexDirection: 'row', justifyContent: 'space-between' }}
           >
             <Text style={styles.sectionTitle}>Weeks goal</Text>
-            <Pressable
-              style={styles.add}
-              onPress={() => navigation.navigate('create-weekly-goal')}
-            >
-              <Text style={styles.add_text}>Add</Text>
-              <CirclePlus size={14} />
-            </Pressable>
+            {owner ? (
+              <Pressable
+                style={styles.add}
+                onPress={() => navigation.navigate('create-weekly-goal')}
+              >
+                <Text style={styles.add_text}>Add</Text>
+                <CirclePlus size={14} />
+              </Pressable>
+            ) : null}
           </View>
           <WeeklyGoal refreshing={refreshing} />
 

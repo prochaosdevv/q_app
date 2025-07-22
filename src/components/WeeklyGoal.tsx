@@ -13,12 +13,17 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import api from '../utils/api';
 import { CalendarDays, Pencil, Settings } from 'lucide-react-native';
 import { useProjectStore } from '../zustand/store/projectStore';
+import { useAuthStore } from '../zustand/store/authStore';
 export default function WeeklyGoal({ refreshing }) {
   const [weeklyGoal, setWeeklyGoal] = useState();
   const [activePopupId, setActivePopupId] = useState(null);
   const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
   const navigation = useNavigation();
   const projectId = useProjectStore(state => state.id);
+
+  const createdById = useProjectStore(state => state.createdBy);
+  const currentuser = useAuthStore.getState().user?._id;
+  const owner = currentuser === createdById;
 
   const getWeeklyGoal = async () => {
     try {
@@ -56,14 +61,16 @@ export default function WeeklyGoal({ refreshing }) {
             {moment(item.startDate).format('DD MMM YYYY')}
           </Text>
         </View>
-        <Pressable
-          style={styles.edit}
-          onPress={() =>
-            setActivePopupId(activePopupId === item._id ? null : item._id)
-          }
-        >
-          <Settings size={16} />
-        </Pressable>
+        {owner ? (
+          <Pressable
+            style={styles.edit}
+            onPress={() =>
+              setActivePopupId(activePopupId === item._id ? null : item._id)
+            }
+          >
+            <Settings size={16} />
+          </Pressable>
+        ) : null}
       </View>
 
       <Text style={styles.title}>{item.title}</Text>

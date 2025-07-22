@@ -31,6 +31,7 @@ const ProjectScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
   const setProjectId = useProjectStore(state => state.setProjectId);
   const setProjectImage = useProjectStore(state => state.setProjectImage);
+  const setCreatedBy = useProjectStore(state => state.setCreatedBy);
   const [activePopupId, setActivePopupId] = useState(null);
   const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
   const [selectedProjectId, setSelectedProjectId] = useState(null);
@@ -94,6 +95,7 @@ const ProjectScreen = () => {
   const navigateToBottom = item => {
     setProjectId(item._id);
     setProjectImage(item.image);
+    setCreatedBy(item.createdBy._id);
     navigation.navigate('bottom');
   };
   const renderItem = ({ item }) => (

@@ -14,39 +14,36 @@ interface PopoverProps {
 
 export function Popover({ visible, onClose, onSelect }: PopoverProps) {
   if (!visible) return null;
-  const [role, setRole] = useState();
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [sendReport, setSendReport] = useState(false);
 
   const navigation = useNavigation();
   const id = useProjectStore(state => state.id);
-  const { user } = useAuthStore.getState();
-  const currentuser = user?._id;
+  const createdById = useProjectStore(state => state.createdBy);
+  const currentuser = useAuthStore.getState().user?._id;
 
+  const owner = currentuser === createdById;
   const options = [
-    { id: 'add_day_log', label: 'Add new day log' },
-    { id: 'send_report', label: 'Send Report' },
-    { id: 'manage_members', label: 'Manage members' },
+    { id: 'add_day_log', label: 'Add new day log', disabled: !owner },
+    { id: 'send_report', label: 'Send Report', disabled: false },
+    { id: 'manage_members', label: 'Manage members', disabled: false },
   ];
 
   const handleOptionPress = (optionId: string) => {
-    if (optionId === 'manage_members') {
-      navigation.navigate('manage-members', {
-        id,
-      });
-      onClose();
-    }
-    if (optionId === 'add_day_log' && permission === 'can view') {
-      navigation.navigate('daily-report', {
-        id,
-      });
-      onClose();
-    }
-    if (optionId === 'send_report') {
-      setSendReport(true);
+    switch (optionId) {
+      case 'manage_members':
+        navigation.navigate('manage-members', { id });
+        onClose();
+        break;
+      case 'add_day_log':
+        navigation.navigate('daily-report', { id });
+        onClose();
+        break;
+      case 'send_report':
+        setSendReport(true);
+        break;
     }
     onSelect(optionId);
-    // onClose();
   };
 
   const handleSendReport = async () => {
@@ -71,14 +68,6 @@ export function Popover({ visible, onClose, onSelect }: PopoverProps) {
     }
   };
 
-  const matchedContributor = role?.find(
-    item => item.userId._id === currentuser,
-  );
-
-  const isMatched = !!matchedContributor;
-  const permission = matchedContributor?.permission;
-  console.log(permission);
-
   useEffect(() => {
     getRole();
   }, []);
@@ -89,16 +78,31 @@ export function Popover({ visible, onClose, onSelect }: PopoverProps) {
       <View style={styles.popoverContainer}>
         <View style={styles.popover}>
           {options.map(option => {
+            const isDisabled = option.disabled;
+
             return (
               <Pressable
                 key={option.id}
                 style={styles.option}
-                onPress={() => handleOptionPress(option.id)}
+                onPress={() => {
+                  if (!isDisabled) {
+                    handleOptionPress(option.id);
+                  }
+                }}
+                disabled={isDisabled}
               >
-                <Text style={styles.optionText}>{option.label}</Text>
+                <Text
+                  style={[
+                    styles.optionText,
+                    isDisabled && { color: 'rgba(0, 0, 0, 0.3)' },
+                  ]}
+                >
+                  {option.label}
+                </Text>
               </Pressable>
             );
           })}
+
           <Pressable style={styles.cancelButton} onPress={onClose}>
             <Text style={styles.cancelText}>Cancel</Text>
           </Pressable>
