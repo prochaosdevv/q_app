@@ -43,6 +43,9 @@ const DashboardScreen = () => {
 
   const currentUserName = user?.fullname;
 
+  const isOwner = createdById === currentuser;
+  console.log('Rs', isOwner);
+
   const navigation = useNavigation();
 
   const handleOptionSelect = (option: string) => {
@@ -144,27 +147,21 @@ const DashboardScreen = () => {
           >
             <Text style={styles.sectionTitle}>Weeks goal</Text>
             <Pressable
-              style={[
-                styles.add,
-                createdById !== currentuser && { opacity: 0.5 },
-              ]}
+              style={[styles.add, isOwner == false && { opacity: 0.5 }]}
               onPress={() => {
-                if (createdById === currentuser) {
+                if (isOwner == true) {
                   navigation.navigate('create-weekly-goal');
                 }
               }}
             >
               <Text
-                style={[
-                  styles.add_text,
-                  createdById !== currentuser && { color: 'gray' },
-                ]}
+                style={[styles.add_text, isOwner == false && { color: 'gray' }]}
               >
                 Add
               </Text>
               <CirclePlus
                 size={14}
-                color={createdById !== currentuser ? 'gray' : 'black'}
+                color={isOwner == false ? 'gray' : 'black'}
               />
             </Pressable>
           </View>

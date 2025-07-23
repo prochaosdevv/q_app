@@ -35,12 +35,14 @@ const ReportDetailScreen = () => {
   const route = useRoute();
 
   const { reportId } = route.params;
+  console.log('repor', reportId);
+
   const { user } = useAuthStore.getState();
 
   const projectId = useProjectStore(state => state.id);
   const createdById = useProjectStore(state => state.createdBy);
   const currentuser = user?._id || user?.id;
-  // Role
+
   // Role
   const getRole = async () => {
     try {
@@ -53,7 +55,7 @@ const ReportDetailScreen = () => {
   };
 
   const matchedContributor = role?.find(
-    item => item.userId._id === currentuser,
+    item => item.userId._id || item.userId.id === currentuser,
   );
 
   const permission = matchedContributor?.permission;
@@ -146,7 +148,7 @@ const ReportDetailScreen = () => {
                           createdById === currentuser ||
                           permission === 'can edit'
                             ? 'rgba(0, 11, 35, 1)'
-                            : 'red',
+                            : 'gray',
                       },
                     ]}
                   >

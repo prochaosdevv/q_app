@@ -27,7 +27,7 @@ import api from '../../../utils/api';
 import { useProjectStore } from '../../../zustand/store/projectStore';
 type Member = {
   email: string;
-  role: 'view only' | 'can edit';
+  permission: 'view only' | 'can edit';
 };
 
 const ManageMembers = () => {
@@ -39,16 +39,38 @@ const ManageMembers = () => {
   const navigation = useNavigation();
   const projectId = useProjectStore(state => state.id);
 
-  const handleRoleChange = (index: number, role: Member['role']) => {
+  const handleRoleChange = async (
+    index: number,
+    permission: 'view only' | 'can edit',
+  ) => {
+    const selectedMember = members[index];
+
+    if (selectedMember.permission === permission) {
+      setActiveRoleMenu(null);
+      return;
+    }
+
     const updated = [...members];
-    updated[index].role = role;
+    updated[index].permission = permission;
     setMembers(updated);
     setActiveRoleMenu(null);
-  };
 
-  const handleRemoveMember = (index: number) => {
-    setMembers(members.filter((_, i) => i !== index));
-    setActiveRoleMenu(null);
+    const payload = {
+      projectId: projectId,
+      contributors: [
+        {
+          email: selectedMember.email.trim().toLowerCase(),
+          permission: permission,
+        },
+      ],
+    };
+
+    try {
+      await api.put('/project/edit-contributors-permissions', payload);
+      await getMembersByProjectId();
+    } catch (error) {
+      console.error('❌ Error updating permission:', error);
+    }
   };
 
   const createMemberByProjectId = async () => {
@@ -65,7 +87,7 @@ const ManageMembers = () => {
     try {
       const payload = {
         projectId: projectId,
-        contributors: [{ email, permission: 'can edit' }],
+        contributors: [{ email, permission: 'can view' }],
       };
       await api.post(`/project/add-contributors/`, payload);
       setNewMemberEmail('');
@@ -109,8 +131,9 @@ const ManageMembers = () => {
         }
       >
         <Text style={styles.memberEmail}>{item.email}</Text>
+
         <View style={styles.roleContainer}>
-          <Text style={styles.roleText}>{item.role}</Text>
+          <Text style={styles.roleText}>{item.permission}</Text>
           <ChevronDown
             color="#666"
             size={16}
@@ -138,7 +161,7 @@ const ManageMembers = () => {
           </Pressable>
           <Pressable
             style={[styles.roleMenuItem, styles.removeMenuItem]}
-            onPress={() => handleRemoveMember(index)}
+            onPress={() => setActiveRoleMenu(null)}
           >
             <Text style={styles.removeMenuText}>Remove</Text>
           </Pressable>
