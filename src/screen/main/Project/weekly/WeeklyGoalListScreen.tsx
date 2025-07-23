@@ -35,6 +35,7 @@ export default function WeeklyGoalListScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const projectId = useProjectStore(state => state.id);
+  
   useEffect(() => {
     if (route.params?.payload) {
       setGoals(route.params.payload.goals);

@@ -19,6 +19,9 @@ export const useCreateNewProject = () => {
   const [loading, setLoading] = useState(false);
 
   const setProjectId = useProjectStore(state => state.setProjectId);
+  const setProjectImage = useProjectStore(state => state.setProjectImage);
+  const setCreatedBy = useProjectStore(state => state.setCreatedBy);
+
   const navigation = useNavigation();
 
   // Open image picker and set selected image
@@ -109,8 +112,15 @@ export const useCreateNewProject = () => {
       });
 
       if (response.data?.success) {
-        const projectId = response.data.project._id;
+        const project = response.data.project;
+        console.log('project', project);
+
+        const projectId = project._id;
+        const projectImage = project.image;
+        const createdBy = project.createdBy;
         setProjectId(projectId);
+        setProjectImage(projectImage);
+        setCreatedBy(createdBy);
         navigation.navigate('create-weekly-goal');
       } else {
         setError('Failed to create project. Please try again.');

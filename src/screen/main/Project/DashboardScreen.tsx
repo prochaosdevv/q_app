@@ -37,14 +37,12 @@ const DashboardScreen = () => {
   const createdById = useProjectStore(state => state.createdBy);
   const currentuser = user?._id || user?.id;
 
+
   const [isPopoverVisible, setIsPopoverVisible] = useState(false);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
   const currentUserName = user?.fullname;
-
-  const isOwner = createdById === currentuser;
-  console.log('Rs', isOwner);
 
   const navigation = useNavigation();
 
@@ -147,21 +145,27 @@ const DashboardScreen = () => {
           >
             <Text style={styles.sectionTitle}>Weeks goal</Text>
             <Pressable
-              style={[styles.add, isOwner == false && { opacity: 0.5 }]}
+              style={[
+                styles.add,
+                createdById !== currentuser && { opacity: 0.5 },
+              ]}
               onPress={() => {
-                if (isOwner == true) {
+                if (createdById === currentuser) {
                   navigation.navigate('create-weekly-goal');
                 }
               }}
             >
               <Text
-                style={[styles.add_text, isOwner == false && { color: 'gray' }]}
+                style={[
+                  styles.add_text,
+                  createdById !== currentuser && { color: 'gray' },
+                ]}
               >
                 Add
               </Text>
               <CirclePlus
                 size={14}
-                color={isOwner == false ? 'gray' : 'black'}
+                color={createdById !== currentuser ? 'gray' : 'black'}
               />
             </Pressable>
           </View>
