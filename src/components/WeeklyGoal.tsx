@@ -21,9 +21,10 @@ export default function WeeklyGoal({ refreshing }) {
   const navigation = useNavigation();
   const projectId = useProjectStore(state => state.id);
 
+  const { user } = useAuthStore.getState();
+
   const createdById = useProjectStore(state => state.createdBy);
-  const currentuser = useAuthStore.getState().user?._id;
-  const owner = currentuser === createdById;
+  const currentuser = user?._id || user?.id;
 
   const getWeeklyGoal = async () => {
     try {
@@ -61,16 +62,22 @@ export default function WeeklyGoal({ refreshing }) {
             {moment(item.startDate).format('DD MMM YYYY')}
           </Text>
         </View>
-        {owner ? (
-          <Pressable
-            style={styles.edit}
-            onPress={() =>
-              setActivePopupId(activePopupId === item._id ? null : item._id)
+        <Pressable
+          style={[
+            styles.edit,
+            createdById !== currentuser && { opacity: 0.5 }, // fade if not owner
+          ]}
+          onPress={() => {
+            if (createdById === currentuser) {
+              setActivePopupId(activePopupId === item._id ? null : item._id);
             }
-          >
-            <Settings size={16} />
-          </Pressable>
-        ) : null}
+          }}
+        >
+          <Settings
+            size={16}
+            color={createdById !== currentuser ? 'gray' : 'black'}
+          />
+        </Pressable>
       </View>
 
       <Text style={styles.title}>{item.title}</Text>

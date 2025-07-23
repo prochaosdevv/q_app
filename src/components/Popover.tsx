@@ -14,40 +14,41 @@ interface PopoverProps {
 
 export function Popover({ visible, onClose, onSelect }: PopoverProps) {
   if (!visible) return null;
+  const [role, setRole] = useState();
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [sendReport, setSendReport] = useState(false);
+
   const navigation = useNavigation();
-  const id = useProjectStore(state => state.id); //Project id
 
   const { user } = useAuthStore.getState();
-  const currentUserId = user?.id;
 
   const createdById = useProjectStore(state => state.createdBy);
-  const owner = currentUserId === createdById;
+  const currentuser = user?._id || user?.id;
 
   const options = [
-    { id: 'add_day_log', label: 'Add new day log' },
+    {
+      id: 'add_day_log',
+      label: 'Add new day log',
+      disabled: createdById !== currentuser,
+    },
     { id: 'send_report', label: 'Send Report' },
     { id: 'manage_members', label: 'Manage members' },
   ];
 
   const handleOptionPress = (optionId: string) => {
     if (optionId === 'manage_members') {
-      navigation.navigate('manage-members', {
-        id,
-      });
+      navigation.navigate('manage-members');
       onClose();
     }
     if (optionId === 'add_day_log') {
-      navigation.navigate('daily-report', {
-        id,
-      });
+      navigation.navigate('daily-report');
       onClose();
     }
     if (optionId === 'send_report') {
       setSendReport(true);
     }
     onSelect(optionId);
+    // onClose();
   };
 
   const handleSendReport = async () => {
@@ -68,16 +69,19 @@ export function Popover({ visible, onClose, onSelect }: PopoverProps) {
       <View style={styles.popoverContainer}>
         <View style={styles.popover}>
           {options.map(option => {
-            const isAddLog = option.id === 'add_day_log';
-            const isDisabled = isAddLog && !owner;
             return (
               <Pressable
                 key={option.id}
                 style={styles.option}
-                onPress={() => !isDisabled && handleOptionPress(option.id)}
+                onPress={() => {
+                  if (!option.disabled) handleOptionPress(option.id);
+                }}
               >
                 <Text
-                  style={[styles.optionText, isDisabled && { color: 'gray' }]}
+                  style={[
+                    styles.optionText,
+                    option.disabled && { color: 'gray' }, // ← gray text if disabled
+                  ]}
                 >
                   {option.label}
                 </Text>

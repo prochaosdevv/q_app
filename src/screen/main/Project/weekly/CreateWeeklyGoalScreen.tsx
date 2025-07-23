@@ -90,7 +90,10 @@ export default function CreateWeeklyGoalScreen() {
     <View style={styles.container}>
       <StatusBar backgroundColor="white" />
       <View style={styles.header}>
-        <Pressable style={styles.backButton}>
+        <Pressable
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+        >
           <ChevronLeft color="white" size={wp('5%')} />
         </Pressable>
         <Text style={styles.headerTitle}>Create Weekly Goal</Text>

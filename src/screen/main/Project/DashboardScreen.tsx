@@ -33,15 +33,14 @@ import DailySubmission from '../../../components/DailySubmission';
 import { useProjectStore } from '../../../zustand/store/projectStore';
 const DashboardScreen = () => {
   const projectImage = useProjectStore(state => state.image);
+  const { user } = useAuthStore.getState();
   const createdById = useProjectStore(state => state.createdBy);
-  const currentuser = useAuthStore.getState().user?._id;
-  const owner = currentuser === createdById;
+  const currentuser = user?._id || user?.id;
 
   const [isPopoverVisible, setIsPopoverVisible] = useState(false);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  const { user } = useAuthStore.getState();
   const currentUserName = user?.fullname;
 
   const navigation = useNavigation();
@@ -145,15 +144,28 @@ const DashboardScreen = () => {
           >
             <Text style={styles.sectionTitle}>Weeks goal</Text>
             <Pressable
-              style={styles.add}
+              style={[
+                styles.add,
+                createdById !== currentuser && { opacity: 0.5 },
+              ]}
               onPress={() => {
-                if (owner) {
+                if (createdById === currentuser) {
                   navigation.navigate('create-weekly-goal');
                 }
               }}
             >
-              <Text style={styles.add_text}>Add</Text>
-              <CirclePlus size={14} />
+              <Text
+                style={[
+                  styles.add_text,
+                  createdById !== currentuser && { color: 'gray' },
+                ]}
+              >
+                Add
+              </Text>
+              <CirclePlus
+                size={14}
+                color={createdById !== currentuser ? 'gray' : 'black'}
+              />
             </Pressable>
           </View>
           <WeeklyGoal refreshing={refreshing} />

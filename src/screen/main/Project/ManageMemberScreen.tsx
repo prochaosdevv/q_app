@@ -6,108 +6,102 @@ import {
   Pressable,
   StatusBar,
   SafeAreaView,
-  ScrollView,
-  FlatList,
   ActivityIndicator,
+  FlatList,
 } from 'react-native';
-import { ChevronLeft, ChevronDown, CirclePlus } from 'lucide-react-native';
-import { useCallback, useEffect, useState } from 'react';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import {
+  ChevronLeft,
+  ChevronDown,
+  ClipboardList,
+  FileText,
+  Settings,
+  CirclePlus,
+} from 'lucide-react-native';
+import { useEffect, useState } from 'react';
+import { useNavigation } from '@react-navigation/native';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import api from '../../../utils/api';
 import { useProjectStore } from '../../../zustand/store/projectStore';
-
 type Member = {
   email: string;
   role: 'view only' | 'can edit';
 };
+
 const ManageMembers = () => {
-  const [members, setMembers] = useState<MemberType[]>([]);
+  const [members, setMembers] = useState<Member[]>([]);
   const [newMemberEmail, setNewMemberEmail] = useState('');
   const [activeRoleMenu, setActiveRoleMenu] = useState<number | null>(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-
-  // Navigation
   const navigation = useNavigation();
-
-  const id = useProjectStore(state => state.id);
-
-  // Get Members by Project ID
-  const getMembersByProjectId = useCallback(async () => {
-    try {
-      const response = await api.get(`/project/contributors/${id}`);
-      const data = response.data?.contributors || [];
-      setMembers(data);
-    } catch (err) {
-      console.log('Error fetching members:', err);
-    }
-  }, [id]);
+  const projectId = useProjectStore(state => state.id);
 
   const handleRoleChange = (index: number, role: Member['role']) => {
-    const updatedMembers = [...members];
-    updatedMembers[index].role = role;
-    setMembers(updatedMembers);
+    const updated = [...members];
+    updated[index].role = role;
+    setMembers(updated);
     setActiveRoleMenu(null);
   };
 
   const handleRemoveMember = (index: number) => {
-    const updatedMembers = members.filter((_, i) => i !== index);
-    setMembers(updatedMembers);
+    setMembers(members.filter((_, i) => i !== index));
     setActiveRoleMenu(null);
   };
 
-  // Create Member by Project ID
   const createMemberByProjectId = async () => {
     const email = newMemberEmail.trim().toLowerCase();
-
-    // Basic validation
     if (!email) return setError('Email is required.');
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
       return setError('Enter a valid email.');
-    }
-
-    // Prevent duplicate entries (optional but useful)
-    const isDuplicate = members.some(
-      member => member.email.trim().toLowerCase() === email,
-    );
-    if (isDuplicate) return setError('Email already exists.');
-
-    // Exit early if already loading
+    if (members.some(m => m.email.trim().toLowerCase() === email))
+      return setError('Email already exists.');
     if (loading) return;
 
-    setLoading(true); // Start loader
-    setError(''); // Clear previous error
-
+    setLoading(true);
+    setError('');
     try {
       const payload = {
-        projectId: id,
-        contributors: [{ email, permission: 'can edit' }],
+        projectId: projectId,
+        contributors: [{ email, permission: 'can view' }],
       };
-
       await api.post(`/project/add-contributors/`, payload);
-      setNewMemberEmail(''); // Clear input on success
-      await getMembersByProjectId(); // Refresh list
+      setNewMemberEmail('');
+      await getMembersByProjectId();
     } catch (err) {
       console.log('Error creating member:', err);
       setError('Something went wrong. Try again.');
     } finally {
-      setLoading(false); // Stop loader
+      setLoading(false);
     }
   };
 
-  // Render Item
-  const renderMemberItem = ({
-    item,
-    index,
-  }: {
-    item: Member;
-    index: number;
-  }) => (
-    <View key={index} style={styles.memberItem}>
+  const getMembersByProjectId = async () => {
+    try {
+      const response = await api.get(`/project/contributors/${projectId}`);
+      console.log(projectId);
+      
+      const data = response.data?.contributors || [];
+
+      const uniqueMembers = data.filter(
+        (item, index, self) =>
+          index === self.findIndex(t => t.email === item.email),
+      );
+
+      setMembers(uniqueMembers);
+    } catch (err) {
+      console.log('Error fetching members:', err);
+    }
+  };
+
+  useEffect(() => {
+    getMembersByProjectId();
+  }, []);
+
+  const renderMemberItem = ({ item, index }) => (
+    <View style={styles.memberItem}>
       <Pressable
         style={styles.memberButton}
         onPress={() =>
@@ -116,7 +110,7 @@ const ManageMembers = () => {
       >
         <Text style={styles.memberEmail}>{item.email}</Text>
         <View style={styles.roleContainer}>
-          <Text style={styles.roleText}>{item.permission}</Text>
+          <Text style={styles.roleText}>{item.role}</Text>
           <ChevronDown
             color="#666"
             size={16}
@@ -153,12 +147,8 @@ const ManageMembers = () => {
     </View>
   );
 
-  useEffect(() => {
-    getMembersByProjectId();
-  }, [getMembersByProjectId]);
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar backgroundColor="white" />
       <View style={styles.header}>
         <Pressable
           style={styles.backButton}
@@ -169,11 +159,7 @@ const ManageMembers = () => {
         <Text style={styles.headerTitle}>Project members</Text>
       </View>
 
-      <ScrollView
-        style={styles.content}
-        contentContainerStyle={{ paddingBottom: hp('10%') }}
-        keyboardShouldPersistTaps="handled"
-      >
+      <View style={styles.content}>
         <Text style={styles.title}>Manage members</Text>
 
         <View style={styles.section}>
@@ -184,10 +170,7 @@ const ManageMembers = () => {
               placeholder="Enter name of project"
               placeholderTextColor="#93a5b1"
               value={newMemberEmail}
-              onChangeText={text => {
-                setNewMemberEmail(text);
-                if (error) setError('');
-              }}
+              onChangeText={text => setNewMemberEmail(text)}
             />
             <Pressable
               style={styles.iconContainer}
@@ -202,6 +185,7 @@ const ManageMembers = () => {
             </Pressable>
           </View>
         </View>
+
         {error ? (
           <Text style={{ color: 'red', textAlign: 'center', marginBottom: 20 }}>
             {error}
@@ -214,7 +198,7 @@ const ManageMembers = () => {
           renderItem={renderMemberItem}
           contentContainerStyle={{ paddingBottom: hp('1%') }}
         />
-      </ScrollView>
+      </View>
     </SafeAreaView>
   );
 };
@@ -237,6 +221,11 @@ const styles = StyleSheet.create({
     paddingBottom: hp('3.5%'),
   },
   backButton: {
+    // width: 40,
+    // height: 40,
+    // justifyContent: 'center',
+    // alignItems: 'center',
+    // marginRight: 8,
     position: 'relative',
     zIndex: 1,
   },
@@ -250,43 +239,40 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: wp('7%'),
-    paddingBottom: hp('10%'),
+    padding: 24,
+    paddingBottom: 80,
   },
   title: {
     fontFamily: 'Inter-Bold',
-    fontSize: wp('6.8%'),
+    fontSize: 24,
     color: 'rgba(50, 49, 49, 1)',
-    marginBottom: hp('4%'),
+    marginBottom: 32,
   },
   section: {
-    marginBottom: hp('3%'),
+    marginBottom: 24,
   },
   sectionTitle: {
     fontFamily: 'Inter-Regular',
-    fontSize: wp('3.9%'),
+    fontSize: 12,
     color: 'rgba(0, 0, 0, 0.6)',
-    marginBottom: hp('1%'),
+    marginBottom: 8,
   },
   input: {
-    height: hp('6.8%'),
-    width: wp('70%'),
+    height: 60,
     backgroundColor: 'rgba(247, 248, 254, 1)',
     borderRadius: 50,
     paddingHorizontal: 16,
     fontFamily: 'Inter-Regular',
     fontSize: 14,
     color: '#333',
+    width: wp('70%'),
   },
   membersList: {
     marginTop: 16,
-    borderWidth: 2,
-    marginBottom: 20,
   },
   memberItem: {
+    marginBottom: 12,
     position: 'relative',
-    paddingBottom: 20,
-    marginHorizontal: 1,
   },
   memberButton: {
     flexDirection: 'row',
@@ -294,8 +280,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     backgroundColor: 'rgba(237, 237, 237, 1)',
     borderRadius: 50,
-    paddingHorizontal: wp('5%'),
-    paddingVertical: hp('2.2%'),
+    paddingHorizontal: 20,
+    paddingVertical: 20,
   },
   memberEmail: {
     fontFamily: 'Inter-Regular',
@@ -318,11 +304,10 @@ const styles = StyleSheet.create({
   roleIconActive: {
     transform: [{ rotate: '180deg' }],
   },
-
   roleMenu: {
     position: 'absolute',
-    right: 10, // move it a bit inside
-    top: 15, // move it above
+    right: 0,
+    top: '100%',
     backgroundColor: '#fff',
     borderRadius: 12,
     padding: 8,
@@ -332,7 +317,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
-    zIndex: 9999,
+    zIndex: 1000,
   },
   roleMenuItem: {
     paddingVertical: 8,
@@ -341,7 +326,7 @@ const styles = StyleSheet.create({
   },
   roleMenuText: {
     fontFamily: 'Inter-Regular',
-    fontSize: wp('3.5%'),
+    fontSize: 14,
     color: '#333',
   },
   removeMenuItem: {
@@ -349,9 +334,10 @@ const styles = StyleSheet.create({
   },
   removeMenuText: {
     fontFamily: 'Inter-Regular',
-    fontSize: wp('3.5%'),
+    fontSize: 14,
     color: 'rgba(0, 0, 0, 1)',
   },
+
   iconContainer: {
     height: hp('6.7%'),
     flex: 1.5,

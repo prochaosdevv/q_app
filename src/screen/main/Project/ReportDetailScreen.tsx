@@ -22,18 +22,11 @@ import {
 import { useNavigation, useRoute } from '@react-navigation/native';
 import api from '../../../utils/api';
 import moment from 'moment';
-import { useProjectStore } from '../../../zustand/store/projectStore';
-import { useAuthStore } from '../../../zustand/store/authStore';
 const ReportDetailScreen = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [ShowDeleteReport, setShowDeleteReport] = useState(false);
   const [ShowSuccessReport, setShowSuccessReport] = useState(false);
   const [dailyReport, setDailyReport] = useState([]);
-  const [role, setRole] = useState();
-  const projectId = useProjectStore(state => state.id);
-
-  const createdById = useProjectStore(state => state.createdBy);
-  const currentuser = useAuthStore.getState().user?._id;
 
   const navigation = useNavigation();
   const route = useRoute();
@@ -61,29 +54,6 @@ const ReportDetailScreen = () => {
     }
   };
 
-  // Role
-  const getRole = async () => {
-    try {
-      const res = await api.get(`/project/contributors/${projectId}`);
-      const contributors = res.data.contributors;
-      setRole(contributors);
-    } catch (err) {
-      console.log('Error:', err);
-    }
-  };
-
-  const matchedContributor = role?.find(
-    item => item.userId._id === currentuser,
-  );
-
-  const permission = matchedContributor?.permission;
-  const owner = currentuser === createdById;
-
-  useEffect(() => {
-    getRole();
-  }, []);
-
-  // Role
   useEffect(() => {
     getDailyReportById();
   }, []);
@@ -125,45 +95,22 @@ const ReportDetailScreen = () => {
               <View style={styles.popupMenu}>
                 <Pressable
                   style={styles.popupItem}
-                  onPress={() => {
-                    if (owner || permission === 'can edit') {
-                      navigation.navigate('edit-daily-report', {
-                        report: dailyReport,
-                      });
-                    }
-                  }}
+                  onPress={() =>
+                    navigation.navigate('edit-daily-report', {
+                      report: dailyReport,
+                    })
+                  }
                 >
-                  <Text
-                    style={[
-                      styles.popupTextBold,
-                      {
-                        color:
-                          owner || permission === 'can edit'
-                            ? 'rgba(0, 11, 35, 1)'
-                            : 'gray',
-                      },
-                    ]}
-                  >
-                    Edit log
-                  </Text>
+                  <Text style={styles.popupTextBold}>Edit log</Text>
                 </Pressable>
 
                 <Pressable
                   style={styles.popupItem}
                   onPress={() => {
-                    if (owner) {
-                      setShowDeleteReport(true);
-                    }
+                    setShowDeleteReport(true);
                   }}
                 >
-                  <Text
-                    style={[
-                      styles.popupTextBold,
-                      { color: owner ? 'rgba(0, 11, 35, 1)' : 'gray' },
-                    ]}
-                  >
-                    Delete
-                  </Text>
+                  <Text style={styles.popupTextBold}>Delete</Text>
                 </Pressable>
 
                 <Pressable
@@ -569,7 +516,7 @@ const styles = StyleSheet.create({
   popupTextBold: {
     fontFamily: 'Inter-Bold',
     fontSize: 14,
-
+    color: 'rgba(0, 11, 35, 1)',
     fontWeight: '800',
   },
   cancelButton: {
