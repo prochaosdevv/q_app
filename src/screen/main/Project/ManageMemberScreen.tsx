@@ -65,7 +65,7 @@ const ManageMembers = () => {
     try {
       const payload = {
         projectId: projectId,
-        contributors: [{ email, permission: 'can view' }],
+        contributors: [{ email, permission: 'can edit' }],
       };
       await api.post(`/project/add-contributors/`, payload);
       setNewMemberEmail('');
@@ -82,7 +82,7 @@ const ManageMembers = () => {
     try {
       const response = await api.get(`/project/contributors/${projectId}`);
       console.log(projectId);
-      
+
       const data = response.data?.contributors || [];
 
       const uniqueMembers = data.filter(

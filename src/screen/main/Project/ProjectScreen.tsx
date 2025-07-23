@@ -58,14 +58,18 @@ const ProjectScreen = () => {
 
   const handleDelete = async () => {
     try {
-      await api.delete(`/project/delete/by/${selectedProjectId}`, {
+      const res = await api.delete(`/project/delete/by/${selectedProjectId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      setShowDeleteConfirmModal(false);
-      setActivePopupId(null);
-      getProject();
+      if (res.status === 200 || res.status === 204) {
+        setShowDeleteConfirmModal(false);
+        setActivePopupId(null);
+        getProject();
+      } else {
+        console.log('Project deleting error :', res.status);
+      }
     } catch (error) {
       console.log('Error deleting project :', error);
     }
