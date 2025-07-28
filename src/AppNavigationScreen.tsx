@@ -2,6 +2,7 @@ import { View, Text } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import 'react-native-url-polyfill/auto';
 
 // Screens
 import SplashScreen from './screen/auth/Splash/SplashScreen';
@@ -41,6 +42,17 @@ import UpdateWeeklyGoalScreen from './screen/main/Project/weekly/UpdateWeeklyGoa
 import UpdateWeeklyGoalByIdScreen from './screen/main/Project/weekly/UpdateWeeklyGoalByIdScreen';
 
 const Stack = createNativeStackNavigator();
+
+const linking = {
+  prefixes: ['qapp://', 'https://lumesh.vercel.app'],
+  config: {
+    screens: {
+      login: 'login',
+      otp: 'otp/:id',
+    },
+  },
+};
+
 const AppNavigationScreen = () => {
   const [showSplashScreen, setShowSplashScreen] = useState(true);
   const userEmail = useAuthStore(state => state.user?.email);
@@ -55,7 +67,7 @@ const AppNavigationScreen = () => {
     initialize();
   }, []);
   return (
-    <NavigationContainer>
+    <NavigationContainer linking={linking}>
       <Stack.Navigator>
         {showSplashScreen ? (
           <Stack.Screen

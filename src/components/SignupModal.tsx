@@ -30,7 +30,7 @@ export default function SignupModal({
             </Text>
 
             <Text style={styles.modalSubtitle}>
-              Please click the link below to accept the invitation
+              Please click the button below to accept the invitation
             </Text>
 
             <View style={styles.modalButtonContainer}>
@@ -38,13 +38,13 @@ export default function SignupModal({
                 style={styles.modalContinueButton}
                 android_ripple={{ color: '#ccc' }}
               >
-                <Text style={styles.modalContinueButtonText}>Continue</Text>
+                <Text style={styles.modalContinueButtonText}>Accept</Text>
               </Pressable>
               <Pressable
                 style={styles.cancelBtn}
                 onPress={() => setShowSignupModal(false)}
               >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
+                <Text style={styles.cancelButtonText}>Reject</Text>
               </Pressable>
             </View>
           </View>

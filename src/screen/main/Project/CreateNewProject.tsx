@@ -14,10 +14,18 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { ChevronLeft, ChevronDown, CirclePlus } from 'lucide-react-native';
+import {
+  ChevronLeft,
+  ChevronDown,
+  CirclePlus,
+  LogOut,
+} from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useCreateNewProject } from '../../../hooks/useCreateNewProject';
 import defaultLogo from '../../../assets/images/jsw_icon.png';
+import LogoutModal from '../../../components/LogoutModal';
+import { useAuthStore } from '../../../zustand/store/authStore';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
 const CreateNewProject = () => {
   const {
@@ -42,8 +50,32 @@ const CreateNewProject = () => {
     loading,
   } = useCreateNewProject();
 
+  const [showLogouModal, setShowLogouModal] = useState(false);
   const navigation = useNavigation();
   const [emailError, setEmailError] = useState();
+  const handleLogout = () => {
+    setShowLogouModal(true);
+  };
+  const handleModalContinue = async () => {
+    setShowLogouModal(false);
+    try {
+      const logout = useAuthStore.getState().logout;
+      await logout();
+      console.log('✅ Sign-out successful...!!');
+      // Sign out from Google
+      try {
+        await GoogleSignin.signOut();
+        console.log('✅ Google sign-out successful...!!');
+      } catch (googleError) {
+        console.warn('⚠️ Google Sign-Out failed:', googleError);
+      }
+
+      // Navigate to login screen
+      navigation.navigate('login');
+    } catch (error) {
+      console.log('❌ Logout Error:', error);
+    }
+  };
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar backgroundColor="#14274A" barStyle="light-content" />
@@ -55,7 +87,15 @@ const CreateNewProject = () => {
           <ChevronLeft color="white" size={24} />
         </Pressable>
         <Text style={styles.headerTitle}>Create New Project</Text>
+        <Pressable onPress={handleLogout} style={styles.backButton}>
+          <LogOut color="white" size={23} />
+        </Pressable>
       </View>
+      <LogoutModal
+        visible={showLogouModal}
+        onClose={() => setShowLogouModal(false)}
+        onContinue={handleModalContinue}
+      />
 
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
