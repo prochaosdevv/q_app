@@ -219,17 +219,21 @@ const CreateNewProject = () => {
                       setActiveRoleMenu(activeRoleMenu === index ? null : index)
                     }
                   >
-                    <Text style={styles.memberEmail}>{member.email}</Text>
-                    <View style={styles.roleContainer}>
-                      <Text style={styles.roleText}>{member.role}</Text>
-                      <ChevronDown
-                        color="#666"
-                        size={16}
-                        style={[
-                          styles.roleIcon,
-                          activeRoleMenu === index && styles.roleIconActive,
-                        ]}
-                      />
+                    <View style={{ width: '75%' }}>
+                      <Text style={styles.memberEmail}>{member.email}</Text>
+                    </View>
+                    <View style={{ width: '25%' }}>
+                      <View style={styles.roleContainer}>
+                        <Text style={styles.roleText}>{member.role}</Text>
+                        <ChevronDown
+                          color="#666"
+                          size={16}
+                          style={[
+                            styles.roleIcon,
+                            activeRoleMenu === index && styles.roleIconActive,
+                          ]}
+                        />
+                      </View>
                     </View>
                   </Pressable>
 

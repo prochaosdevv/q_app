@@ -8,14 +8,15 @@ import {
   ScrollView,
   Alert,
   StatusBar,
+  ActivityIndicator,
 } from 'react-native';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import { useNavigation } from '@react-navigation/native';
-import api from '../../../utils/api';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import forgotPasswordApi from '../../../utils/apiForgotPassword';
 const ForgotPasswordScreen = () => {
   const navigation = useNavigation();
   const [email, setEmail] = useState('');
@@ -36,19 +37,23 @@ const ForgotPasswordScreen = () => {
     setError('');
 
     try {
-      const response = await api.post('/user/request-otp', {
+      const response = await forgotPasswordApi.post('/user/request-otp', {
         email: userEmail,
       });
       const result = response.data;
 
-      if (result.data?.success) {
+      if (result.success) {
+        const token = await result.token;
+        console.log('Final Token:', token);
+
+        await AsyncStorage.setItem('forget_password_access_token', token);
+        
         navigation.navigate('otp-verify');
       } else {
-        navigation.navigate('otp-verify');
-        // setError(result.data?.message || 'Something went wrong.');
+        setError(result.message);
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Server error.');
+      setError('Request OTP error.');
     } finally {
       setLoading(false);
     }
@@ -98,10 +103,11 @@ const ForgotPasswordScreen = () => {
           onPress={handleResetPassword}
           disabled={loading}
         >
-          <Text style={styles.signInButtonText}>
-            {' '}
-            {loading ? 'Sending...' : 'Reset password'}
-          </Text>
+          {loading ? (
+            <ActivityIndicator size={'small'} color={'white'} />
+          ) : (
+            <Text style={styles.signInButtonText}>Reset password</Text>
+          )}
         </Pressable>
 
         <View style={styles.footer}>

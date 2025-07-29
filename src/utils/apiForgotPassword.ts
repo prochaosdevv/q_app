@@ -1,36 +1,33 @@
 import axios from 'axios';
 import { API_URL } from '@env';
-import { getAccessToken } from './tokenSetting';
+import { getForgotPasswordAccessToken } from './forgotPasswordTokenSetting';
 
-const api = axios.create({
+const forgotPasswordApi = axios.create({
   baseURL: API_URL,
   withCredentials: true,
 });
-
-api.interceptors.request.use(
+forgotPasswordApi.interceptors.request.use(
   async config => {
-    const token = await getAccessToken();
+    const token = await getForgotPasswordAccessToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
-  error => {
-    return Promise.reject(error);
-  },
+  error => Promise.reject(error),
 );
 
-api.interceptors.response.use(
+forgotPasswordApi.interceptors.response.use(
   response => response,
   error => {
     if (error.response?.status === 401) {
       console.log(
-        '🚫 Unauthorized - Token may be expired or invalid',
+        '🔐 Forgot Password Token Invalid or Expired:',
         error.response.data,
       );
     } else {
       console.log(
-        '❌ API Error:',
+        '❌ Forgot Password API Error:',
         error?.response?.status,
         error?.response?.data,
       );
@@ -39,4 +36,4 @@ api.interceptors.response.use(
   },
 );
 
-export default api;
+export default forgotPasswordApi;

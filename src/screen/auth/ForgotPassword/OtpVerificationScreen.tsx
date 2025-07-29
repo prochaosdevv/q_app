@@ -20,16 +20,17 @@ import {
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import { useNavigation } from '@react-navigation/native';
-import api from '../../../utils/api';
-import CreateNewPasswordScreen from './CreateNewPasswordScreen';
+import { getForgotPasswordAccessToken } from '../../../utils/forgotPasswordTokenSetting';
+import forgotPasswordApi from '../../../utils/apiForgotPassword';
 export default function OtpVerificationScreen() {
   const [otp, setOtp] = useState(['', '', '', '']);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [showContinueModal, setShowContinueModal] = useState(false);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const inputRefs = useRef<(TextInput | null)[]>([]);
   const navigation = useNavigation();
+
+  const token = getForgotPasswordAccessToken();
 
   const handleOtpChange = (value: string, index: number) => {
     const newOtp = [...otp];
@@ -47,7 +48,7 @@ export default function OtpVerificationScreen() {
   };
 
   const handleContinue = async () => {
-    const enteredOtp = otp.join('');
+    const enteredOtp = otp.join('').trim();
 
     if (enteredOtp.length !== 4) {
       setError('Enter 4 digits of the OTP.');
@@ -58,28 +59,39 @@ export default function OtpVerificationScreen() {
     setError('');
 
     try {
-      const response = await api.post('/user/verify-otp', {
-        otp: enteredOtp,
-        email: 'dsf2911@gmail.com',
-      });
+      const response = await forgotPasswordApi.post(
+        '/user/verify-otp',
+        {
+          otp: enteredOtp,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
 
       const result = response.data;
+      console.log('OTP Verification Result:', result);
+
       if (result.success) {
         navigation.navigate('create-new-password');
       } else {
-        navigation.navigate('create-new-password');
-        // setError(result.message || 'Invalid OTP.');
+        setError(result.message || 'Failed to verify OTP.');
       }
     } catch (error) {
-      setShowContinueModal(true);
-      // const errorMessage =
-      //   error.response?.data?.message || 'Server error. Please try again.';
-      // setError(errorMessage);
-      // console.log('Error verifying OTP:', errorMessage);
+      console.log('Error verifying OTP:', error);
+
+      if (error.response?.data?.message) {
+        setError(error.response.data.message);
+      } else {
+        setError('Something went wrong. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }
   };
+
   return (
     <SafeAreaView style={styles.scrollContainer}>
       <StatusBar barStyle="dark-content" backgroundColor="#f2f2f2" />
@@ -142,11 +154,6 @@ export default function OtpVerificationScreen() {
               <Text style={styles.continueButtonText}>Continue</Text>
             )}
           </Pressable>
-
-          <CreateNewPasswordScreen
-            visible={showContinueModal}
-            onClose={() => setShowContinueModal(false)}
-          />
 
           {!keyboardVisible && (
             <View style={styles.resendContainer}>

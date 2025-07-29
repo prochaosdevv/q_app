@@ -5,11 +5,30 @@ import {
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import { Check } from 'lucide-react-native';
+import api from '../utils/api';
 export default function SignupModal({
   showSignupModal,
   setShowSignupModal,
   handleSignupModal,
 }) {
+  const handleAccept = async () => {
+    try {
+      const res = await api.post('/project/accept-invitation');
+      setShowSignupModal(false);
+      console.log('Accept successfully');
+    } catch (error) {
+      console.log('Accept Error:', error);
+    }
+  };
+  const handleReject = async () => {
+    try {
+      const res = await api.post('/project/decline-invitation');
+      setShowSignupModal(false);
+      console.log('Reject successfully');
+    } catch (error) {
+      console.log('Reject Error:', error);
+    }
+  };
   return (
     <Modal
       visible={showSignupModal}
@@ -37,13 +56,11 @@ export default function SignupModal({
               <Pressable
                 style={styles.modalContinueButton}
                 android_ripple={{ color: '#ccc' }}
+                onPress={handleAccept}
               >
                 <Text style={styles.modalContinueButtonText}>Accept</Text>
               </Pressable>
-              <Pressable
-                style={styles.cancelBtn}
-                onPress={() => setShowSignupModal(false)}
-              >
+              <Pressable style={styles.cancelBtn} onPress={handleReject}>
                 <Text style={styles.cancelButtonText}>Reject</Text>
               </Pressable>
             </View>

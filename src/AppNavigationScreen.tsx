@@ -47,8 +47,7 @@ const linking = {
   prefixes: ['qapp://', 'https://lumesh.vercel.app'],
   config: {
     screens: {
-      login: 'login',
-      otp: 'otp/:id',
+      signup: 'signup',
     },
   },
 };

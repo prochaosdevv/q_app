@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   Pressable,
   ScrollView,
   StatusBar,
+  Linking,
 } from 'react-native';
 import {
   widthPercentageToDP as wp,
@@ -23,7 +24,36 @@ const SignupScreen = () => {
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState({});
   const [showSignupModal, setShowSignupModal] = useState(false);
+  const [openedFromDeepLink, setOpenedFromDeepLink] = useState(false);
   const navigation = useNavigation();
+
+  useEffect(() => {
+    const checkInitialURL = async () => {
+      const url = await Linking.getInitialURL();
+
+      if (url && url.includes('signup')) {
+        setOpenedFromDeepLink(true);
+        setShowSignupModal(true);
+      }
+    };
+
+    checkInitialURL();
+  }, []);
+
+  useEffect(() => {
+    const handleDeepLink = ({ url }) => {
+      if (url.includes('signup')) {
+        setOpenedFromDeepLink(true);
+        setShowSignupModal(true);
+      }
+    };
+
+    const listener = Linking.addEventListener('url', handleDeepLink);
+
+    return () => {
+      listener.remove(); // 🔹 Cleanup listener
+    };
+  }, []);
 
   const handleSignupModal = () => {
     console.log('Report sent!');
@@ -102,14 +132,6 @@ const SignupScreen = () => {
             Our project management app brings better visibility to your projects
             progress
           </Text>
-          <Pressable onPress={() => setShowSignupModal(true)}>
-            <Text>Modal</Text>
-          </Pressable>
-          <SignupModal
-            showSignupModal={showSignupModal}
-            setShowSignupModal={setShowSignupModal}
-            handleSignupModal={handleSignupModal}
-          />
         </View>
 
         <View style={styles.form}>
@@ -203,6 +225,12 @@ const SignupScreen = () => {
           </View>
         </View>
       </View>
+
+      <SignupModal
+        showSignupModal={showSignupModal}
+        setShowSignupModal={setShowSignupModal}
+        handleSignupModal={handleSignupModal}
+      />
     </ScrollView>
   );
 };
