@@ -14,7 +14,7 @@ import {
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import api from '../../../utils/api';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import signInWithGoogle from '../../../utils/signInWithGoogle';
 import SignupModal from '../../../components/SignupModal';
 
@@ -26,6 +26,9 @@ const SignupScreen = () => {
   const [showSignupModal, setShowSignupModal] = useState(false);
   const [openedFromDeepLink, setOpenedFromDeepLink] = useState(false);
   const navigation = useNavigation();
+
+  const route = useRoute();
+  const { projectId } = route.params || {};
 
   useEffect(() => {
     const checkInitialURL = async () => {
@@ -127,7 +130,9 @@ const SignupScreen = () => {
         <View style={styles.topSpace} />
 
         <View style={styles.header}>
-          <Text style={styles.title}>Join JSW 2025 project management</Text>
+          <Text style={styles.title}>
+            Join JSW 2025 project management {projectId + 'dsf'}
+          </Text>
           <Text style={styles.subtitle}>
             Our project management app brings better visibility to your projects
             progress

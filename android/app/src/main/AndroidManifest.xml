@@ -17,26 +17,21 @@
       android:launchMode="singleTask"
       android:windowSoftInputMode="adjustResize"
       android:exported="true">
-      <!-- 1️⃣ Launcher: keep this! -->
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />
       </intent-filter>
 
-      <!-- 2️⃣ Custom scheme deep link -->
       <intent-filter android:autoVerify="true">
         <action android:name="android.intent.action.VIEW" />
         <category android:name="android.intent.category.DEFAULT" />
         <category android:name="android.intent.category.BROWSABLE" />
-        <data android:scheme="https" android:host="lumesh.vercel.app" />
+        <data
+          android:scheme="https"
+          android:host="q-app-admin-rho.vercel.app"
+          android:pathPrefix="/signup" />
       </intent-filter>
-      
-      <intent-filter>
-        <action android:name="android.intent.action.VIEW" />
-        <category android:name="android.intent.category.DEFAULT" />
-        <category android:name="android.intent.category.BROWSABLE" />
-        <data android:scheme="qapp" />
-      </intent-filter>
+
 
     </activity>
   </application>

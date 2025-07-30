@@ -2,10 +2,10 @@
   {
     "relation": ["delegate_permission/common.handle_all_urls"],
     "target": {
-      "namespace": "com.q_app",
+      "namespace": "android_app",
       "package_name": "com.q_app",
       "sha256_cert_fingerprints": [
-        "EE:17:5A:D1:49:E1:31:14:93:07:D0:C8:F7:CA:0E:5B:EA:62:3F:67:55:FA:9C:52:6F:60:25:20:85:32:9C:43"
+        "7E:D5:CC:9D:C1:EB:81:96:A5:C3:20:1B:F5:B5:61:A6:79:E0:2F:0E:B2:97:BB:D0:5E:E4:15:51:44:D1:17:0E"
       ]
     }
   }

@@ -44,10 +44,15 @@ import UpdateWeeklyGoalByIdScreen from './screen/main/Project/weekly/UpdateWeekl
 const Stack = createNativeStackNavigator();
 
 const linking = {
-  prefixes: ['qapp://', 'https://lumesh.vercel.app'],
+  prefixes: ['https://q-app-admin-rho.vercel.app'],
   config: {
     screens: {
-      signup: 'signup',
+      signup: {
+        path: 'signup',
+        parse: {
+          projectId: id => `${id}`,
+        },
+      },
     },
   },
 };
