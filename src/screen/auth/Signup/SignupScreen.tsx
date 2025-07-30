@@ -16,52 +16,17 @@ import {
 import api from '../../../utils/api';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import signInWithGoogle from '../../../utils/signInWithGoogle';
-import SignupModal from '../../../components/SignupModal';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAuthStore } from '../../../zustand/store/authStore';
 
 const SignupScreen = () => {
   const [fullname, setFullname] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState({});
-  const [showSignupModal, setShowSignupModal] = useState(false);
-  const [openedFromDeepLink, setOpenedFromDeepLink] = useState(false);
+  const { setUser, setToken } = useAuthStore.getState();
+
   const navigation = useNavigation();
-
-  const route = useRoute();
-  const { projectId } = route.params || {};
-
-  useEffect(() => {
-    const checkInitialURL = async () => {
-      const url = await Linking.getInitialURL();
-
-      if (url && url.includes('signup')) {
-        setOpenedFromDeepLink(true);
-        setShowSignupModal(true);
-      }
-    };
-
-    checkInitialURL();
-  }, []);
-
-  useEffect(() => {
-    const handleDeepLink = ({ url }) => {
-      if (url.includes('signup')) {
-        setOpenedFromDeepLink(true);
-        setShowSignupModal(true);
-      }
-    };
-
-    const listener = Linking.addEventListener('url', handleDeepLink);
-
-    return () => {
-      listener.remove(); // 🔹 Cleanup listener
-    };
-  }, []);
-
-  const handleSignupModal = () => {
-    console.log('Report sent!');
-    setShowSignupModal(false);
-  };
   const handleSignUp = async () => {
     const newErrors = {};
 
@@ -93,9 +58,14 @@ const SignupScreen = () => {
 
       const response = await api.post('user/register', payload);
       const data = response.data;
+      console.log('Data', data);
 
       if (data.success) {
-        navigation.navigate('login');
+        await AsyncStorage.setItem('access_token', data.token);
+        setToken(data.token);
+        setUser(data.user);
+
+        navigation.navigate('pending-status');
       } else if (
         data.message &&
         data.message.toLowerCase().includes('email already exists')
@@ -130,9 +100,7 @@ const SignupScreen = () => {
         <View style={styles.topSpace} />
 
         <View style={styles.header}>
-          <Text style={styles.title}>
-            Join JSW 2025 project management {projectId + 'dsf'}
-          </Text>
+          <Text style={styles.title}>Join JSW 2025 project management</Text>
           <Text style={styles.subtitle}>
             Our project management app brings better visibility to your projects
             progress
@@ -230,12 +198,6 @@ const SignupScreen = () => {
           </View>
         </View>
       </View>
-
-      <SignupModal
-        showSignupModal={showSignupModal}
-        setShowSignupModal={setShowSignupModal}
-        handleSignupModal={handleSignupModal}
-      />
     </ScrollView>
   );
 };

@@ -19,6 +19,7 @@ import {
   LogOut,
   ClipboardList,
   FilePen,
+  CircleFadingArrowUp,
 } from 'lucide-react-native';
 import {
   widthPercentageToDP as wp,
@@ -123,6 +124,15 @@ const SettingScreen = () => {
           <FilePen size={20} color="#141b41" />
           <Text style={styles.menuText}>Create New Project</Text>
         </Pressable>
+        <Pressable
+          style={styles.menuItem}
+          onPress={() => {
+            navigation.navigate('pending-status');
+          }}
+        >
+          <CircleFadingArrowUp size={22} color="#141b41" />
+          <Text style={styles.menuText}>Pending Status</Text>
+        </Pressable>
 
         <Pressable
           style={styles.menuItem}
@@ -131,6 +141,7 @@ const SettingScreen = () => {
           }}
         >
           <SettingsIcon size={20} color="#141b41" />
+
           <Text style={styles.menuText}>Account management</Text>
         </Pressable>
 
