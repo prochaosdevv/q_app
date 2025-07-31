@@ -20,6 +20,7 @@ import {
   ClipboardList,
   FilePen,
   CircleFadingArrowUp,
+  ClockFading,
 } from 'lucide-react-native';
 import {
   widthPercentageToDP as wp,
@@ -131,7 +132,7 @@ const SettingScreen = () => {
           }}
         >
           <CircleFadingArrowUp size={22} color="#141b41" />
-          <Text style={styles.menuText}>Pending Status</Text>
+          <Text style={styles.menuText}>Pending Invitation</Text>
         </Pressable>
 
         <Pressable
@@ -142,7 +143,7 @@ const SettingScreen = () => {
         >
           <SettingsIcon size={20} color="#141b41" />
 
-          <Text style={styles.menuText}>Account management</Text>
+          <Text style={styles.menuText}>Account Management</Text>
         </Pressable>
 
         <Pressable
@@ -153,6 +154,16 @@ const SettingScreen = () => {
         >
           <Lock size={20} color="#141b41" />
           <Text style={styles.menuText}>Change Password</Text>
+        </Pressable>
+        <Pressable
+          style={styles.menuItem}
+          onPress={() => {
+            navigation.navigate('maintenance');
+          }}
+        >
+          <ClockFading size={22} color="#141b41" />
+
+          <Text style={styles.menuText}>Maintenance</Text>
         </Pressable>
 
         <Pressable
@@ -172,7 +183,7 @@ const SettingScreen = () => {
           }}
         >
           <SettingsIcon size={20} color="#141b41" />
-          <Text style={styles.menuText}>Terms and conditions</Text>
+          <Text style={styles.menuText}>Terms and Conditions</Text>
         </Pressable>
 
         <Pressable style={styles.menuItem} onPress={handleLogout}>

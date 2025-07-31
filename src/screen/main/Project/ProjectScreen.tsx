@@ -205,6 +205,10 @@ const ProjectScreen = () => {
                   Projects linked to
                   <Text style={styles.email}> {currentEmail}</Text>
                 </Text>
+                <Settings
+                  onPress={() => setShowPopup(prev => !prev)}
+                  style={{ position: 'absolute', top: 15, right: 5 }}
+                />
               </>
             ) : (
               <View style={{ marginTop: 10 }}>
@@ -215,12 +219,13 @@ const ProjectScreen = () => {
                   Create a project linked to
                   <Text style={styles.email}> {currentEmail}</Text>
                 </Text>
+                <Settings
+                  onPress={() => setShowPopup(prev => !prev)}
+                  style={{ position: 'absolute', top: 12, right: 3 }}
+                />
               </View>
             )}
-            <Settings
-              onPress={() => setShowPopup(prev => !prev)}
-              style={{ position: 'absolute', top: 15, right: 5 }}
-            />
+
             {showPopup && (
               <View style={styles.popupMenu1}>
                 <Pressable

@@ -41,6 +41,7 @@ import WeeklyGoalListScreen from './screen/main/Project/weekly/WeeklyGoalListScr
 import UpdateWeeklyGoalScreen from './screen/main/Project/weekly/UpdateWeeklyGoalScreen';
 import UpdateWeeklyGoalByIdScreen from './screen/main/Project/weekly/UpdateWeeklyGoalByIdScreen';
 import PendingStatusScreen from './screen/main/Project/Settings/PendingStatusScreen';
+import MaintenanceScreen from './screen/main/Project/Settings/MaintenanceScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -219,6 +220,11 @@ const AppNavigationScreen = () => {
         <Stack.Screen
           name="pending-status"
           component={PendingStatusScreen}
+          options={{ headerShown: false, statusBarStyle: 'dark' }}
+        />
+        <Stack.Screen
+          name="maintenance"
+          component={MaintenanceScreen}
           options={{ headerShown: false, statusBarStyle: 'dark' }}
         />
         {/* <Stack.Screen name="drawernav" component={DrawerNavigationScreen} /> */}
