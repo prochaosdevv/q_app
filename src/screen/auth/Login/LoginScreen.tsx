@@ -7,6 +7,7 @@ import {
   Pressable,
   ScrollView,
   StatusBar,
+  ActivityIndicator,
 } from 'react-native';
 import { Check } from 'lucide-react-native';
 import {
@@ -24,8 +25,11 @@ const LoginScreen = () => {
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+
   const navigation = useNavigation();
   const { setUser, setToken } = useAuthStore.getState();
+
   // Handle Login
   const handleLogin = async () => {
     const newErrors = {};
@@ -42,6 +46,7 @@ const LoginScreen = () => {
     }
     try {
       setErrors({});
+      setLoading(true);
 
       // Payload
       const payload = { email: email.trim(), password: password.trim() };
@@ -64,6 +69,8 @@ const LoginScreen = () => {
     } catch (error) {
       console.error('Login error:', error);
       setErrors({ general: 'Invalid email or password...!!' });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -152,7 +159,11 @@ const LoginScreen = () => {
           </View>
 
           <Pressable style={styles.signInButton} onPress={handleLogin}>
-            <Text style={styles.signInButtonText}>Sign in</Text>
+            {loading ? (
+              <ActivityIndicator size={'small'} color="#fff" />
+            ) : (
+              <Text style={styles.signInButtonText}>Sign In</Text>
+            )}
           </Pressable>
 
           <Pressable

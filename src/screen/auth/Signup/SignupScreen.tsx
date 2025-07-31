@@ -8,6 +8,7 @@ import {
   ScrollView,
   StatusBar,
   Linking,
+  ActivityIndicator,
 } from 'react-native';
 import {
   widthPercentageToDP as wp,
@@ -25,8 +26,13 @@ const SignupScreen = () => {
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState({});
   const { setUser, setToken } = useAuthStore.getState();
+  const [loading, setLoading] = useState(false);
 
   const navigation = useNavigation();
+
+  const clearFieldError = field =>
+    setErrors(prev => ({ ...prev, [field]: '' }));
+
   const handleSignUp = async () => {
     const newErrors = {};
 
@@ -35,61 +41,53 @@ const SignupScreen = () => {
     if (!email) newErrors.email = 'Email is required.';
     else if (!email.includes('@'))
       newErrors.email = 'Enter a valid email address.';
-
     if (!password) newErrors.password = 'Password is required.';
     else if (password.length < 6)
       newErrors.password = 'Password must be at least 6 characters.';
 
-    // If any validation failed
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
 
     try {
+      setLoading(true);
       setErrors({});
 
-      // Payload
       const payload = {
         fullname: fullname.trim(),
         email: email.trim().toLowerCase(),
         password: password.trim(),
       };
 
-      const response = await api.post('user/register', payload);
+      const response = await api.post('/user/register', payload);
       const data = response.data;
-      console.log('Data', data);
 
       if (data.success) {
         await AsyncStorage.setItem('access_token', data.token);
         setToken(data.token);
         setUser(data.user);
-
         navigation.navigate('pending-status');
-      } else if (
-        data.message &&
-        data.message.toLowerCase().includes('email already exists')
-      ) {
-        setErrors({ email: 'Email already exists. Please try another.' });
       } else {
-        setErrors({ general: data.message || 'User registration failed.' });
+        setErrors({
+          email: data.message?.toLowerCase().includes('email already')
+            ? 'Email already exists. Please try another.'
+            : '',
+          general: data.message || 'User registration failed.',
+        });
       }
     } catch (error) {
       console.error('Signup Error:', error);
 
-      if (error.response && error.response.data?.message) {
-        const serverMessage = error.response.data.message.toLowerCase();
+      const serverMessage = error.response?.data?.message?.toLowerCase() || '';
 
-        if (serverMessage.includes('email already exists')) {
-          return setErrors({
-            email: 'Email already exists. Please try another.',
-          });
-        }
-
-        return setErrors({ general: error.response.data.message });
+      if (serverMessage.includes('email already exists')) {
+        setErrors({ email: 'Email already exists. Please try another.' });
+      } else {
+        setErrors({ general: serverMessage || 'Signup failed. Try again.' });
       }
-
-      setErrors({ general: 'Signup failed. Please try again.' });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -117,7 +115,7 @@ const SignupScreen = () => {
               value={fullname}
               onChangeText={text => {
                 setFullname(text);
-                setErrors(prev => ({ ...prev, email: '' }));
+                clearFieldError('fullname');
               }}
             />
             {errors.fullname && (
@@ -135,7 +133,7 @@ const SignupScreen = () => {
               value={email}
               onChangeText={text => {
                 setEmail(text);
-                setErrors(prev => ({ ...prev, email: '' }));
+                clearFieldError('email');
               }}
             />
             {errors.email && (
@@ -153,7 +151,7 @@ const SignupScreen = () => {
               value={password}
               onChangeText={text => {
                 setPassword(text);
-                setErrors(prev => ({ ...prev, email: '' }));
+                clearFieldError('password');
               }}
             />
             {errors.password && (
@@ -176,7 +174,11 @@ const SignupScreen = () => {
             <Text style={styles.link}>Privacy Policy</Text>.
           </Text>
           <Pressable style={styles.signInButton} onPress={handleSignUp}>
-            <Text style={styles.signInButtonText}>Sign Up</Text>
+            {loading ? (
+              <ActivityIndicator size={'small'} color="#fff" />
+            ) : (
+              <Text style={styles.signInButtonText}>Sign Up</Text>
+            )}
           </Pressable>
 
           <Pressable

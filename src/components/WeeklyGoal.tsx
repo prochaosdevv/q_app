@@ -20,6 +20,7 @@ export default function WeeklyGoal({ refreshing }) {
   const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
   const navigation = useNavigation();
   const projectId = useProjectStore(state => state.id);
+  
 
   const { user } = useAuthStore.getState();
 

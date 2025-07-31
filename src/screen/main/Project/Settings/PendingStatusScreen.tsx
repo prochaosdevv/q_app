@@ -18,10 +18,11 @@ import {
 } from 'react-native-responsive-screen';
 import { useNavigation } from '@react-navigation/native';
 import moment from 'moment';
-import { Check, EllipsisVertical, X } from 'lucide-react-native';
+import { Check, ChevronRight, EllipsisVertical, X } from 'lucide-react-native';
 import { useAuthStore } from '../../../../zustand/store/authStore';
 import api from '../../../../utils/api';
 import { getAccessToken } from '../../../../utils/tokenSetting';
+
 export default function PendingStatusScreen() {
   const navigation = useNavigation();
   const { user } = useAuthStore.getState();
@@ -71,6 +72,7 @@ export default function PendingStatusScreen() {
 
         setShowAcceptModal(false);
         setShowSuccessModal(true);
+        navigation.navigate('projects');
       } else if (actionType === 'reject') {
         await api.post(`/project/decline-invitation/`, payload, {
           headers: {
@@ -80,6 +82,7 @@ export default function PendingStatusScreen() {
         });
         setShowAcceptModal(false);
         setShowRejectModal(true);
+        navigation.navigate('projects');
       }
     } catch (err) {
       console.log('Action error:', err);
@@ -145,9 +148,23 @@ export default function PendingStatusScreen() {
         <View style={styles.topSection}>
           <View style={styles.topSpace} />
           <View style={styles.header}>
-            <Text style={styles.title}>You’re connected to projects</Text>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+            >
+              <Text style={styles.title}>Pending Invitations</Text>
+              <ChevronRight
+                color="#141b41"
+                onPress={() => navigation.navigate('projects')}
+                size={28}
+                style={{ marginTop: -5 }}
+              />
+            </View>
             <Text style={styles.subtitle}>
-              Projects linked to
+              Pending invites linked to
               <Text style={styles.email}> {currentEmail}</Text>
             </Text>
           </View>
@@ -160,6 +177,20 @@ export default function PendingStatusScreen() {
             refreshing={refreshing}
             onRefresh={onRefresh}
             showsVerticalScrollIndicator={false}
+            ListEmptyComponent={() => (
+              <View
+                style={{
+                  flex: 1,
+                  height: hp('60%'),
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Text style={{ fontSize: 16, color: '#999' }}>
+                  Pending invitation not found.
+                </Text>
+              </View>
+            )}
           />
         </View>
       </View>
@@ -361,7 +392,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp('5%'),
   },
   topSection: {
-    flex: 0.22,
+    flex: 0.17,
     justifyContent: 'center',
   },
   middleSection: {

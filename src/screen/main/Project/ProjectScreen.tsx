@@ -22,8 +22,10 @@ import api from '../../../utils/api';
 import { useAuthStore } from '../../../zustand/store/authStore';
 import moment from 'moment';
 import { useProjectStore } from '../../../zustand/store/projectStore';
-import { Check, EllipsisVertical } from 'lucide-react-native';
+import { Check, EllipsisVertical, Settings } from 'lucide-react-native';
 import { getAccessToken } from '../../../utils/tokenSetting';
+import LogoutModal from '../../../components/LogoutModal';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 const ProjectScreen = () => {
   const navigation = useNavigation();
   const { user } = useAuthStore.getState();
@@ -37,6 +39,7 @@ const ProjectScreen = () => {
   const [selectedProjectId, setSelectedProjectId] = useState(null);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const token = getAccessToken();
+  const [showPopup, setShowPopup] = useState(false);
 
   const currentEmail = user?.email;
 
@@ -94,6 +97,32 @@ const ProjectScreen = () => {
   useEffect(() => {
     getProject();
   }, []);
+
+  // Handle Logout
+  const [showLogouModal, setShowLogouModal] = useState(false);
+  const handleLogout = () => {
+    setShowLogouModal(true);
+  };
+  const handleModalContinue = async () => {
+    setShowLogouModal(false);
+    try {
+      const logout = useAuthStore.getState().logout;
+      await logout();
+      console.log('✅ Sign-out successful...!!');
+      // Sign out from Google
+      try {
+        await GoogleSignin.signOut();
+        console.log('✅ Google sign-out successful...!!');
+      } catch (googleError) {
+        console.warn('⚠️ Google Sign-Out failed:', googleError);
+      }
+
+      // Navigate to login screen
+      navigation.navigate('login');
+    } catch (error) {
+      console.log('❌ Logout Error:', error);
+    }
+  };
 
   // Set project id
   const navigateToBottom = item => {
@@ -186,6 +215,30 @@ const ProjectScreen = () => {
                   Create a project linked to
                   <Text style={styles.email}> {currentEmail}</Text>
                 </Text>
+              </View>
+            )}
+            <Settings
+              onPress={() => setShowPopup(prev => !prev)}
+              style={{ position: 'absolute', top: 15, right: 5 }}
+            />
+            {showPopup && (
+              <View style={styles.popupMenu1}>
+                <Pressable
+                  style={styles.popupItem1}
+                  onPress={() => navigation.navigate('pending-status')}
+                >
+                  <Text style={styles.popupTextBold1}>Pending</Text>
+                </Pressable>
+
+                <Pressable style={styles.popupItem1} onPress={handleLogout}>
+                  <Text style={styles.popupTextBold1}>Logout</Text>
+                </Pressable>
+
+                <LogoutModal
+                  visible={showLogouModal}
+                  onClose={() => setShowLogouModal(false)}
+                  onContinue={handleModalContinue}
+                />
               </View>
             )}
           </View>
@@ -358,7 +411,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily: 'Inter-Bold',
-    fontSize: wp('9%'),
+    fontSize: wp('7%'),
     color: '#141b41',
     marginBottom: hp('1%'),
     fontWeight: 'bold',
@@ -447,14 +500,13 @@ const styles = StyleSheet.create({
 
   popupMenu: {
     position: 'absolute',
-    right: 10,
-    top: 50,
+    right: 20,
     bottom: -4,
     backgroundColor: '#fff',
     borderRadius: 16,
     paddingVertical: 10,
     paddingHorizontal: 8,
-    width: 140,
+    width: 110,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
@@ -468,24 +520,12 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 10,
   },
-  popupIcon: {
-    marginRight: 12,
-  },
+
   popupTextBold: {
     fontFamily: 'Inter-Bold',
     fontSize: 14,
     color: 'rgba(0, 11, 35, 1)',
     fontWeight: '800',
-  },
-  cancelButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 10,
-    marginBottom: 20,
-  },
-  cancelText: {
-    fontFamily: 'Inter-Bold',
-    fontSize: 14,
-    color: 'rgba(0, 11, 35, 1)',
   },
 
   // Delete Modal
@@ -579,5 +619,25 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 20,
     elevation: 10,
+  },
+
+  popupMenu1: {
+    position: 'absolute',
+    top: 50,
+    right: 10,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    elevation: 5,
+    zIndex: 9,
+    width: 110,
+    padding: 5,
+  },
+  popupItem1: {
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+  },
+  popupTextBold1: {
+    fontWeight: 'bold',
+    fontSize: 14,
   },
 });
