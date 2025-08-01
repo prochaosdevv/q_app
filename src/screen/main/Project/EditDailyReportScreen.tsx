@@ -521,9 +521,7 @@ export default function EditDailyReportScreen() {
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        <Text style={styles.title}>
-          {moment().format('dddd DD MMMM')} Report
-        </Text>
+        <Text style={styles.title}>{moment().format('dddd DD MMMM YYYY')}</Text>
 
         {/* Progress Section */}
         <View style={styles.section}>
@@ -1018,6 +1016,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: 'rgba(37, 36, 36, 1)',
     marginBottom: 24,
+    fontWeight: '700',
   },
   section: {
     marginBottom: 24,

@@ -113,7 +113,7 @@ const ReportDetailScreen = () => {
         {/* // Inside the ScrollView > top_section */}
         <View style={styles.top_section}>
           <Text style={styles.date}>
-            {moment(dailyReport.createdAt).format('dddd DD MMMM')}
+            {moment(dailyReport.createdAt).format('dddd DD MMMM YYYY')}
           </Text>
 
           <View style={{ position: 'relative' }}>
@@ -381,13 +381,16 @@ const ReportDetailScreen = () => {
               }}
             >
               <Pressable
-                style={styles.deleteButton}
+                style={[styles.deleteButton,{paddingHorizontal: 30}]}
                 onPress={deleteDailyReport}
               >
-                <Text style={styles.deleteButtonText}>Delete Report</Text>
+                <Text style={styles.deleteButtonText}>Delete</Text>
               </Pressable>
               <Pressable
-                style={styles.cancelButton_}
+                style={[
+                  styles.cancelButton_,
+                  { borderWidth: 2, paddingHorizontal: 30 },
+                ]}
                 onPress={() => setShowDeleteReport(false)}
               >
                 <Text style={styles.cancelButtonText}>Cancel</Text>

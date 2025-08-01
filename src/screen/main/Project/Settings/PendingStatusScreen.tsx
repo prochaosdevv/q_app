@@ -18,7 +18,13 @@ import {
 } from 'react-native-responsive-screen';
 import { useNavigation } from '@react-navigation/native';
 import moment from 'moment';
-import { Check, ChevronRight, EllipsisVertical, X } from 'lucide-react-native';
+import {
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  EllipsisVertical,
+  X,
+} from 'lucide-react-native';
 import { useAuthStore } from '../../../../zustand/store/authStore';
 import api from '../../../../utils/api';
 import { getAccessToken } from '../../../../utils/tokenSetting';
@@ -144,30 +150,23 @@ export default function PendingStatusScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar backgroundColor="#14274A" barStyle="light-content" />
+
+      <View style={styles.header}>
+        <Pressable
+          onPress={() => navigation.navigate('projects')}
+          style={styles.backButton}
+        >
+          <ChevronLeft color="white" size={24} />
+        </Pressable>
+        <Text style={styles.headerTitle}>Pending Invitation</Text>
+      </View>
       <View style={styles.content}>
         <View style={styles.topSection}>
-          <View style={styles.topSpace} />
-          <View style={styles.header}>
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-              }}
-            >
-              <Text style={styles.title}>Pending Invitations</Text>
-              <ChevronRight
-                color="#141b41"
-                onPress={() => navigation.navigate('projects')}
-                size={28}
-                style={{ marginTop: -5 }}
-              />
-            </View>
-            <Text style={styles.subtitle}>
-              Pending invites linked to
-              <Text style={styles.email}> {currentEmail}</Text>
-            </Text>
-          </View>
+          <Text style={styles.subtitle}>
+            Pending invites linked to
+            <Text style={styles.email}> {currentEmail}</Text>
+          </Text>
         </View>
         <View style={styles.middleSection}>
           <FlatList
@@ -387,24 +386,40 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: wp('3%'),
+    borderBottomWidth: 1,
+    borderBottomColor: '#14274A',
+    backgroundColor: '#14274A',
+    paddingTop: hp('6%'),
+    paddingBottom: hp('3%'),
+  },
+  backButton: {
+    position: 'relative',
+    zIndex: 1,
+  },
+  headerTitle: {
+    fontFamily: 'Inter-Medium',
+    fontSize: hp('1.7%'),
+    color: 'white',
+    textAlign: 'center',
+    flex: 1,
+    marginLeft: -hp('2%'),
+  },
   content: {
     flex: 1,
     paddingHorizontal: wp('5%'),
   },
   topSection: {
-    flex: 0.17,
+    flex: 0.1,
     justifyContent: 'center',
   },
   middleSection: {
     flex: 0.65,
   },
 
-  topSpace: {
-    height: hp('5%'),
-  },
-  header: {
-    marginBottom: hp('0.1'),
-  },
   title: {
     fontFamily: 'Inter-Bold',
     fontSize: wp('6%'),

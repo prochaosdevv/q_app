@@ -883,6 +883,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: 'rgba(37, 36, 36, 1)',
     marginBottom: 24,
+    fontWeight: '900',
   },
   section: {
     marginBottom: 24,

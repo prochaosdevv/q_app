@@ -113,7 +113,6 @@ export const useCreateNewProject = () => {
 
       if (response.data?.success) {
         const project = response.data.project;
-        console.log('project', project);
 
         const projectId = project._id;
         const projectImage = project.image;
@@ -121,7 +120,7 @@ export const useCreateNewProject = () => {
         setProjectId(projectId);
         setProjectImage(projectImage);
         setCreatedBy(createdBy);
-        navigation.navigate('create-weekly-goal');
+        navigation.navigate('bottom');
       } else {
         setError('Failed to create project. Please try again.');
       }

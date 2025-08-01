@@ -74,7 +74,7 @@ export default function DailySubmission({ refreshing }) {
       <View style={styles.reportCard}>
         <View style={styles.reportHeader}>
           <Text style={styles.reportDate}>
-            {moment(item.createdAt).format('dddd DD MMMM')}
+            {moment(item.createdAt).format('dddd D MMM')}
           </Text>
 
           <Pressable
