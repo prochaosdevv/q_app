@@ -159,12 +159,12 @@ export default function PendingStatusScreen() {
         >
           <ChevronLeft color="white" size={24} />
         </Pressable>
-        <Text style={styles.headerTitle}>Pending Invitation</Text>
+        <Text style={styles.headerTitle}>Invitation</Text>
       </View>
       <View style={styles.content}>
         <View style={styles.topSection}>
           <Text style={styles.subtitle}>
-            Pending invites linked to
+            Invites linked to
             <Text style={styles.email}> {currentEmail}</Text>
           </Text>
         </View>
@@ -186,7 +186,7 @@ export default function PendingStatusScreen() {
                 }}
               >
                 <Text style={{ fontSize: 16, color: '#999' }}>
-                  Pending invitation not found.
+                   Invitation not found.
                 </Text>
               </View>
             )}

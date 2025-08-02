@@ -3,22 +3,24 @@ import { Calendar, CalendarDays } from 'lucide-react-native';
 
 interface ReportListItemProps {
   title: string;
-  dateRange: string;
   description: string;
+  startDate: string;
+  endDate: string;
   onPress: () => void;
 }
 
 export function ReportListItem({
   title,
-  dateRange,
   description,
+  startDate,
+  endDate,
   onPress,
 }: ReportListItemProps) {
   return (
     <Pressable style={styles.container} onPress={onPress}>
       <View style={styles.dateContainer}>
         <CalendarDays size={16} color="rgba(0, 0, 0, 1)" />
-        <Text style={styles.dateText}>{dateRange}</Text>
+        <Text style={styles.dateText}>{`${startDate} | ${endDate}`}</Text>
       </View>
 
       <Text style={styles.title}>{title}</Text>

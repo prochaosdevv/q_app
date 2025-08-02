@@ -232,7 +232,7 @@ const ProjectScreen = () => {
                   style={styles.popupItem1}
                   onPress={() => navigation.navigate('pending-status')}
                 >
-                  <Text style={styles.popupTextBold1}>Pending</Text>
+                  <Text style={styles.popupTextBold1}>Invitation</Text>
                 </Pressable>
 
                 <Pressable style={styles.popupItem1} onPress={handleLogout}>

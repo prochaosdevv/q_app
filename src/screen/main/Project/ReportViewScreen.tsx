@@ -6,6 +6,7 @@ import {
   Pressable,
   StatusBar,
   SafeAreaView,
+  RefreshControl,
 } from 'react-native';
 import {
   ChevronLeft,
@@ -19,11 +20,25 @@ import {
   ClockAlert,
 } from 'lucide-react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import DailySubmission from '../../../components/DailySubmission';
+import { useState } from 'react';
+import moment from 'moment';
 
-const ReportViewScreen = () => {
+const ReportViewScreen = ({ item }) => {
   const navigation = useNavigation();
-  const route = useRoute();
-  const { dateRange, title, description } = route.params;
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1500));
+    } catch (error) {
+      console.error('Error refreshing:', error);
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -47,16 +62,26 @@ const ReportViewScreen = () => {
         style={styles.content}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={['#141b41']}
+            tintColor="#141b41"
+          />
+        }
       >
-        <Text style={styles.dateRange}>{dateRange}</Text>
+        <Text style={styles.dateRange}>{`${moment(item.startDate).format(
+          'D',
+        )} - ${moment(item.endDate).format('D MMM YYYY')}`}</Text>
 
         <View style={styles.weekGoal}>
           <Text style={styles.sectionTitle}>Weeks goal</Text>
-          <Text style={styles.goalTitle}>{title}</Text>
-          <Text style={styles.goalDescription}>{description}</Text>
+          <Text style={styles.goalTitle}>{item.title}</Text>
+          <Text style={styles.goalDescription}>{item.description}</Text>
         </View>
 
-        {/* <WeeklyReport /> */}
+        <DailySubmission refreshing={refreshing} />
       </ScrollView>
     </SafeAreaView>
   );
@@ -122,10 +147,10 @@ const styles = StyleSheet.create({
   },
   goalTitle: {
     fontFamily: 'Inter-Bold',
-    fontSize: 16,
+    fontSize: 18,
     color: 'rgba(0, 11, 35, 1)',
     marginBottom: 8,
-    fontWeight: 'bold',
+    fontWeight: '900',
   },
   goalDescription: {
     fontFamily: 'Inter-Regular',
@@ -133,5 +158,4 @@ const styles = StyleSheet.create({
     color: 'rgba(100, 100, 100, 1)',
     lineHeight: 20,
   },
-  
 });

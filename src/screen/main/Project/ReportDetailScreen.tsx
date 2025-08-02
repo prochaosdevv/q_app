@@ -35,7 +35,7 @@ const ReportDetailScreen = () => {
   const route = useRoute();
 
   const { reportId } = route.params;
-  console.log('repor', reportId);
+ 
 
   const { user } = useAuthStore.getState();
 
@@ -213,8 +213,36 @@ const ReportDetailScreen = () => {
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Progress report</Text>
-          <View style={styles.textBox}>
-            <Text style={styles.reportText}>{dailyReport.progressReport}</Text>
+          <View
+            style={[
+              {
+                backgroundColor: 'rgba(247, 248, 254, 1)',
+                borderRadius: 28,
+                padding: 16,
+                minHeight: 120,
+                borderWidth: 1,
+                borderColor: 'rgba(232, 233, 234, 1)',
+              },
+            ]}
+          >
+            <Text
+              style={[
+                styles.reportText,
+                {
+                  backgroundColor: 'rgba(247, 248, 254, 1)',
+                  borderRadius: 28,
+
+                  minHeight: 120,
+                  fontFamily: 'Inter-Regular',
+                  fontSize: 14,
+                  color: 'rgba(0, 0, 0, 1)',
+                },
+              ]}
+              numberOfLines={4}
+              ellipsizeMode="tail"
+            >
+              {dailyReport.progressReport}
+            </Text>
           </View>
         </View>
 
@@ -381,7 +409,7 @@ const ReportDetailScreen = () => {
               }}
             >
               <Pressable
-                style={[styles.deleteButton,{paddingHorizontal: 30}]}
+                style={[styles.deleteButton, { paddingHorizontal: 30 }]}
                 onPress={deleteDailyReport}
               >
                 <Text style={styles.deleteButtonText}>Delete</Text>

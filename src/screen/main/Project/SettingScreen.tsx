@@ -132,7 +132,7 @@ const SettingScreen = () => {
           }}
         >
           <CircleFadingArrowUp size={22} color="#141b41" />
-          <Text style={styles.menuText}>Pending Invitation</Text>
+          <Text style={styles.menuText}>Invitation</Text>
         </Pressable>
 
         <Pressable

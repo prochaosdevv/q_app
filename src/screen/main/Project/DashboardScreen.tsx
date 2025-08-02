@@ -44,6 +44,12 @@ const DashboardScreen = () => {
 
   const currentUserName = user?.fullname;
 
+  const createdById = useProjectStore(state => state.createdBy);
+  const currentuser = user?._id || user?.id;
+
+  console.log('Test case 1', createdById);
+  console.log('Test case 2', currentuser);
+
   const navigation = useNavigation();
 
   const handleOptionSelect = (option: string) => {
@@ -195,10 +201,6 @@ const DashboardScreen = () => {
               <Text style={{ color: '#888', fontSize: 14 }}>
                 No weekly goals found.
               </Text>
-
-              <Pressable onPress={openModal}>
-                <Text style={styles.editButtonText}>Edit</Text>
-              </Pressable>
             </View>
           ) : (
             <View style={styles.goalCard}>
@@ -209,8 +211,20 @@ const DashboardScreen = () => {
               <Text style={styles.goalDescription}>
                 {goalData?.description}
               </Text>
-              <Pressable onPress={openModal}>
-                <Text style={styles.editButtonText}>Edit</Text>
+              <Pressable
+                onPress={createdById === currentuser ? openModal : null}
+                disabled={createdById !== currentuser}
+              >
+                <Text
+                  style={[
+                    styles.editButtonText,
+                    createdById !== currentuser && {
+                      color: '#666',
+                    },
+                  ]}
+                >
+                  Edit
+                </Text>
               </Pressable>
             </View>
           )}

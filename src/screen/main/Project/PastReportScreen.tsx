@@ -18,42 +18,37 @@ import {
   FileText,
   Settings,
 } from 'lucide-react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import jsw from '../../../assets/images/jsw_icon.png';
-import WeeklyGoal from '../../../components/WeeklyGoal';
-import { useState } from 'react';
-import { useAuthStore } from '../../../zustand/store/authStore';
-import PastReport from '../../../components/PastReport';
+
 import { useProjectStore } from '../../../zustand/store/projectStore';
+import { useNavigation } from '@react-navigation/native';
+import { useEffect, useState } from 'react';
+import api from '../../../utils/api';
 
 const PastReportScreen = () => {
-  const [refreshing, setRefreshing] = useState(false);
   const projectImage = useProjectStore(state => state.image);
+  const projectId = useProjectStore(state => state.id);
+  const navigation = useNavigation();
 
-  const { user } = useAuthStore.getState();
-  const currentUserName = user?.fullname;
+  const [pastReport, setPastReport] = useState([]);
 
-  const onRefresh = async () => {
-    setRefreshing(true);
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-    } catch (error) {
-      console.error('Error refreshing:', error);
-    } finally {
-      setRefreshing(false);
-    }
+  const getPastReport = async () => {
+    const res = await api.get(`/project/get/past-goals/by/${projectId}`);
+    const result = res.data.pastGoals;
+    setPastReport(result);
   };
+
+  const handleReportPress = item => {
+    navigation.navigate('report-view', { report: item });
+  };
+  useEffect(() => {
+    getPastReport();
+  }, []);
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#0A2342" />
 
       <View style={styles.header}>
-        <Text style={styles.greeting}>
-          Hi,
-          {currentUserName.length > 6
-            ? currentUserName.substring(0, 6) + '...'
-            : currentUserName}
-        </Text>
+        <Text style={styles.greeting}>Past Reports</Text>
         <View style={styles.img_container}>
           <Image
             source={{ uri: projectImage }}
@@ -62,7 +57,7 @@ const PastReportScreen = () => {
           />
         </View>
       </View>
-      <ScrollView
+      {/* <ScrollView
         style={styles.content}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
@@ -76,6 +71,28 @@ const PastReportScreen = () => {
         }
       >
         <PastReport refreshing={refreshing} />
+      </ScrollView> */}
+      <ScrollView
+        style={styles.content}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
+        {pastReport.length === 0 ? (
+          <Text style={{ textAlign: 'center', color: '#888', marginTop: 300 }}>
+            No past report found.
+          </Text>
+        ) : (
+          pastReport.map((item, index) => (
+            <ReportListItem
+              key={index}
+              title={item.title}
+              description={item.description}
+              startDate={item.startDate}
+              endDate={item.endDate}
+              onPress={() => handleReportPress(item)}
+            />
+          ))
+        )}
       </ScrollView>
     </SafeAreaView>
   );

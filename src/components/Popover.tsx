@@ -32,7 +32,11 @@ export function Popover({ visible, onClose, onSelect }: PopoverProps) {
       disabled: createdById !== currentuser,
     },
     { id: 'send_report', label: 'Send Report' },
-    { id: 'manage_members', label: 'Manage members' },
+    {
+      id: 'manage_members',
+      label: 'Manage members',
+      disabled: createdById !== currentuser,
+    },
   ];
 
   const handleOptionPress = (optionId: string) => {
