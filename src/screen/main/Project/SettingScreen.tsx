@@ -155,7 +155,7 @@ const SettingScreen = () => {
           <Lock size={20} color="#141b41" />
           <Text style={styles.menuText}>Change Password</Text>
         </Pressable>
-        <Pressable
+        {/* <Pressable
           style={styles.menuItem}
           onPress={() => {
             navigation.navigate('maintenance');
@@ -164,7 +164,7 @@ const SettingScreen = () => {
           <ClockFading size={22} color="#141b41" />
 
           <Text style={styles.menuText}>Maintenance</Text>
-        </Pressable>
+        </Pressable> */}
 
         <Pressable
           style={styles.menuItem}

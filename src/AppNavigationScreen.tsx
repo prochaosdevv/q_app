@@ -42,6 +42,7 @@ import UpdateWeeklyGoalScreen from './screen/main/Project/weekly/UpdateWeeklyGoa
 import UpdateWeeklyGoalByIdScreen from './screen/main/Project/weekly/UpdateWeeklyGoalByIdScreen';
 import PendingStatusScreen from './screen/main/Project/Settings/PendingStatusScreen';
 import MaintenanceScreen from './screen/main/Project/Settings/MaintenanceScreen';
+import api from './utils/api';
 
 const Stack = createNativeStackNavigator();
 
@@ -62,6 +63,7 @@ const linking = {
 const AppNavigationScreen = () => {
   const [showSplashScreen, setShowSplashScreen] = useState(true);
   const userEmail = useAuthStore(state => state.user?.email);
+  const [maintenanceMode, setMaintenanceMode] = useState<boolean | null>(null);
   const rehydrate = useAuthStore(state => state.rehydrate);
   useEffect(() => {
     const initialize = async () => {
@@ -72,6 +74,31 @@ const AppNavigationScreen = () => {
     };
     initialize();
   }, []);
+
+  const getMaintenanceMode = async () => {
+    const res = await api.get(`/admin/get/setting`);
+    const result = res.data.isMaintenanceMode;
+    setMaintenanceMode(result);
+    console.log('Final data', maintenanceMode);
+  };
+
+  useEffect(() => {
+    getMaintenanceMode();
+  }, []);
+
+  if (maintenanceMode === true) {
+    return (
+      <NavigationContainer>
+        <Stack.Navigator>
+          <Stack.Screen
+            name="maintenance"
+            component={MaintenanceScreen}
+            options={{ headerShown: false, statusBarStyle: 'dark' }}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+    );
+  }
   return (
     <NavigationContainer linking={linking}>
       <Stack.Navigator>
