@@ -35,7 +35,6 @@ const ReportDetailScreen = () => {
   const route = useRoute();
 
   const { reportId } = route.params;
- 
 
   const { user } = useAuthStore.getState();
 
@@ -59,7 +58,6 @@ const ReportDetailScreen = () => {
   );
 
   const permission = matchedContributor?.permission;
-  console.log('Permission', permission);
 
   useEffect(() => {
     getRole();
@@ -71,6 +69,7 @@ const ReportDetailScreen = () => {
     try {
       const response = await api.get(`/project/daily-report/${reportId}`);
       const data = response.data.report;
+
       setDailyReport(data);
     } catch (error) {
       console.log('Error Fetching to daily report by id : ', error);
@@ -261,49 +260,19 @@ const ReportDetailScreen = () => {
           </View>
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Plant</Text>
-          <View style={styles.textBox_}>
-            <Text style={styles.reportText}>{dailyReport.plant}</Text>
-            {console.log('Final', dailyReport)}
-          </View>
-        </View>
         <View style={styles.tableSection}>
-          <Text style={styles.sectionTitle}>Labour</Text>
+          <Text style={styles.sectionTitle}>Plant</Text>
           <View style={styles.tableWrapper}>
             {/* Table Header */}
             <View style={styles.tableRow}>
-              <Text style={[styles.cell, styles.headerCell]}>Name</Text>
-              <Text
-                style={[
-                  styles.cell,
-                  styles.headerCell,
-                  { borderLeftWidth: 1, borderRightWidth: 1 },
-                ]}
-              >
-                Role
-              </Text>
+              <Text style={[styles.cell, styles.headerCell]}>Desciption</Text>
+
               <Text
                 style={[
                   styles.cell,
                   styles.headerCell,
                   {
                     textAlign: 'center',
-                    borderLeftWidth: 1,
-                    borderRightWidth: 1,
-                  },
-                ]}
-              >
-                Hours
-              </Text>
-              <Text
-                style={[
-                  styles.cell,
-                  styles.headerCell,
-                  {
-                    textAlign: 'center',
-                    borderLeftWidth: 1,
-                    borderRightWidth: 1,
                   },
                 ]}
               >
@@ -312,10 +281,69 @@ const ReportDetailScreen = () => {
             </View>
 
             {/* Table Rows */}
+            {dailyReport.plant?.map((item, index) => (
+              <View
+                key={item._id}
+                style={[
+                  styles.tableRow,
+                  {
+                    borderBottomWidth:
+                      index !== dailyReport.plant.length - 1 ? 1 : 0,
+                    borderColor: 'rgba(175, 175, 175, 1)',
+                  },
+                ]}
+              >
+                <Text style={[styles.cell]}>{item.desc}</Text>
+                <Text style={[styles.cell, { textAlign: 'center' }]}>
+                  {item.qty}
+                </Text>
+              </View>
+            ))}
+          </View>
+        </View>
+        <View style={styles.tableSection}>
+          <Text style={styles.sectionTitle}>Labour</Text>
+          <View style={styles.tableWrapper}>
+            {/* Table Header */}
+            <View style={styles.tableRow}>
+              <Text style={[styles.cell, styles.headerCell]}>Name</Text>
+              <Text style={[styles.cell, styles.headerCell]}>Role</Text>
+              <Text
+                style={[
+                  styles.cell,
+                  styles.headerCell,
+                  { textAlign: 'center' },
+                ]}
+              >
+                Hours
+              </Text>
+              <Text
+                style={[
+                  styles.cell,
+                  styles.headerCell,
+                  { textAlign: 'center' },
+                ]}
+              >
+                Qty
+              </Text>
+            </View>
+
+            {/* Table Rows */}
             {dailyReport.labour?.map((item, index) => (
-              <View key={item._id} style={styles.tableRow}>
+              <View
+                key={item._id}
+                style={[
+                  styles.tableRow,
+                  {
+                    // ✅ Hide bottom border on last row
+                    borderBottomWidth:
+                      index !== dailyReport.labour.length - 1 ? 1 : 0,
+                    borderColor: 'rgba(175, 175, 175, 1)',
+                  },
+                ]}
+              >
                 <Text style={[styles.cell]}>{item.name}</Text>
-                <Text style={styles.cell}>{item.role}</Text>
+                <Text style={[styles.cell]}>{item.role}</Text>
                 <Text style={[styles.cell, { textAlign: 'center' }]}>
                   {item.hours}
                 </Text>
@@ -342,8 +370,6 @@ const ReportDetailScreen = () => {
                   styles.headerCell,
                   {
                     textAlign: 'center',
-                    borderLeftWidth: 1,
-                    borderRightWidth: 1,
                   },
                 ]}
               >
@@ -355,8 +381,6 @@ const ReportDetailScreen = () => {
                   styles.headerCell,
                   {
                     textAlign: 'center',
-                    borderLeftWidth: 1,
-                    borderRightWidth: 1,
                   },
                 ]}
               >
@@ -366,7 +390,18 @@ const ReportDetailScreen = () => {
 
             {/* Table Rows */}
             {dailyReport.material?.map((item, index) => (
-              <View key={item._id} style={styles.tableRow}>
+              <View
+                key={item._id}
+                style={[
+                  styles.tableRow,
+                  {
+                    // ✅ Hide bottom border on last row
+                    borderBottomWidth:
+                      index !== dailyReport.material.length - 1 ? 1 : 0,
+                    borderColor: 'rgba(175, 175, 175, 1)',
+                  },
+                ]}
+              >
                 <Text style={styles.cell}>{item.type}</Text>
                 <Text style={[styles.cell, { textAlign: 'center' }]}>
                   {item.unit}
@@ -716,14 +751,16 @@ const styles = StyleSheet.create({
   },
   tableRow: {
     flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderColor: 'rgba(175, 175, 175, 1)',
   },
   cell: {
     flex: 1,
     padding: 8,
     fontSize: 12,
-    borderRightWidth: 1,
     borderColor: 'rgba(175, 175, 175, 1)',
   },
+
   headerCell: {
     backgroundColor: '#f0f0f0',
     fontWeight: 'bold',

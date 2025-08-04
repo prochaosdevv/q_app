@@ -46,9 +46,6 @@ export default function EditDailyReportScreen() {
     selectedDealy,
     setSelectedDealy,
 
-    selectedPlant,
-    setSelectedPlant,
-
     showPhotoModal,
     setShowPhotoModal,
     openGallery,
@@ -64,8 +61,6 @@ export default function EditDailyReportScreen() {
 
   const reportId = report._id;
 
-  console.log('My Report id :', reportId);
-
   useEffect(() => {
     if (report) {
       // Progress text set
@@ -79,6 +74,9 @@ export default function EditDailyReportScreen() {
         setMaterialEntries(report.material);
       }
 
+      if (Array.isArray(report.plant)) {
+        setPlantEntries(report.plant);
+      }
       if (
         report?.weather?.condition &&
         weatherOptions.includes(report.weather.condition)
@@ -87,7 +85,6 @@ export default function EditDailyReportScreen() {
       }
 
       setSelectedDealy(`${report.delays} hours`);
-      setSelectedPlant(report.plant);
 
       if (report?.photos?.length) {
         const formatted = report.photos.map(url => ({ uri: url }));
@@ -114,6 +111,12 @@ export default function EditDailyReportScreen() {
   const [materialUnit, setMaterialUnit] = useState('');
   const [materialQty, setMaterialQty] = useState('');
   const [editingMaterialIndex, setEditingMaterialIndex] = useState(null);
+
+  const [showPlantModal, setShowPlantModal] = useState(false);
+  const [plantEntries, setPlantEntries] = useState([]);
+  const [plantDescription, setPlantDescription] = useState('');
+  const [plantQty, setPlantQty] = useState('');
+  const [editingPlantIndex, setEditingPlantIndex] = useState(null);
 
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
@@ -400,6 +403,96 @@ export default function EditDailyReportScreen() {
     </Modal>
   );
 
+  const PlantModal = () => (
+    <Modal
+      visible={showPlantModal}
+      transparent
+      animationType="fade"
+      onRequestClose={() => setShowPlantModal(false)}
+    >
+      <View style={styles.modalOverlay}>
+        <Pressable
+          style={styles.modalBackdrop}
+          onPress={() => {
+            setShowPlantModal(false);
+            setEditingPlantIndex(null);
+            setPlantDescription('');
+            setPlantQty('');
+          }}
+        />
+        <View style={styles.modalBox}>
+          <View style={styles.modalHeader}>
+            <Text style={styles.modalTitle}>
+              {editingPlantIndex !== null ? 'Edit Plant' : 'Add Plant'}
+            </Text>
+            <Pressable
+              onPress={() => {
+                setShowPlantModal(false);
+                setEditingPlantIndex(null);
+                setPlantDescription('');
+                setPlantQty('');
+              }}
+            >
+              <X size={24} color="#000" />
+            </Pressable>
+          </View>
+
+          <TextInput
+            placeholder="Description"
+            value={plantDescription}
+            onChangeText={setPlantDescription}
+            style={styles.input}
+            placeholderTextColor="black"
+          />
+          <TextInput
+            placeholder="Qty"
+            value={plantQty}
+            onChangeText={setPlantQty}
+            keyboardType="numeric"
+            style={styles.input}
+            placeholderTextColor="black"
+          />
+
+          <Pressable
+            style={styles.okButton}
+            onPress={() => {
+              if (!plantDescription || !plantQty) {
+                setError('All plant fields are required.');
+                return;
+              }
+
+              if (editingPlantIndex !== null) {
+                const updated = [...plantEntries];
+                updated[editingPlantIndex] = {
+                  desc: plantDescription,
+                  qty: plantQty,
+                };
+                setPlantEntries(updated);
+              } else {
+                setPlantEntries(prev => [
+                  ...prev,
+                  {
+                    desc: plantDescription,
+                    qty: plantQty,
+                  },
+                ]);
+              }
+
+              setPlantDescription('');
+              setPlantQty('');
+              setEditingPlantIndex(null);
+              setShowPlantModal(false);
+            }}
+          >
+            <Text style={styles.buttonText}>
+              {editingPlantIndex !== null ? 'Update' : 'Add'}
+            </Text>
+          </Pressable>
+        </View>
+      </View>
+    </Modal>
+  );
+
   // Handle Submit
 
   const handleSubmit = async () => {
@@ -418,11 +511,6 @@ export default function EditDailyReportScreen() {
       return;
     }
 
-    if (!selectedPlant) {
-      setError('Plant selection is required.');
-      setLoading(false);
-      return;
-    }
     if (labourEntries.length === 0) {
       setError('Please add at least one labour entry.');
       setLoading(false);
@@ -448,7 +536,6 @@ export default function EditDailyReportScreen() {
     formData.append('progressReport', progressText);
     formData.append('weather', JSON.stringify({ condition: selectedWeather }));
     formData.append('delays', delayHours || '0');
-    formData.append('plant', selectedPlant);
 
     formData.append(
       'labour',
@@ -468,6 +555,16 @@ export default function EditDailyReportScreen() {
         materialEntries.map(item => ({
           type: item.type,
           unit: item.unit,
+          qty: parseInt(item.qty),
+        })),
+      ),
+    );
+
+    formData.append(
+      'plant',
+      JSON.stringify(
+        plantEntries.map(item => ({
+          desc: item.desc,
           qty: parseInt(item.qty),
         })),
       ),
@@ -757,20 +854,58 @@ export default function EditDailyReportScreen() {
           </View>
         ))}
 
-        {/* Plant Dropdown */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Plant</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter plant name"
-            placeholderTextColor="black"
-            value={selectedPlant}
-            onChangeText={text => {
-              setSelectedPlant(text);
-              setError('');
-            }}
-          />
+          <Pressable style={styles.detailsButton}>
+            <Text style={styles.detailsButtonText}>Add Plant</Text>
+            <Pressable
+              style={styles.roundedOutlineButton}
+              onPress={() => setShowPlantModal(true)}
+            >
+              <Plus color="rgba(0, 0, 0, 1)" size={18} />
+            </Pressable>
+          </Pressable>
         </View>
+
+        {plantEntries.map((item, index) => (
+          <View
+            key={index}
+            style={[
+              styles.itemCard,
+              {
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              },
+            ]}
+          >
+            <View>
+              <Text style={styles.itemCartText}>
+                {item.desc} | {item.qty}
+              </Text>
+            </View>
+            <View style={{ flexDirection: 'row', gap: 10 }}>
+              <Pressable
+                onPress={() => {
+                  setPlantDescription(item.desc);
+                  setPlantQty(item.qty.toString());
+                  setEditingPlantIndex(index);
+                  setShowPlantModal(true);
+                }}
+              >
+                <Edit color="black" size={20} />
+              </Pressable>
+              <Pressable
+                onPress={() => {
+                  const updated = plantEntries.filter((_, i) => i !== index);
+                  setPlantEntries(updated);
+                }}
+              >
+                <Trash2 color="red" size={20} />
+              </Pressable>
+            </View>
+          </View>
+        ))}
 
         {/* Photo Upload */}
         <View style={styles.section}>
@@ -938,6 +1073,7 @@ export default function EditDailyReportScreen() {
       {/* Modals */}
       {LabourModal()}
       {MaterialModal()}
+      {PlantModal()}
 
       {/* Render Dropdown Modals */}
       {[

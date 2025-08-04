@@ -16,8 +16,6 @@ export const useEditDailyReportForm = () => {
   const [showWeatherDropdown, setShowWeatherDropdown] = useState(false);
   const [selectedDealy, setSelectedDealy] = useState('');
 
-  const [selectedPlant, setSelectedPlant] = useState('');
-
   const [showPhotoModal, setShowPhotoModal] = useState(false);
   const [selectedImages, setSelectedImages] = useState([]);
 
@@ -62,9 +60,6 @@ export const useEditDailyReportForm = () => {
     },
     selectedDealy,
     setSelectedDealy,
-
-    selectedPlant,
-    setSelectedPlant,
 
     showPhotoModal,
     setShowPhotoModal,
