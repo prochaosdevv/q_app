@@ -1,39 +1,109 @@
-import { View, Text, StyleSheet, Pressable } from 'react-native';
-import { Calendar, CalendarDays } from 'lucide-react-native';
+import React, { useEffect, useState, useCallback } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+  ActivityIndicator,
+  FlatList,
+  RefreshControl,
+} from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { useProjectStore } from '../zustand/store/projectStore';
+import api from '../utils/api';
+import { CalendarDays } from 'lucide-react-native';
+import moment from 'moment';
 
-interface ReportListItemProps {
-  title: string;
-  description: string;
-  startDate: string;
-  endDate: string;
-  onPress: () => void;
-}
+export default function ReportListItem() {
+  const [pastReports, setPastReports] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const navigation = useNavigation();
+  const projectId = useProjectStore(state => state.id);
 
-export function ReportListItem({
-  title,
-  description,
-  startDate,
-  endDate,
-  onPress,
-}: ReportListItemProps) {
-  return (
-    <Pressable style={styles.container} onPress={onPress}>
+  const fetchPastReports = async () => {
+    try {
+      const res = await api.get(`/project/get/past-goals/by/${projectId}`);
+      const result = res.data.pastGoals || [];
+      setPastReports(result);
+    } catch (error) {
+      console.log('Fetch error:', error);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPastReports();
+  }, []);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    fetchPastReports();
+  }, []);
+
+  const handleReportPress = item => {
+    navigation.navigate('report-view', { item });
+  };
+
+  const renderItem = ({ item }) => (
+    <Pressable style={styles.container} onPress={() => handleReportPress(item)}>
       <View style={styles.dateContainer}>
         <CalendarDays size={16} color="rgba(0, 0, 0, 1)" />
-        <Text style={styles.dateText}>{`${startDate} | ${endDate}`}</Text>
+        <Text style={styles.dateText}>
+          {`${moment(item.startDate).format('DD MMM')} - ${moment(
+            item.endDate,
+          ).format('DD MMM')}`}
+        </Text>
       </View>
 
-      <Text style={styles.title}>{title}</Text>
+      <Text style={styles.title}>{item.title}</Text>
       <Text style={styles.description} numberOfLines={2}>
-        {description}
+        {item.description}
       </Text>
 
       <Text style={styles.viewText}>View</Text>
     </Pressable>
   );
+
+  if (loading && !refreshing) {
+    return (
+      <ActivityIndicator
+        style={{ marginTop: 20 }}
+        size="large"
+        color="#14274A"
+      />
+    );
+  }
+
+  if (!loading && pastReports.length === 0) {
+    return (
+      <Text style={{ textAlign: 'center', marginTop: 300, color: '#888' }}>
+        No past reports found.
+      </Text>
+    );
+  }
+
+  return (
+    <FlatList
+      data={pastReports}
+      keyExtractor={(item, index) => item._id?.toString() || index.toString()}
+      renderItem={renderItem}
+      contentContainerStyle={styles.scrollContent}
+      showsVerticalScrollIndicator={false}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
+    />
+  );
 }
 
 const styles = StyleSheet.create({
+  scrollContent: {
+    padding: 24,
+    paddingBottom: 100,
+  },
   container: {
     backgroundColor: '#fff',
     borderRadius: 16,

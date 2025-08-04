@@ -24,8 +24,11 @@ import DailySubmission from '../../../components/DailySubmission';
 import { useState } from 'react';
 import moment from 'moment';
 
-const ReportViewScreen = ({ item }) => {
+const ReportViewScreen = () => {
   const navigation = useNavigation();
+  const route = useRoute();
+  const { item } = route.params;
+
   const [refreshing, setRefreshing] = useState(false);
 
   const onRefresh = async () => {
