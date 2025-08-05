@@ -1,11 +1,34 @@
-import { View, Text, StyleSheet, Pressable, Modal } from 'react-native';
-import { Check } from 'lucide-react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+  Modal,
+  TextInput,
+  Image,
+  ActivityIndicator,
+} from 'react-native';
+import {
+  Calendar,
+  CalendarDays,
+  Check,
+  ChevronDown,
+  X,
+} from 'lucide-react-native';
 import { useEffect, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import api from '../utils/api';
 import { useProjectStore } from '../zustand/store/projectStore';
 import { useAuthStore } from '../zustand/store/authStore';
-
+import DatePicker from 'react-native-date-picker';
+import pdfImg from '../assets/images/file.png';
+import excelImg from '../assets/images/excel.png';
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from 'react-native-responsive-screen';
+import moment from 'moment';
+import DropDownPicker from 'react-native-dropdown-picker';
 interface PopoverProps {
   visible: boolean;
   onClose: () => void;
@@ -14,9 +37,34 @@ interface PopoverProps {
 
 export function Popover({ visible, onClose, onSelect }: PopoverProps) {
   if (!visible) return null;
-  const [role, setRole] = useState();
+
+  const projectId = useProjectStore(state => state.id);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [sendReport, setSendReport] = useState(false);
+  const [selectedOption, setSelectedOption] = useState();
+
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+  const [selectedReportType, setSelectedReportType] = useState(null);
+  const [openPicker, setOpenPicker] = useState({ visible: false, field: '' });
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState({
+    dropdown: '',
+    radio: '',
+    date: '',
+  });
+
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState(null);
+
+  const [items, setItems] = useState([
+    { label: 'Today', value: 'today' },
+    { label: 'Yesterday', value: 'yesterday' },
+    { label: 'Custom date', value: 'custom_date' },
+    { label: 'Current week', value: 'current_week' },
+    { label: 'Last week', value: 'last_week' },
+    { label: 'All', value: 'all' },
+  ]);
 
   const navigation = useNavigation();
 
@@ -55,16 +103,61 @@ export function Popover({ visible, onClose, onSelect }: PopoverProps) {
     // onClose();
   };
 
+  const formatDate = date => (date ? moment(date).format('YYYY-MM-DD') : '');
+
   const handleSendReport = async () => {
-    try {
-      const response = await api.put(`/project/mark-sent/${id}`);
-      if (response?.data?.success === true) {
-        setShowSuccessModal(true);
-      }
-      console.log(response.data);
-    } catch (error) {
-      console.log('Error fetching while sending report', error);
+    // Reset errors
+    setError({ dropdown: '', radio: '', date: '' });
+
+    // Validate dropdown
+    if (!value) {
+      setError(prev => ({ ...prev, dropdown: 'Please select an option' }));
+      return;
     }
+
+    // Validate radio
+    if (!selectedOption) {
+      setError(prev => ({ ...prev, radio: 'Please select report type' }));
+      return;
+    }
+
+    // Validate dates only if "custom_date" selected
+    if (value === 'custom_date' && (!startDate || !endDate)) {
+      setError(prev => ({ ...prev, date: 'Select start and end date' }));
+      return;
+    }
+
+    // Create payload
+    const payload = {
+      startDate: value === 'custom_date' ? formatDate(startDate) : null,
+      endDate: value === 'custom_date' ? formatDate(endDate) : null,
+      reportType: selectedOption,
+      dateType: value === 'custom_date' ? 'custom' : value,
+    };
+
+    try {
+      setIsLoading(true);
+      console.log('Payload:', payload);
+      const res = await api.post(
+        `/project/export-report/${projectId}`,
+        payload,
+      );
+
+      // console.log('Result', res.data);
+
+      setShowSuccessModal(true);
+      setSendReport(false);
+      setSelectedOption(null);
+      setStartDate(null);
+      setEndDate(null);
+      setValue(null);
+    } catch (err) {
+      console.log('Failed to send report');
+    } finally {
+      setIsLoading(false);
+    }
+
+    // setShowSuccessModal(true);
   };
 
   return (
@@ -99,6 +192,7 @@ export function Popover({ visible, onClose, onSelect }: PopoverProps) {
       </View>
 
       {/* send report  */}
+
       <Modal
         visible={sendReport}
         transparent
@@ -110,20 +204,130 @@ export function Popover({ visible, onClose, onSelect }: PopoverProps) {
             style={styles.modalBackdrop}
             onPress={() => setSendReport(false)}
           />
-          <View style={styles.successModalBox}>
-            <Text style={styles.successTitle}>Send report? </Text>
-            <Text style={styles.successMessage}>
-              Reports are sent to admins automatically at the end of week (6pm
-              Friday) though you can choose to send early
-            </Text>
+          <View style={styles.modalBox}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Send Report</Text>
+              <Pressable onPress={() => setSendReport(false)}>
+                <X size={24} color="#000" />
+              </Pressable>
+            </View>
+            <DropDownPicker
+              open={open}
+              value={value}
+              items={items}
+              setOpen={setOpen}
+              setValue={setValue}
+              setItems={setItems}
+              placeholder="Start Option"
+              style={[styles.inputWrapper, { paddingVertical: 20 }]}
+              maxHeight={100}
+            />
+
+            {value === 'custom_date' && (
+              <>
+                {/* Start Date Field */}
+                <View style={styles.inputWrapper}>
+                  <TextInput
+                    placeholder="Start Date"
+                    value={formatDate(startDate)}
+                    style={styles.input}
+                    placeholderTextColor="black"
+                    editable={false}
+                  />
+                  <Pressable
+                    onPress={() =>
+                      setOpenPicker({ visible: true, field: 'start' })
+                    }
+                  >
+                    <CalendarDays size={22} color="black" />
+                  </Pressable>
+                </View>
+                {/* End Date Field */}
+                <View style={styles.inputWrapper}>
+                  <TextInput
+                    placeholder="End Date"
+                    value={formatDate(endDate)}
+                    style={styles.input}
+                    placeholderTextColor="black"
+                    editable={false}
+                  />
+                  <Pressable
+                    onPress={() =>
+                      setOpenPicker({ visible: true, field: 'end' })
+                    }
+                  >
+                    <CalendarDays size={22} color="black" />
+                  </Pressable>
+                </View>
+              </>
+            )}
+            <View style={styles.radioContainer}>
+              <Pressable
+                style={styles.radioButton}
+                onPress={() => setSelectedOption('pdf')}
+              >
+                <View
+                  style={[
+                    styles.radioCircle,
+                    selectedOption === 'pdf' && styles.selected,
+                  ]}
+                />
+                <Text style={styles.radioText}>Pdf</Text>
+              </Pressable>
+
+              <Pressable
+                style={styles.radioButton}
+                onPress={() => setSelectedOption('excel')}
+              >
+                <View
+                  style={[
+                    styles.radioCircle,
+                    selectedOption === 'excel' && styles.selected,
+                  ]}
+                />
+                <Text style={styles.radioText}>Excel</Text>
+              </Pressable>
+            </View>
+
+            <DatePicker
+              modal
+              open={openPicker.visible}
+              date={new Date()}
+              mode="date"
+              onConfirm={date => {
+                setOpenPicker({ visible: false, field: '' });
+                openPicker.field === 'start'
+                  ? setStartDate(date)
+                  : setEndDate(date);
+              }}
+              onCancel={() => setOpenPicker({ visible: false, field: '' })}
+            />
+
+            {(error.dropdown || error.date || error.radio) && (
+              <View style={{ marginBottom: 15 }}>
+                {error.dropdown && (
+                  <Text style={{ color: 'red', textAlign: 'center' }}>
+                    {error.dropdown}
+                  </Text>
+                )}
+                {error.date && (
+                  <Text style={{ color: 'red', textAlign: 'center' }}>
+                    {error.date}
+                  </Text>
+                )}
+                {error.radio && (
+                  <Text style={{ color: 'red', textAlign: 'center' }}>
+                    {error.radio}
+                  </Text>
+                )}
+              </View>
+            )}
             <Pressable style={styles.okButton} onPress={handleSendReport}>
-              <Text style={styles.okButtonText}>Send early report</Text>
-            </Pressable>
-            <Pressable
-              style={styles.cancelBtn}
-              onPress={() => setSendReport(false)}
-            >
-              <Text style={styles.cancelButtonText}>Cancel</Text>
+              {isLoading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.buttonText}>Send</Text>
+              )}
             </Pressable>
           </View>
         </View>
@@ -151,13 +355,15 @@ export function Popover({ visible, onClose, onSelect }: PopoverProps) {
               Friday) and updates will be sent automatically
             </Text>
             <Pressable
-              style={styles.okButton}
+              style={[styles.okButton, { width: '100%', borderRadius: 30 }]}
               onPress={() => {
                 setShowSuccessModal(false);
                 onClose();
               }}
             >
-              <Text style={styles.okButtonText}>Continue</Text>
+              <Text style={{ color: 'white', textAlign: 'center' }}>
+                Continue
+              </Text>
             </Pressable>
           </View>
         </View>
@@ -185,7 +391,7 @@ const styles = StyleSheet.create({
   },
   popoverContainer: {
     position: 'absolute',
-    bottom: 160, // Position above the floating button
+    bottom: 160,
     right: 24,
     width: 250,
   },
@@ -216,8 +422,6 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     padding: 16,
     marginLeft: 10,
-    // borderTopWidth: 1,
-    // borderTopColor: '#e5e7eb',
   },
   cancelText: {
     fontFamily: 'Inter-Medium',
@@ -239,10 +443,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   successModalBox: {
-    width: 280,
+    width: 360,
     backgroundColor: '#fff',
     borderRadius: 16,
-    padding: 20,
+    padding: 25,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',
@@ -264,10 +468,11 @@ const styles = StyleSheet.create({
 
   successTitle: {
     fontFamily: 'Inter-Bold',
-    fontSize: 16,
+    fontSize: 18,
     color: 'rgba(0, 11, 35, 1)',
-    marginBottom: 8,
+    marginBottom: 20,
     textAlign: 'center',
+    fontWeight: '800',
   },
 
   successMessage: {
@@ -279,30 +484,88 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
 
-  okButton: {
-    backgroundColor: 'rgba(24, 20, 70, 1)',
-    paddingVertical: 12,
-    paddingHorizontal: 32,
-    borderRadius: 24,
-    width: '100%',
-    alignItems: 'center',
+  modalBox: {
+    width: wp('90%'),
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: wp('6%'),
+    zIndex: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.25,
+    shadowRadius: 20,
+    elevation: 10,
   },
-  cancelBtn: {
-    paddingTop: 12,
-    paddingHorizontal: 32,
-    borderRadius: 24,
-    width: '100%',
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
+    paddingBottom: hp('1.8%'),
+  },
+  modalTitle: {
+    fontSize: wp('4.5%'),
+    fontWeight: '800',
+  },
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 25,
+    paddingHorizontal: 15,
+    paddingVertical: 7,
+    marginBottom: 10,
+    marginTop: 5,
+    justifyContent: 'space-between',
+  },
+  input: {
+    fontSize: wp('3.8%'),
+    color: 'black',
+  },
+  exportIcons: {
+    flexDirection: 'row',
+    gap: 40,
+    marginVertical: 20,
   },
 
-  cancelButtonText: {
-    color: 'rgba(0, 11, 35, 1)',
-    fontFamily: 'Inter-Bold',
-    fontSize: 14,
+  okButton: {
+    paddingVertical: hp('1.9%'),
+    paddingHorizontal: wp('10%'),
+    backgroundColor: 'rgba(24, 20, 70, 1)',
+    borderRadius: 12,
   },
-  okButtonText: {
+  buttonText: {
     color: '#fff',
-    fontFamily: 'Inter-Medium',
-    fontSize: 14,
+    fontWeight: '600',
+    fontSize: wp('4%'),
+    textAlign: 'center',
+  },
+  radioContainer: {
+    flexDirection: 'row',
+    marginLeft: 10,
+    marginTop: 10,
+    marginBottom: 20,
+  },
+  radioButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 10,
+  },
+  radioCircle: {
+    height: 18,
+    width: 18,
+    borderRadius: 9,
+    borderWidth: 2,
+    borderColor: 'rgba(24, 20, 70, 1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 6,
+  },
+  selected: {
+    backgroundColor: 'rgba(24, 20, 70, 1)',
+  },
+  radioText: {
+    fontSize: 16,
+    color: 'rgba(0, 11, 35, 1)',
   },
 });

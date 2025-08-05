@@ -373,7 +373,7 @@ const ReportDetailScreen = () => {
                   },
                 ]}
               >
-                Unit
+                Qty
               </Text>
               <Text
                 style={[
@@ -384,7 +384,7 @@ const ReportDetailScreen = () => {
                   },
                 ]}
               >
-                Qty
+                Unit
               </Text>
             </View>
 
@@ -404,10 +404,10 @@ const ReportDetailScreen = () => {
               >
                 <Text style={styles.cell}>{item.type}</Text>
                 <Text style={[styles.cell, { textAlign: 'center' }]}>
-                  {item.unit}
+                  {item.qty}
                 </Text>
                 <Text style={[styles.cell, { textAlign: 'center' }]}>
-                  {item.qty}
+                  {item.unit}
                 </Text>
               </View>
             ))}

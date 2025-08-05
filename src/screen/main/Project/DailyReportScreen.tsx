@@ -77,6 +77,14 @@ const DailyReportScreen = () => {
   // Material Modal
   const [materialType, setMaterialType] = useState('');
   const [materialUnit, setMaterialUnit] = useState('');
+  const [showDropdown, setShowDropdown] = useState(false);
+
+  const unitOptions = ['Nr', 'Item', 'm', 'm2', 'm3', 't', 'kg'];
+
+  const handleSelect = unit => {
+    setMaterialUnit(unit);
+    setShowDropdown(false);
+  };
   const [materialQty, setMaterialQty] = useState('');
   const [editingMaterialIndex, setEditingMaterialIndex] = useState(null);
 
@@ -401,13 +409,57 @@ const DailyReportScreen = () => {
             style={styles.input}
             placeholderTextColor="black"
           />
-          <TextInput
-            placeholder="Unit"
-            value={materialUnit}
-            onChangeText={setMaterialUnit}
-            style={styles.input}
-            placeholderTextColor="black"
-          />
+
+          <Pressable
+            style={[
+              styles.input,
+              {
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                backgroundColor: '#fff',
+              },
+            ]}
+            onPress={() => setShowDropdown(!showDropdown)}
+          >
+            <Text style={{ color: 'black' }}>
+              {materialUnit || 'Select Unit'}
+            </Text>
+            <ChevronDown color="black" size={20} />
+          </Pressable>
+
+          {showDropdown && (
+            <View
+              style={{
+                backgroundColor: '#fff',
+                marginLeft: 'auto', 
+                marginRight: 1,
+                borderRadius: 16,
+                marginHorizontal: 24,
+                maxHeight: 150,
+                width: '50%',
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 10 },
+                shadowOpacity: 0.25,
+                shadowRadius: 20,
+                elevation: 10,
+                marginBottom: 20,
+                marginTop: -10,
+              }}
+            >
+              <ScrollView nestedScrollEnabled>
+                {unitOptions.map((unit, index) => (
+                  <Pressable
+                    key={index}
+                    style={styles.dropdownItem}
+                    onPress={() => handleSelect(unit)}
+                  >
+                    <Text style={{ color: 'black' }}>{unit}</Text>
+                  </Pressable>
+                ))}
+              </ScrollView>
+            </View>
+          )}
           <Pressable
             style={styles.okButton}
             onPress={() => {

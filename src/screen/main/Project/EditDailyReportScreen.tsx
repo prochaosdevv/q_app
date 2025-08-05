@@ -109,6 +109,14 @@ export default function EditDailyReportScreen() {
 
   const [materialType, setMaterialType] = useState('');
   const [materialUnit, setMaterialUnit] = useState('');
+  const [showDropdown, setShowDropdown] = useState(false);
+
+  const unitOptions = ['Nr', 'Item', 'm', 'm2', 'm3', 't', 'kg'];
+
+  const handleSelect = unit => {
+    setMaterialUnit(unit);
+    setShowDropdown(false);
+  };
   const [materialQty, setMaterialQty] = useState('');
   const [editingMaterialIndex, setEditingMaterialIndex] = useState(null);
 
@@ -349,13 +357,6 @@ export default function EditDailyReportScreen() {
             placeholderTextColor="black"
           />
           <TextInput
-            placeholder="Unit"
-            value={materialUnit}
-            onChangeText={setMaterialUnit}
-            style={styles.input}
-            placeholderTextColor="black"
-          />
-          <TextInput
             placeholder="Qty"
             value={materialQty}
             onChangeText={setMaterialQty}
@@ -364,9 +365,59 @@ export default function EditDailyReportScreen() {
             placeholderTextColor="black"
           />
           <Pressable
+            style={[
+              styles.input,
+              {
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                backgroundColor: '#fff',
+              },
+            ]}
+            onPress={() => setShowDropdown(!showDropdown)}
+          >
+            <Text style={{ color: 'black' }}>
+              {materialUnit || 'Select Unit'}
+            </Text>
+            <ChevronDown color="black" size={20} />
+          </Pressable>
+          {showDropdown && (
+            <View
+              style={{
+                backgroundColor: '#fff',
+                marginLeft: 'auto',
+                marginRight: 1,
+                borderRadius: 16,
+                marginHorizontal: 24,
+                maxHeight: 150,
+                width: '50%',
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 10 },
+                shadowOpacity: 0.25,
+                shadowRadius: 20,
+                elevation: 10,
+                marginBottom: 20,
+                marginTop: -10,
+              }}
+            >
+              <ScrollView nestedScrollEnabled>
+                {unitOptions.map((unit, index) => (
+                  <Pressable
+                    key={index}
+                    style={styles.dropdownItem}
+                    onPress={() => handleSelect(unit)}
+                  >
+                    <Text style={{ color: 'black' }}>{unit}</Text>
+                  </Pressable>
+                ))}
+              </ScrollView>
+            </View>
+          )}
+
+          <Pressable
             style={styles.okButton}
             onPress={() => {
-              if (!materialType || !materialUnit || !materialQty) {
+              if (!materialType || !materialQty || !materialUnit) {
                 setError('All material fields are required.');
                 return;
               }
@@ -375,20 +426,20 @@ export default function EditDailyReportScreen() {
                 const updated = [...materialEntries];
                 updated[editingMaterialIndex] = {
                   type: materialType,
-                  unit: materialUnit,
                   qty: materialQty,
+                  unit: materialUnit,
                 };
                 setMaterialEntries(updated);
               } else {
                 setMaterialEntries(prev => [
                   ...prev,
-                  { type: materialType, unit: materialUnit, qty: materialQty },
+                  { type: materialType, qty: materialQty, unit: materialUnit },
                 ]);
               }
 
               setMaterialType('');
-              setMaterialUnit('');
               setMaterialQty('');
+              setMaterialUnit('');
               setEditingMaterialIndex(null);
               setShowMaterialModal(false);
             }}
@@ -827,15 +878,15 @@ export default function EditDailyReportScreen() {
           >
             <View>
               <Text style={styles.itemCartText}>
-                {item.type} | {item.unit}| {item.qty}
+                {item.type} | {item.qty} | {item.unit}
               </Text>
             </View>
             <View style={{ flexDirection: 'row', gap: 8 }}>
               <Pressable
                 onPress={() => {
                   setMaterialType(item.type);
-                  setMaterialUnit(item.unit);
                   setMaterialQty(item.qty.toString());
+                  setMaterialUnit(item.unit);
                   setEditingMaterialIndex(index);
                   setShowMaterialModal(true);
                 }}
