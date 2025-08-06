@@ -128,7 +128,7 @@ const SettingScreen = () => {
         <Pressable
           style={styles.menuItem}
           onPress={() => {
-            navigation.navigate('pending');
+            navigation.navigate('pending-status');
           }}
         >
           <CircleFadingArrowUp size={22} color="#141b41" />

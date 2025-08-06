@@ -10,6 +10,7 @@ import {
   TextInput,
   Image,
   Modal,
+  Linking,
 } from 'react-native';
 import { Check, ChevronLeft } from 'lucide-react-native';
 import {
@@ -20,12 +21,15 @@ import { useNavigation } from '@react-navigation/native';
 import api from '../../../../utils/api';
 import { useAuthStore } from '../../../../zustand/store/authStore';
 import { getAccessToken } from '../../../../utils/tokenSetting';
+import moment from 'moment';
 
 const AccountManagementScreen = () => {
   const [userData, setUserData] = useState({});
   const [fullname, setFullname] = useState('');
   const [email, setEmail] = useState('');
   const [bio, setBio] = useState('');
+  const [subscriptionPlan, setSubscriptionPlan] = useState('');
+  const [subscriptionExpirydate, setSubscriptionExpirydate] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigation = useNavigation();
@@ -41,6 +45,12 @@ const AccountManagementScreen = () => {
       setFullname(user.fullname || '');
       setEmail(user.email || '');
       setBio(user.bio || 'NA');
+      setSubscriptionExpirydate(
+        user.subscriptionExpirydate
+          ? moment(user.subscriptionExpirydate).format('YYYY-MM-DD')
+          : 'NA',
+      );
+      setSubscriptionPlan(user.subscriptionPlan || 'NA');
     } catch (err) {
       setError('Failed to fetch user data');
     } finally {
@@ -76,6 +86,11 @@ const AccountManagementScreen = () => {
     }
   };
 
+  const handleOpenURL = () => {
+    Linking.openURL(
+      'http://localhost:3000/?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODkxZWYxZjE0NmUzNjlkNDc2MmIzZDAiLCJlbWFpbCI6InNzQGdtYWlsLmNvbSIsImlhdCI6MTc1NDM5NDQwMCwiZXhwIjoxNzU0NDgwODAwfQ.onFozSascbjCLZNFZbkGe1B18CRqYWN6lHmniZsPu68',
+    ).catch(err => console.error("Couldn't load page", err));
+  };
   useEffect(() => {
     fetchUser();
   }, []);
@@ -142,6 +157,37 @@ const AccountManagementScreen = () => {
             textAlignVertical="top"
           />
         </View>
+
+        {/* Subscription Expiry Date */}
+        <View style={[styles.section, { marginTop: 20 }]}>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              marginBottom: 10,
+              alignItems: 'center',
+            }}
+          >
+            <Text style={styles.sectionTitle}>Subscription</Text>
+            <Pressable style={[styles.statusBadge]} onPress={handleOpenURL}>
+              <Text style={styles.statusText}>Renew</Text>
+            </Pressable>
+          </View>
+          <View
+            style={[
+              styles.input,
+              {
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              },
+            ]}
+          >
+            <Text>{subscriptionPlan}</Text>
+            <Text>{subscriptionExpirydate}</Text>
+          </View>
+        </View>
+
         {error && <Text style={styles.errorText}>{error}</Text>}
         <View style={styles.updateContainer}>
           <Pressable style={styles.updateButton} onPress={() => handleUpdate()}>
@@ -348,5 +394,16 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 20,
     elevation: 10,
+  },
+  statusBadge: {
+    borderRadius: 5,
+    backgroundColor: '#14274A',
+    paddingVertical: 5,
+    paddingHorizontal: 8,
+  },
+  statusText: {
+    fontFamily: 'Inter-Medium',
+    fontSize: 12,
+    color: 'white',
   },
 });
