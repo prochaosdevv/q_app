@@ -15,24 +15,30 @@ import {
   Sun,
 } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
-import api from '../utils/api';
 import moment from 'moment';
-import { useProjectStore } from '../zustand/store/projectStore';
-import { WeatherIconsMap } from './WeatherIconsMap';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
-export default function DailySubmission({ refreshing }) {
+import { useProjectStore } from '../../../../zustand/store/projectStore';
+import api from '../../../../utils/api';
+import { WeatherIconsMap } from '../../../../components/WeatherIconsMap';
+export default function PastReportByWeeklyDateScreen({
+  refreshing,
+  startDate,
+  endDate,
+}) {
   const [dailyReport, setDailyReport] = useState([]);
   const navigation = useNavigation();
   const projectId = useProjectStore(state => state.id);
   const [showModal, setShowModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const getDailyReport = async projectId => {
+    console.log(projectId);
+
     try {
       const response = await api.get(
-        `/project/get/daily-report/by/${projectId}`,
+        `/project/get/past-report/by/${projectId}?startDate=${startDate}&endDate=${endDate}`,
       );
       const data = response?.data.reports;
       setDailyReport(data || []);
@@ -119,7 +125,6 @@ export default function DailySubmission({ refreshing }) {
               {WeatherIconsMap[item.weather?.condition]}
             </Text>
           </View>
-          
         </View>
 
         <Pressable

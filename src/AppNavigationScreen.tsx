@@ -43,6 +43,8 @@ import UpdateWeeklyGoalByIdScreen from './screen/main/Project/weekly/UpdateWeekl
 import PendingStatusScreen from './screen/main/Project/Settings/PendingStatusScreen';
 import MaintenanceScreen from './screen/main/Project/Settings/MaintenanceScreen';
 import api from './utils/api';
+import PastReportByWeeklyDateScreen from './screen/main/Project/past-report/PastReportByWeeklyDateScreen';
+import TokenNotFoundScreen from './common/TokenNotFoundScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -63,6 +65,7 @@ const linking = {
 const AppNavigationScreen = () => {
   const [showSplashScreen, setShowSplashScreen] = useState(true);
   const userEmail = useAuthStore(state => state.user?.email);
+  const token = useAuthStore(state => state.token);
   const [maintenanceMode, setMaintenanceMode] = useState<boolean | null>(null);
   const rehydrate = useAuthStore(state => state.rehydrate);
   useEffect(() => {
@@ -110,13 +113,19 @@ const AppNavigationScreen = () => {
           />
         ) : null}
         {userEmail ? (
-          <>
+          token ? (
             <Stack.Screen
               name="projects"
               component={ProjectScreen}
               options={{ headerShown: false, statusBarStyle: 'dark' }}
             />
-          </>
+          ) : (
+            <Stack.Screen
+              name="token-not-found"
+              component={TokenNotFoundScreen}
+              options={{ headerShown: false, statusBarStyle: 'dark' }}
+            />
+          )
         ) : (
           <Stack.Screen
             name="onboarding"
@@ -156,106 +165,117 @@ const AppNavigationScreen = () => {
         />
 
         {/* Auth Route */}
-        <Stack.Screen
-          name="bottom"
-          component={BottomNavigationScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="create-weekly-goal"
-          component={CreateWeeklyGoalScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="weekly-list"
-          component={WeeklyGoalListScreen}
-          options={{ headerShown: false }}
-        />
+        {userEmail && token ? (
+          <>
+            <Stack.Screen
+              name="bottom"
+              component={BottomNavigationScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="create-weekly-goal"
+              component={CreateWeeklyGoalScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="weekly-list"
+              component={WeeklyGoalListScreen}
+              options={{ headerShown: false }}
+            />
 
-        <Stack.Screen
-          name="daily-report"
-          component={DailyReportScreen}
-          options={{ headerShown: false }}
-        />
+            <Stack.Screen
+              name="daily-report"
+              component={DailyReportScreen}
+              options={{ headerShown: false }}
+            />
 
-        <Stack.Screen
-          name="create-new-project"
-          component={CreateNewProject}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="manage-members"
-          component={ManageMemberScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="report-view"
-          component={ReportViewScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="report-details"
-          component={ReportDetailScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="edit-daily-report"
-          component={EditDailyReportScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="week-view"
-          component={WeekViewScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="weekly-week-report"
-          component={WeeklyWeekReport}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="update-weekly-report"
-          component={UpdateWeeklyGoalScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="update-weekly-report-by-id"
-          component={UpdateWeeklyGoalByIdScreen}
-          options={{ headerShown: false }}
-        />
-        {/* Settings Screens */}
-        <Stack.Screen
-          name="account-management"
-          component={AccountManagementScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="change-password"
-          component={ChangePasswordScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="help-and-support"
-          component={HelpAndSupportScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="terms-and-condition"
-          component={TermsAndConditionScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="pending-status"
-          component={PendingStatusScreen}
-          options={{ headerShown: false, statusBarStyle: 'dark' }}
-        />
-        <Stack.Screen
-          name="maintenance"
-          component={MaintenanceScreen}
-          options={{ headerShown: false, statusBarStyle: 'dark' }}
-        />
+            <Stack.Screen
+              name="create-new-project"
+              component={CreateNewProject}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="manage-members"
+              component={ManageMemberScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="report-view"
+              component={ReportViewScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="report-details"
+              component={ReportDetailScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="edit-daily-report"
+              component={EditDailyReportScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="week-view"
+              component={WeekViewScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="weekly-week-report"
+              component={WeeklyWeekReport}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="update-weekly-report"
+              component={UpdateWeeklyGoalScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="update-weekly-report-by-id"
+              component={UpdateWeeklyGoalByIdScreen}
+              options={{ headerShown: false }}
+            />
+            {/* Settings Screens */}
+            <Stack.Screen
+              name="account-management"
+              component={AccountManagementScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="change-password"
+              component={ChangePasswordScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="help-and-support"
+              component={HelpAndSupportScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="terms-and-condition"
+              component={TermsAndConditionScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="pending-status"
+              component={PendingStatusScreen}
+              options={{ headerShown: false, statusBarStyle: 'dark' }}
+            />
+            <Stack.Screen
+              name="maintenance"
+              component={MaintenanceScreen}
+              options={{ headerShown: false, statusBarStyle: 'dark' }}
+            />
+          </>
+        ) : (
+          <Stack.Screen
+            name="token-not-found"
+            component={TokenNotFoundScreen}
+            options={{ headerShown: false, statusBarStyle: 'dark' }}
+          />
+        )}
+
         {/* <Stack.Screen name="drawernav" component={DrawerNavigationScreen} /> */}
-        <Stack.Screen name="bottomnav" component={BottomNavigationScreen} />
+        {/* <Stack.Screen name="bottomnav" component={BottomNavigationScreen} /> */}
       </Stack.Navigator>
     </NavigationContainer>
   );

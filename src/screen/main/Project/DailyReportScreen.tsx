@@ -140,7 +140,7 @@ const DailyReportScreen = () => {
     formData.append('projectId', projectId);
     formData.append('progressReport', progressText);
     formData.append('weather', JSON.stringify({ condition: selectedWeather }));
-    formData.append('delays', parseInt(selectedDealy) || '0');
+    formData.append('delays', selectedDealy);
     formData.append(
       'plant',
       JSON.stringify(
@@ -432,7 +432,7 @@ const DailyReportScreen = () => {
             <View
               style={{
                 backgroundColor: '#fff',
-                marginLeft: 'auto', 
+                marginLeft: 'auto',
                 marginRight: 1,
                 borderRadius: 16,
                 marginHorizontal: 24,
@@ -460,6 +460,7 @@ const DailyReportScreen = () => {
               </ScrollView>
             </View>
           )}
+
           <Pressable
             style={styles.okButton}
             onPress={() => {
@@ -645,88 +646,29 @@ const DailyReportScreen = () => {
 
         {/* Delay Dropdown */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Delays (In hours)</Text>
-          <View style={{ flexDirection: 'row', marginTop: 10 }}>
-            <Text style={styles.sectionTitle}>
-              Do you have delay suggestion?
-            </Text>
-            <View style={styles.radioContainer}>
-              <Pressable
-                style={styles.radioButton}
-                onPress={() => setDelayOption(true)}
-              >
-                <View
-                  style={[styles.radioCircle, delayOption && styles.selected]}
-                />
-                <Text style={styles.radioText}>Yes</Text>
-              </Pressable>
-              <Pressable
-                style={styles.radioButton}
-                onPress={() => {
-                  setDelayOption(false);
-                  setSelectedDealy('');
-                }}
-              >
-                <View
-                  style={[styles.radioCircle, !delayOption && styles.selected]}
-                />
-                <Text style={styles.radioText}>No</Text>
-              </Pressable>
-            </View>
-          </View>
-          {delayOption && (
-            <TextInput
-              style={[
-                styles.input,
-                {
-                  backgroundColor: 'rgba(255, 255, 255, 1)',
-                  borderRadius: 28,
-                  paddingHorizontal: 16,
-                  height: 56,
-                  width: wp('87%'),
-                  borderWidth: 1,
-                  borderColor: 'rgba(232, 233, 234, 1)',
-                },
-              ]}
-              placeholder="Enter delay in hours"
-              placeholderTextColor="black"
-              value={selectedDealy}
-              onChangeText={text => {
-                setSelectedDealy(text);
-                setShowSuggestions(!!text);
-              }}
-              keyboardType="numeric"
-            />
-          )}
-
-          {showSuggestions && (
-            <ScrollView
-              style={{
-                backgroundColor: '#fff',
-                paddingHorizontal: 5,
-                marginTop: -10,
-              }}
-              nestedScrollEnabled={true}
-            >
-              {suggestions
-                .filter(s => s.toString().includes(selectedDealy))
-                .map((s, i) => (
-                  <Pressable
-                    key={i}
-                    onPress={() => {
-                      setSelectedDealy(s.toString());
-                      setShowSuggestions(false);
-                    }}
-                    style={{
-                      borderBottomWidth: 1,
-                      borderColor: '#eee',
-                    }}
-                  >
-                    <Text style={{ padding: 10 }}>{s}</Text>
-                  </Pressable>
-                ))}
-            </ScrollView>
-          )}
+          <Text style={styles.sectionTitle}>Delays</Text>
+          <TextInput
+            style={{
+              backgroundColor: 'rgba(247, 248, 254, 1)',
+              borderRadius: 28,
+              padding: 16,
+              minHeight: 90,
+              fontFamily: 'Inter-Regular',
+              fontSize: 14,
+              color: 'rgba(0, 0, 0, 1)',
+              borderWidth: 1,
+              borderColor: 'rgba(232, 233, 234, 1)',
+            }}
+            placeholder="Enter delay..."
+            placeholderTextColor="rgba(0, 0, 0, 1)"
+            value={selectedDealy}
+            onChangeText={text => {
+              setSelectedDealy(text);
+            }}
+            multiline
+            numberOfLines={3}
+            textAlignVertical="top"
+          />
         </View>
 
         {/* Labour Section */}

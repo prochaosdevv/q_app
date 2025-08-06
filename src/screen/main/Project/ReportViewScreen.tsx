@@ -20,9 +20,9 @@ import {
   ClockAlert,
 } from 'lucide-react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import DailySubmission from '../../../components/DailySubmission';
 import { useState } from 'react';
 import moment from 'moment';
+import PastReportByWeeklyDateScreen from './past-report/PastReportByWeeklyDateScreen';
 
 const ReportViewScreen = () => {
   const navigation = useNavigation();
@@ -75,16 +75,20 @@ const ReportViewScreen = () => {
         }
       >
         <Text style={styles.dateRange}>{`${moment(item.startDate).format(
-          'D',
-        )} - ${moment(item.endDate).format('D MMM YYYY')}`}</Text>
+          'DD MMM',
+        )} - ${moment(item.endDate).format('DD MMM YYYY')}`}</Text>
 
         <View style={styles.weekGoal}>
-          <Text style={styles.sectionTitle}>Weeks goal</Text>
+          <Text style={styles.sectionTitle}>Week’s Goal</Text>
           <Text style={styles.goalTitle}>{item.title}</Text>
           <Text style={styles.goalDescription}>{item.description}</Text>
         </View>
 
-        <DailySubmission refreshing={refreshing} />
+        <PastReportByWeeklyDateScreen
+          refreshing={refreshing}
+          startDate={item.startDate}
+          endDate={item.endDate}
+        />
       </ScrollView>
     </SafeAreaView>
   );

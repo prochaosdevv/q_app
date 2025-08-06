@@ -99,7 +99,7 @@ const ReportDetailScreen = () => {
             navigation.goBack();
           }}
         >
-          <ChevronLeft color="white" size={24} />
+          <ChevronLeft color="white" size={26} />
         </Pressable>
         <Text style={styles.headerTitle}>Daily Report</Text>
       </View>
@@ -112,7 +112,7 @@ const ReportDetailScreen = () => {
         {/* // Inside the ScrollView > top_section */}
         <View style={styles.top_section}>
           <Text style={styles.date}>
-            {moment(dailyReport.createdAt).format('dddd DD MMMM YYYY')}
+            {moment(dailyReport.createdAt).format('dddd DD MMM YYYY')}
           </Text>
 
           <View style={{ position: 'relative' }}>
@@ -230,7 +230,6 @@ const ReportDetailScreen = () => {
                 {
                   backgroundColor: 'rgba(247, 248, 254, 1)',
                   borderRadius: 28,
-
                   minHeight: 120,
                   fontFamily: 'Inter-Regular',
                   fontSize: 14,
@@ -255,52 +254,22 @@ const ReportDetailScreen = () => {
         </View>
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Delays</Text>
-          <View style={styles.textBox_}>
-            <Text style={styles.reportText}>{dailyReport.delays} hours</Text>
+          <View
+            style={[
+              {
+                backgroundColor: 'rgba(247, 248, 254, 1)',
+                borderRadius: 28,
+                padding: 16,
+                minHeight: 90,
+                borderWidth: 1,
+                borderColor: 'rgba(232, 233, 234, 1)',
+              },
+            ]}
+          >
+            <Text style={styles.reportText}>{dailyReport.delays}</Text>
           </View>
         </View>
 
-        <View style={styles.tableSection}>
-          <Text style={styles.sectionTitle}>Plant</Text>
-          <View style={styles.tableWrapper}>
-            {/* Table Header */}
-            <View style={styles.tableRow}>
-              <Text style={[styles.cell, styles.headerCell]}>Desciption</Text>
-
-              <Text
-                style={[
-                  styles.cell,
-                  styles.headerCell,
-                  {
-                    textAlign: 'center',
-                  },
-                ]}
-              >
-                Qty
-              </Text>
-            </View>
-
-            {/* Table Rows */}
-            {dailyReport.plant?.map((item, index) => (
-              <View
-                key={item._id}
-                style={[
-                  styles.tableRow,
-                  {
-                    borderBottomWidth:
-                      index !== dailyReport.plant.length - 1 ? 1 : 0,
-                    borderColor: 'rgba(175, 175, 175, 1)',
-                  },
-                ]}
-              >
-                <Text style={[styles.cell]}>{item.desc}</Text>
-                <Text style={[styles.cell, { textAlign: 'center' }]}>
-                  {item.qty}
-                </Text>
-              </View>
-            ))}
-          </View>
-        </View>
         <View style={styles.tableSection}>
           <Text style={styles.sectionTitle}>Labour</Text>
           <View style={styles.tableWrapper}>
@@ -408,6 +377,47 @@ const ReportDetailScreen = () => {
                 </Text>
                 <Text style={[styles.cell, { textAlign: 'center' }]}>
                   {item.unit}
+                </Text>
+              </View>
+            ))}
+          </View>
+        </View>
+        <View style={styles.tableSection}>
+          <Text style={styles.sectionTitle}>Plant</Text>
+          <View style={styles.tableWrapper}>
+            {/* Table Header */}
+            <View style={styles.tableRow}>
+              <Text style={[styles.cell, styles.headerCell]}>Desciption</Text>
+
+              <Text
+                style={[
+                  styles.cell,
+                  styles.headerCell,
+                  {
+                    textAlign: 'center',
+                  },
+                ]}
+              >
+                Qty
+              </Text>
+            </View>
+
+            {/* Table Rows */}
+            {dailyReport.plant?.map((item, index) => (
+              <View
+                key={item._id}
+                style={[
+                  styles.tableRow,
+                  {
+                    borderBottomWidth:
+                      index !== dailyReport.plant.length - 1 ? 1 : 0,
+                    borderColor: 'rgba(175, 175, 175, 1)',
+                  },
+                ]}
+              >
+                <Text style={[styles.cell]}>{item.desc}</Text>
+                <Text style={[styles.cell, { textAlign: 'center' }]}>
+                  {item.qty}
                 </Text>
               </View>
             ))}
