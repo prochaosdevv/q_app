@@ -21,6 +21,7 @@ import {
   FilePen,
   CircleFadingArrowUp,
   ClockFading,
+  Mail,
 } from 'lucide-react-native';
 import {
   widthPercentageToDP as wp,
@@ -32,13 +33,17 @@ import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import api from '../../../utils/api';
 import LogoutModal from '../../../components/LogoutModal';
 import { useProjectStore } from '../../../zustand/store/projectStore';
+import { getAccessToken } from '../../../utils/tokenSetting';
 const SettingScreen = () => {
   const [project, setProject] = useState([]);
   const [showLogouModal, setShowLogouModal] = useState(false);
   const navigation = useNavigation();
+  const token = getAccessToken();
 
   const setProjectId = useProjectStore(state => state.setProjectId);
   const setProjectImage = useProjectStore(state => state.setProjectImage);
+  const setCreatedBy = useProjectStore(state => state.setCreatedBy);
+
   const handleLogout = () => {
     setShowLogouModal(true);
   };
@@ -65,7 +70,11 @@ const SettingScreen = () => {
 
   const getProject = async () => {
     try {
-      const res = await api.get('/project/');
+      const res = await api.get('/project/get/by/user', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       const projects = res.data.projects;
       const limitedProjects = projects.slice(0, 5);
       setProject(limitedProjects);
@@ -76,6 +85,7 @@ const SettingScreen = () => {
   const navigateToBottom = item => {
     setProjectId(item._id);
     setProjectImage(item.image);
+    setCreatedBy(item.createdBy._id);
     navigation.navigate('bottom', {
       screen: 'dashboard',
     });
@@ -131,7 +141,7 @@ const SettingScreen = () => {
             navigation.navigate('pending-status');
           }}
         >
-          <CircleFadingArrowUp size={22} color="#141b41" />
+          <Mail size={21} color="#141b41" />
           <Text style={styles.menuText}>Invitations</Text>
         </Pressable>
 

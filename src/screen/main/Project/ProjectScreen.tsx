@@ -42,12 +42,15 @@ const ProjectScreen = () => {
   const [showPopup, setShowPopup] = useState(false);
 
   const currentEmail = user?.email;
-
   const getProject = async () => {
     try {
-      const res = await api.get('/project/');
+      const res = await api.get('/project/get/by/user', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       const projects = res.data.projects;
-      console.log('Projects : ', projects);
+
       setProject(projects);
     } catch (error) {
       console.log('Project Fetching Error', error);
@@ -200,7 +203,9 @@ const ProjectScreen = () => {
           <View style={styles.header}>
             {project.length > 0 ? (
               <>
-                <Text style={styles.title}>You’re connected to projects</Text>
+                <Text style={styles.title}>
+                  You’re connected to {'\n'}projects
+                </Text>
                 <Text style={styles.subtitle}>
                   Projects linked to
                   <Text style={styles.email}> {currentEmail}</Text>
@@ -213,7 +218,7 @@ const ProjectScreen = () => {
             ) : (
               <View style={{ marginTop: 10 }}>
                 <Text style={[styles.title]}>
-                  You’re not connected to any project
+                  You’re not connected{'\n'}to any project
                 </Text>
                 <Text style={styles.subtitle}>
                   Create a project linked to

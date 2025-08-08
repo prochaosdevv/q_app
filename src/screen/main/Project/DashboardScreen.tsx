@@ -17,7 +17,11 @@ import {
 import { Plus, KeyRound as Pound, X } from 'lucide-react-native';
 import { Popover } from '../../../components/Popover';
 import { LinearGradient } from 'react-native-linear-gradient';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import {
+  useIsFocused,
+  useNavigation,
+  useRoute,
+} from '@react-navigation/native';
 // import WeeklyGoal from '../../../components/WeeklyGoal';
 import { useAuthStore } from '../../../zustand/store/authStore';
 import moment from 'moment';
@@ -80,9 +84,13 @@ const DashboardScreen = () => {
     }
   };
 
+  const isFocused = useIsFocused();
+
   useEffect(() => {
-    fetchGoal();
-  }, []);
+    if (isFocused) {
+      fetchGoal();
+    }
+  }, [isFocused]);
 
   const openModal = () => {
     setTitle(goalData?.title || '');

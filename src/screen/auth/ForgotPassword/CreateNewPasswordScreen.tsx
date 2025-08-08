@@ -22,9 +22,11 @@ import { useNavigation } from '@react-navigation/native';
 
 export default function CreateNewPasswordScreen() {
   const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [showForgotPasswordSuccessModal, setShowForgotPasswordSuccessModal] =
     useState(false);
+  const [error, setError] = useState('');
 
   const token = getForgotPasswordAccessToken();
   const navigation = useNavigation();
@@ -34,6 +36,13 @@ export default function CreateNewPasswordScreen() {
     navigation.navigate('login');
   };
   const createNewPassword = async () => {
+    if (newPassword !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    } else {
+      setError('');
+    }
+
     setLoading(true);
     try {
       const response = await forgotPasswordApi.post(
@@ -52,7 +61,7 @@ export default function CreateNewPasswordScreen() {
     } catch (error) {
       console.log('Error fetching create new password.');
     } finally {
-      setLoading(false); 
+      setLoading(false);
     }
   };
   return (
@@ -75,10 +84,46 @@ export default function CreateNewPasswordScreen() {
               placeholder="John@1123"
               placeholderTextColor="#93a5b1"
               value={newPassword}
-              onChangeText={setNewPassword}
+              onChangeText={text => {
+                setNewPassword(text);
+                if (confirmPassword && text === confirmPassword) {
+                  setError('');
+                }
+              }}
+            />
+          </View>
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Re-enter new password</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="John@1123"
+              placeholderTextColor="#93a5b1"
+              value={confirmPassword}
+              onChangeText={text => {
+                setConfirmPassword(text);
+
+                if (newPassword === text) {
+                  setError('');
+                } else {
+                  setError('Passwords do not match');
+                }
+              }}
             />
           </View>
         </View>
+        {error ? (
+          <Text
+            style={{
+              color: 'red',
+              fontSize: wp('3.5%'),
+              fontFamily: 'Inter-Regular',
+              textAlign: 'center',
+              marginBottom: hp('1.8%'),
+            }}
+          >
+            {error}
+          </Text>
+        ) : null}
 
         <Pressable style={styles.signInButton} onPress={createNewPassword}>
           {loading ? (

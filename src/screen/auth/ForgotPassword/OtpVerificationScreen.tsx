@@ -19,7 +19,7 @@ import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { getForgotPasswordAccessToken } from '../../../utils/forgotPasswordTokenSetting';
 import forgotPasswordApi from '../../../utils/apiForgotPassword';
 export default function OtpVerificationScreen() {
@@ -30,12 +30,19 @@ export default function OtpVerificationScreen() {
   const inputRefs = useRef<(TextInput | null)[]>([]);
   const navigation = useNavigation();
 
+  const route = useRoute();
+  const { email } = route.params;
+
+  console.log('Welom', email);
+
   const token = getForgotPasswordAccessToken();
 
   const handleOtpChange = (value: string, index: number) => {
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
+
+    if (error) setError('');
 
     if (value && index < 3) {
       inputRefs.current[index + 1]?.focus();
@@ -87,6 +94,26 @@ export default function OtpVerificationScreen() {
       } else {
         setError('Something went wrong. Please try again.');
       }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResendCode = async () => {
+    try {
+      const response = await forgotPasswordApi.post('/user/request-otp', {
+        email,
+      });
+      const result = response.data;
+
+      if (result.success) {
+        setError('A new OTP has been sent to your email.');
+      } else {
+        setError('Otp resent error');
+      }
+    } catch (err) {
+      console.log('Resend OTP error:', err);
+      setError('Resend OTP error. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -158,9 +185,7 @@ export default function OtpVerificationScreen() {
           {!keyboardVisible && (
             <View style={styles.resendContainer}>
               <Text style={styles.resendText}>Didn't receive the code? </Text>
-              <Pressable
-              //    onPress={handleResendCode}
-              >
+              <Pressable onPress={handleResendCode}>
                 <Text style={styles.resendLink}>Resend code</Text>
               </Pressable>
             </View>

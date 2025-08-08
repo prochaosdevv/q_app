@@ -1,7 +1,8 @@
 import axios from 'axios';
 import { API_URL } from '@env';
 import { getAccessToken } from './tokenSetting';
-
+import { useAuthStore } from '../zustand/store/authStore';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 const api = axios.create({
   baseURL: API_URL,
   withCredentials: true,
@@ -28,6 +29,19 @@ api.interceptors.response.use(
         '🚫 Unauthorized - Token may be expired or invalid',
         error.response.data,
       );
+      const logout = useAuthStore.getState().logout;
+      try {
+        logout();
+
+        try {
+          GoogleSignin.signOut();
+          console.log('✅ Google sign-out successful...!!');
+        } catch (googleError) {
+          console.warn('⚠️ Google Sign-Out failed:', googleError);
+        }
+      } catch (logoutError) {
+        console.error('❌ Logout process failed:', logoutError);
+      }
     } else {
       console.log(
         '❌ API Error:',

@@ -80,8 +80,10 @@ const ReportViewScreen = () => {
 
         <View style={styles.weekGoal}>
           <Text style={styles.sectionTitle}>Week’s Goal</Text>
-          <Text style={styles.goalTitle}>{item.title}</Text>
-          <Text style={styles.goalDescription}>{item.description}</Text>
+          <Text style={styles.goalTitle}>{item.title ? item.title : 'NA'}</Text>
+          <Text style={styles.goalDescription}>
+            {item.description ? item.description : 'NA'}
+          </Text>
         </View>
 
         <PastReportByWeeklyDateScreen

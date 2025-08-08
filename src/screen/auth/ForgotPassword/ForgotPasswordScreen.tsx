@@ -44,11 +44,8 @@ const ForgotPasswordScreen = () => {
 
       if (result.success) {
         const token = await result.token;
-        console.log('Final Token:', token);
-
         await AsyncStorage.setItem('forget_password_access_token', token);
-        
-        navigation.navigate('otp-verify');
+        navigation.navigate('otp-verify', { email: userEmail });
       } else {
         setError(result.message);
       }

@@ -14,6 +14,11 @@ import api from '../utils/api';
 import { CalendarDays } from 'lucide-react-native';
 import moment from 'moment';
 
+type PastReport = {
+  startDate: string; // or Date, depending on your data
+  endDate: string;
+  // ...other fields
+};
 export default function ReportListItem() {
   const [pastReports, setPastReports] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -24,8 +29,10 @@ export default function ReportListItem() {
   const fetchPastReports = async () => {
     try {
       const res = await api.get(`/project/get/past-goals/by/${projectId}`);
-      const result = res.data.pastGoals || [];
+
+      const result = res.data.pastGoals;
       setPastReports(result);
+      console.log('Dta', pastReports);
     } catch (error) {
       console.log('Fetch error:', error);
     } finally {
@@ -33,10 +40,25 @@ export default function ReportListItem() {
       setRefreshing(false);
     }
   };
+  const getTitleAndDescription = () => {
+    pastReports.forEach(async report => {
+      try {
+        const res = await api.get(
+          `/project/get/goal/by/dates/${projectId}?startDate=${report.startDate}&endDate=${report.endDate}`,
+        );
+        console.log('res', res.data);
+      } catch (error) {
+        console.error('API Error for report:', error);
+      }
+    });
+  };
 
   useEffect(() => {
-    fetchPastReports();
-  }, []);
+    if (projectId) {
+      fetchPastReports(projectId);
+      getTitleAndDescription(projectId);
+    }
+  }, [projectId]);
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
@@ -58,9 +80,9 @@ export default function ReportListItem() {
         </Text>
       </View>
 
-      <Text style={styles.title}>{item.title}</Text>
+      <Text style={styles.title}>{item.title ? item.title : 'NA'}</Text>
       <Text style={styles.description} numberOfLines={2}>
-        {item.description}
+        {item.description ? item.description : 'NA'}
       </Text>
 
       <Text style={styles.viewText}>View</Text>
