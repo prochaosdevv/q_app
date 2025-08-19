@@ -347,7 +347,7 @@ const DailyReportScreen = () => {
               <X size={24} color="#000" />
             </Pressable>
           </View>
-
+              <View style={{position: "relative"}} >
           <TextInput
             placeholder="Labour Name"
             value={labour}
@@ -365,14 +365,21 @@ const DailyReportScreen = () => {
             ).length > 0 && (
               <View
                 style={{
+                  position: "absolute",
+                  top:60,
                   borderRadius: 8,
+                  zIndex: 1000,
+                  opacity: 1,
+                  width: '100%',
                   backgroundColor: '#fff',
                   borderWidth: 1,
                   borderColor: '#ccc',
                   paddingVertical: wp('0.3%'),
                   paddingHorizontal: wp('2%'),
                   marginBottom: hp('0.7%'),
-                  height: hp('8%'),
+                  height: 'auto',
+                  overflow: 'scroll',
+                  maxHeight: hp('30%'),
                 }}
               >
                 <ScrollView>
@@ -403,7 +410,7 @@ const DailyReportScreen = () => {
                 </ScrollView>
               </View>
             )}
-
+</View>
           <TextInput
             placeholder="Role"
             value={labourRole}
@@ -503,6 +510,7 @@ const DailyReportScreen = () => {
               <X size={24} color="#000" />
             </Pressable>
           </View>
+              <View style={{position: "relative"}} >
 
           <TextInput
             placeholder="Material Type"
@@ -522,14 +530,21 @@ const DailyReportScreen = () => {
             ).length > 0 && (
               <View
                 style={{
+                  position: "absolute",
+                  top:60,
                   borderRadius: 8,
+                  zIndex: 1000,
+                  opacity: 1,
+                  width: '100%',
                   backgroundColor: '#fff',
                   borderWidth: 1,
                   borderColor: '#ccc',
                   paddingVertical: wp('0.3%'),
                   paddingHorizontal: wp('2%'),
                   marginBottom: hp('0.7%'),
-                  height: hp('8%'),
+                  height: 'auto',
+                  overflow: 'scroll',
+                  maxHeight: hp('30%'),
                 }}
               >
                 <ScrollView>
@@ -566,7 +581,7 @@ const DailyReportScreen = () => {
                 </ScrollView>
               </View>
             )}
-
+</View>
           <TextInput
             placeholder="Qty"
             value={materialQty}
@@ -575,6 +590,7 @@ const DailyReportScreen = () => {
             style={styles.input}
             placeholderTextColor="black"
           />
+              <View style={{position: "relative"}} >
 
           <Pressable
             style={[
@@ -597,20 +613,21 @@ const DailyReportScreen = () => {
           {showDropdown && (
             <View
               style={{
-                backgroundColor: '#fff',
-                marginLeft: 'auto',
-                marginRight: 1,
-                borderRadius: 16,
-                marginHorizontal: 24,
-                maxHeight: 150,
-                width: '50%',
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 10 },
-                shadowOpacity: 0.25,
-                shadowRadius: 20,
-                elevation: 10,
-                marginBottom: 20,
-                marginTop: -10,
+                  position: "absolute",
+                  top:60,
+                  borderRadius: 8,
+                  zIndex: 1000,
+                  opacity: 1,
+                  width: '100%',
+                  backgroundColor: '#fff',
+                  borderWidth: 1,
+                  borderColor: '#ccc',
+                  paddingVertical: wp('0.3%'),
+                  paddingHorizontal: wp('2%'),
+                  marginBottom: hp('0.7%'),
+                  height: 'auto',
+                  overflow: 'scroll',
+                  maxHeight: hp('30%'),
               }}
             >
               <ScrollView nestedScrollEnabled>
@@ -626,7 +643,7 @@ const DailyReportScreen = () => {
               </ScrollView>
             </View>
           )}
-
+</View>
           <Pressable
             style={styles.okButton}
             onPress={() => {
@@ -695,6 +712,7 @@ const DailyReportScreen = () => {
               <X size={24} color="#000" />
             </Pressable>
           </View>
+              <View style={{position: "relative"}} >
 
           <TextInput
             placeholder="Description"
@@ -714,14 +732,21 @@ const DailyReportScreen = () => {
             ).length > 0 && (
               <View
                 style={{
+                  position: "absolute",
+                  top:60,
                   borderRadius: 8,
+                  zIndex: 1000,
+                  opacity: 1,
+                  width: '100%',
                   backgroundColor: '#fff',
                   borderWidth: 1,
                   borderColor: '#ccc',
                   paddingVertical: wp('0.3%'),
                   paddingHorizontal: wp('2%'),
                   marginBottom: hp('0.7%'),
-                  height: hp('8%'),
+                  height: 'auto',
+                  overflow: 'scroll',
+                  maxHeight: hp('30%'),
                 }}
               >
                 <ScrollView>
@@ -758,7 +783,7 @@ const DailyReportScreen = () => {
                 </ScrollView>
               </View>
             )}
-
+</View> 
           <TextInput
             placeholder="Qty"
             value={plantQty}
@@ -864,7 +889,7 @@ const DailyReportScreen = () => {
                 { marginRight: wp('2%'), marginBottom: 0 },
               ]}
             >
-              Delays
+              Are there any delays
             </Text>
             <Pressable
               style={styles.radioButton}
