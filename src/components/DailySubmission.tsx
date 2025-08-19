@@ -119,7 +119,6 @@ export default function DailySubmission({ refreshing }) {
               {WeatherIconsMap[item.weather?.condition]}
             </Text>
           </View>
-          
         </View>
 
         <Pressable

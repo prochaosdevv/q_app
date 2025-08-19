@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Alert, Image } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { useNavigation } from '@react-navigation/native';
 

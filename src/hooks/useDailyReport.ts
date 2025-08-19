@@ -15,7 +15,7 @@ export const useDailyReport = () => {
   const [progressText, setProgressText] = useState('');
   const [selectedWeather, setSelectedWeather] = useState('');
   const [showWeatherDropdown, setShowWeatherDropdown] = useState(false);
-  const [selectedDealy, setSelectedDealy] = useState('');
+  const [selectedDelay, setSelectedDelay] = useState('');
   const [showPhotoModal, setShowPhotoModal] = useState(false);
   const [selectedImages, setSelectedImages] = useState([]);
 
@@ -58,8 +58,8 @@ export const useDailyReport = () => {
       setSelectedWeather(value);
       setShowWeatherDropdown(false);
     },
-    selectedDealy,
-    setSelectedDealy,
+    selectedDelay,
+    setSelectedDelay,
 
     showPhotoModal,
     setShowPhotoModal,

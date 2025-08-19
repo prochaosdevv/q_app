@@ -129,16 +129,8 @@ export default function EditDailyReportScreen() {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   // Delay Option
-  const [delayOption, setDelayOption] = useState(false);
-  const [suggestions, setSuggestions] = useState([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
 
-  useEffect(() => {
-    api
-      .get('/project/get/all/delay-suggestions')
-      .then(res => setSuggestions(res.data.delays))
-      .catch(err => console.error(err));
-  }, []);
+  const [delayOption, setDelayOption] = useState(false);
 
   useEffect(() => {
     if (selectedDealy) {
@@ -270,10 +262,10 @@ export default function EditDailyReportScreen() {
           <Pressable
             style={styles.okButton}
             onPress={() => {
-              if (!labour || !labourRole || !labourHours || !labourQty) {
-                setError('All labour fields are required.');
-                return;
-              }
+              // if (!labour || !labourRole || !labourHours || !labourQty) {
+              //   setError('All labour fields are required.');
+              //   return;
+              // }
 
               if (editingLabourIndex !== null) {
                 const updated = [...labourEntries];
@@ -417,10 +409,10 @@ export default function EditDailyReportScreen() {
           <Pressable
             style={styles.okButton}
             onPress={() => {
-              if (!materialType || !materialQty || !materialUnit) {
-                setError('All material fields are required.');
-                return;
-              }
+              // if (!materialType || !materialQty || !materialUnit) {
+              //   setError('All material fields are required.');
+              //   return;
+              // }
 
               if (editingMaterialIndex !== null) {
                 const updated = [...materialEntries];
@@ -507,10 +499,10 @@ export default function EditDailyReportScreen() {
           <Pressable
             style={styles.okButton}
             onPress={() => {
-              if (!plantDescription || !plantQty) {
-                setError('All plant fields are required.');
-                return;
-              }
+              // if (!plantDescription || !plantQty) {
+              //   setError('All plant fields are required.');
+              //   return;
+              // }
 
               if (editingPlantIndex !== null) {
                 const updated = [...plantEntries];
@@ -562,16 +554,16 @@ export default function EditDailyReportScreen() {
       return;
     }
 
-    if (labourEntries.length === 0) {
-      setError('Please add at least one labour entry.');
-      setLoading(false);
-      return;
-    }
-    if (materialEntries.length === 0) {
-      setError('Please add at least one material entry.');
-      setLoading(false);
-      return;
-    }
+    // if (labourEntries.length === 0) {
+    //   setError('Please add at least one labour entry.');
+    //   setLoading(false);
+    //   return;
+    // }
+    // if (materialEntries.length === 0) {
+    //   setError('Please add at least one material entry.');
+    //   setLoading(false);
+    //   return;
+    // }
     if (selectedImages.length === 0) {
       setError('Please select at least one photo.');
       setLoading(false);
@@ -583,7 +575,7 @@ export default function EditDailyReportScreen() {
 
     formData.append('progressReport', progressText);
     formData.append('weather', JSON.stringify({ condition: selectedWeather }));
-    formData.append('delays', selectedDealy);
+    formData.append('delays', selectedDealy || 'NA');
 
     formData.append(
       'labour',
@@ -707,31 +699,64 @@ export default function EditDailyReportScreen() {
 
         {/* Delay Dropdown */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Delays</Text>
-
-          <TextInput
-            style={{
-              backgroundColor: 'rgba(247, 248, 254, 1)',
-              borderRadius: 28,
-              padding: 16,
-              minHeight: 90,
-              fontFamily: 'Inter-Regular',
-              fontSize: 14,
-              color: 'rgba(0, 0, 0, 1)',
-              borderWidth: 1,
-              borderColor: 'rgba(232, 233, 234, 1)',
-            }}
-            placeholder="Enter delay..."
-            placeholderTextColor="rgba(0, 0, 0, 1)"
-            value={selectedDealy}
-            onChangeText={text => {
-              setSelectedDealy(text);
-            }}
-            multiline
-            numberOfLines={3}
-            textAlignVertical="top"
-          />
-        
+          <View style={styles.radioContainer}>
+            <Text
+              style={[
+                styles.sectionTitle,
+                { marginRight: wp('2%'), marginBottom: 0 },
+              ]}
+            >
+              Delays
+            </Text>
+            <Pressable
+              style={styles.radioButton}
+              onPress={() => setDelayOption(true)}
+            >
+              <View
+                style={[
+                  styles.radioCircle,
+                  delayOption === true && styles.selected,
+                ]}
+              />
+              <Text style={styles.radioText}>Yes</Text>
+            </Pressable>
+            <Pressable
+              style={styles.radioButton}
+              onPress={() => setDelayOption(false)}
+            >
+              <View
+                style={[
+                  styles.radioCircle,
+                  delayOption === false && styles.selected,
+                ]}
+              />
+              <Text style={styles.radioText}>No</Text>
+            </Pressable>
+          </View>
+          {delayOption === true && (
+            <TextInput
+              style={{
+                backgroundColor: 'rgba(247, 248, 254, 1)',
+                borderRadius: 28,
+                padding: 16,
+                minHeight: 90,
+                fontFamily: 'Inter-Regular',
+                fontSize: 14,
+                color: 'rgba(0, 0, 0, 1)',
+                borderWidth: 1,
+                borderColor: 'rgba(232, 233, 234, 1)',
+              }}
+              placeholder="Enter delay..."
+              placeholderTextColor="rgba(0, 0, 0, 1)"
+              value={selectedDealy}
+              onChangeText={text => {
+                setSelectedDealy(text);
+              }}
+              multiline
+              numberOfLines={3}
+              textAlignVertical="top"
+            />
+          )}
         </View>
 
         {/* Labour Section */}
@@ -1467,7 +1492,6 @@ const styles = StyleSheet.create({
   radioContainer: {
     flexDirection: 'row',
     marginBottom: 20,
-    marginLeft: 20,
   },
   radioButton: {
     flexDirection: 'row',

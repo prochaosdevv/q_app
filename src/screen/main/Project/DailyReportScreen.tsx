@@ -39,8 +39,8 @@ const DailyReportScreen = () => {
     showWeatherDropdown,
     handleWeatherSelect,
 
-    selectedDealy,
-    setSelectedDealy,
+    selectedDelay,
+    setSelectedDelay,
 
     showPhotoModal,
     setShowPhotoModal,
@@ -90,15 +90,6 @@ const DailyReportScreen = () => {
 
   // Delay Option
   const [delayOption, setDelayOption] = useState(false);
-  const [suggestions, setSuggestions] = useState([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
-
-  useEffect(() => {
-    api
-      .get('/project/get/all/delay-suggestions')
-      .then(res => setSuggestions(res.data.delays))
-      .catch(err => console.error(err));
-  }, []);
 
   const handleSubmit = async () => {
     setLoading(true);
@@ -115,21 +106,6 @@ const DailyReportScreen = () => {
       return;
     }
 
-    if (labourEntries.length === 0) {
-      setError('Please add at least one labour entry.');
-      setLoading(false);
-      return;
-    }
-    if (materialEntries.length === 0) {
-      setError('Please add at least one material entry.');
-      setLoading(false);
-      return;
-    }
-    if (plantEntries.length === 0) {
-      setError('Please add at least one plant entry.');
-      setLoading(false);
-      return;
-    }
     if (selectedImages.length === 0) {
       setError('Please select at least one photo.');
       setLoading(false);
@@ -140,7 +116,7 @@ const DailyReportScreen = () => {
     formData.append('projectId', projectId);
     formData.append('progressReport', progressText);
     formData.append('weather', JSON.stringify({ condition: selectedWeather }));
-    formData.append('delays', selectedDealy);
+    formData.append('delays', selectedDelay || 'NA');
     formData.append(
       'plant',
       JSON.stringify(
@@ -314,11 +290,6 @@ const DailyReportScreen = () => {
           <Pressable
             style={styles.okButton}
             onPress={() => {
-              if (!labour || !labourRole || !labourHours || !labourQty) {
-                setError('All labour fields are required.');
-                return;
-              }
-
               if (editingLabourIndex !== null) {
                 const updated = [...labourEntries];
                 updated[editingLabourIndex] = {
@@ -464,11 +435,6 @@ const DailyReportScreen = () => {
           <Pressable
             style={styles.okButton}
             onPress={() => {
-              if (!materialType || !materialUnit || !materialQty) {
-                setError('All material fields are required.');
-                return;
-              }
-
               if (editingMaterialIndex !== null) {
                 const updated = [...materialEntries];
                 updated[editingMaterialIndex] = {
@@ -555,11 +521,6 @@ const DailyReportScreen = () => {
           <Pressable
             style={styles.okButton}
             onPress={() => {
-              if (!plantDesc || !plantQty) {
-                setError('Both description and quantity are required.');
-                return;
-              }
-
               if (editingPlantIndex !== null) {
                 const updated = [...plantEntries];
                 updated[editingPlantIndex] = {
@@ -646,29 +607,65 @@ const DailyReportScreen = () => {
 
         {/* Delay Dropdown */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Delays</Text>
-          <TextInput
-            style={{
-              backgroundColor: 'rgba(247, 248, 254, 1)',
-              borderRadius: 28,
-              padding: 16,
-              minHeight: 90,
-              fontFamily: 'Inter-Regular',
-              fontSize: 14,
-              color: 'rgba(0, 0, 0, 1)',
-              borderWidth: 1,
-              borderColor: 'rgba(232, 233, 234, 1)',
-            }}
-            placeholder="Enter delay..."
-            placeholderTextColor="rgba(0, 0, 0, 1)"
-            value={selectedDealy}
-            onChangeText={text => {
-              setSelectedDealy(text);
-            }}
-            multiline
-            numberOfLines={3}
-            textAlignVertical="top"
-          />
+          <View style={styles.radioContainer}>
+            <Text
+              style={[
+                styles.sectionTitle,
+                { marginRight: wp('2%'), marginBottom: 0 },
+              ]}
+            >
+              Delays
+            </Text>
+            <Pressable
+              style={styles.radioButton}
+              onPress={() => setDelayOption(true)}
+            >
+              <View
+                style={[
+                  styles.radioCircle,
+                  delayOption === true && styles.selected,
+                ]}
+              />
+              <Text style={styles.radioText}>Yes</Text>
+            </Pressable>
+            <Pressable
+              style={styles.radioButton}
+              onPress={() => setDelayOption(false)}
+            >
+              <View
+                style={[
+                  styles.radioCircle,
+                  delayOption === false && styles.selected,
+                ]}
+              />
+              <Text style={styles.radioText}>No</Text>
+            </Pressable>
+          </View>
+
+          {delayOption === true && (
+            <TextInput
+              style={{
+                backgroundColor: 'rgba(247, 248, 254, 1)',
+                borderRadius: 28,
+                padding: 16,
+                minHeight: 90,
+                fontFamily: 'Inter-Regular',
+                fontSize: 14,
+                color: 'rgba(0, 0, 0, 1)',
+                borderWidth: 1,
+                borderColor: 'rgba(232, 233, 234, 1)',
+              }}
+              placeholder="Enter delay..."
+              placeholderTextColor="rgba(0, 0, 0, 1)"
+              value={selectedDelay}
+              onChangeText={text => {
+                setSelectedDelay(text);
+              }}
+              multiline
+              numberOfLines={3}
+              textAlignVertical="top"
+            />
+          )}
         </View>
 
         {/* Labour Section */}
@@ -1332,8 +1329,9 @@ const styles = StyleSheet.create({
   // Radio Section
   radioContainer: {
     flexDirection: 'row',
-    marginBottom: 20,
-    marginLeft: 20,
+    marginBottom: 10,
+    justifyContent: 'flex-start',
+    alignItems: 'center',
   },
   radioButton: {
     flexDirection: 'row',
