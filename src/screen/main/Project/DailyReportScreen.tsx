@@ -74,12 +74,12 @@ const DailyReportScreen = () => {
   const getPlantDetails = async () => {
     try {
       const response = await api.get(`/project/latest-plant/${projectId}`);
-      const data = response.data.plant;
+      const data = response.data.plants;
       console.log('Welcome', data);
+      console.log('plantEntries', plantEntries);
 
       if (data) {
-        setPlantDesc(data.desc || '');
-        setPlantQty(data.qty?.toString() || '');
+        setPlantEntries(data);
       }
     } catch (error) {
       console.error('Error fetching plant details:', error);

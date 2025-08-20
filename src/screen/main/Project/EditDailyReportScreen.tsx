@@ -33,6 +33,7 @@ import {
 } from '../../../hooks/useEditDailyReportForm';
 import api from '../../../utils/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useProjectStore } from '../../../zustand/store/projectStore';
 
 export default function EditDailyReportScreen() {
   const {
@@ -161,6 +162,26 @@ export default function EditDailyReportScreen() {
   const [editingPlantIndex, setEditingPlantIndex] = useState(null);
 
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const projectId = useProjectStore(state => state.id);
+  // Get Plant
+  const getPlantDetails = async () => {
+    try {
+      const response = await api.get(`/project/latest-plant/${projectId}`);
+      const data = response.data.plants;
+      console.log('Welcome', data);
+      console.log('plantEntries', plantEntries);
+
+      if (data) {
+        setPlantEntries(data);
+      }
+    } catch (error) {
+      console.error('Error fetching plant details:', error);
+    }
+  };
+
+  useEffect(() => {
+    getPlantDetails();
+  }, []);
 
   // Delay Option
 
