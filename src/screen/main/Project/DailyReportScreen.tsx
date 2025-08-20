@@ -347,70 +347,70 @@ const DailyReportScreen = () => {
               <X size={24} color="#000" />
             </Pressable>
           </View>
-              <View style={{position: "relative"}} >
-          <TextInput
-            placeholder="Labour Name"
-            value={labour}
-            onChangeText={text => {
-              setLabour(text);
-              setShowDropdownLabour(true);
-            }}
-            style={[styles.input, { marginBottom: hp('0.7 %') }]}
-            placeholderTextColor="black"
-          />
-          {showDropdownLabour &&
-            labour.length > 0 &&
-            labourNames.filter(item =>
-              item.toLowerCase().includes(labour.toLowerCase()),
-            ).length > 0 && (
-              <View
-                style={{
-                  position: "absolute",
-                  top:60,
-                  borderRadius: 8,
-                  zIndex: 1000,
-                  opacity: 1,
-                  width: '100%',
-                  backgroundColor: '#fff',
-                  borderWidth: 1,
-                  borderColor: '#ccc',
-                  paddingVertical: wp('0.3%'),
-                  paddingHorizontal: wp('2%'),
-                  marginBottom: hp('0.7%'),
-                  height: 'auto',
-                  overflow: 'scroll',
-                  maxHeight: hp('30%'),
-                }}
-              >
-                <ScrollView>
-                  {Array.from(
-                    new Set(
-                      labourNames.filter(item =>
-                        item.toLowerCase().includes(labour.toLowerCase()),
+          <View style={{ position: 'relative' }}>
+            <TextInput
+              placeholder="Labour Name"
+              value={labour}
+              onChangeText={text => {
+                setLabour(text);
+                setShowDropdownLabour(true);
+              }}
+              style={[styles.input, { marginBottom: hp('0.7 %') }]}
+              placeholderTextColor="black"
+            />
+            {showDropdownLabour &&
+              labour.length > 0 &&
+              labourNames.filter(item =>
+                item.toLowerCase().includes(labour.toLowerCase()),
+              ).length > 0 && (
+                <View
+                  style={{
+                    position: 'absolute',
+                    top: 60,
+                    borderRadius: 8,
+                    zIndex: 1000,
+                    opacity: 1,
+                    width: '100%',
+                    backgroundColor: '#fff',
+                    borderWidth: 1,
+                    borderColor: '#ccc',
+                    paddingVertical: wp('0.3%'),
+                    paddingHorizontal: wp('2%'),
+                    marginBottom: hp('0.7%'),
+                    height: 'auto',
+                    overflow: 'scroll',
+                    maxHeight: hp('30%'),
+                  }}
+                >
+                  <ScrollView>
+                    {Array.from(
+                      new Set(
+                        labourNames.filter(item =>
+                          item.toLowerCase().includes(labour.toLowerCase()),
+                        ),
                       ),
-                    ),
-                  ).map((item, index, array) => (
-                    <TouchableOpacity
-                      key={index}
-                      onPress={() => {
-                        setLabour(item);
-                        setShowDropdownLabour(false);
-                      }}
-                      style={{
-                        paddingVertical: 10,
-                        borderBottomWidth: index !== array.length - 1 ? 1 : 0,
-                        borderBottomColor: '#ccc',
-                      }}
-                    >
-                      <Text style={{ fontSize: 16, fontWeight: '700' }}>
-                        {item}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </ScrollView>
-              </View>
-            )}
-</View>
+                    ).map((item, index, array) => (
+                      <TouchableOpacity
+                        key={index}
+                        onPress={() => {
+                          setLabour(item);
+                          setShowDropdownLabour(false);
+                        }}
+                        style={{
+                          paddingVertical: 10,
+                          borderBottomWidth: index !== array.length - 1 ? 1 : 0,
+                          borderBottomColor: '#ccc',
+                        }}
+                      >
+                        <Text style={{ fontSize: 16, fontWeight: '700' }}>
+                          {item}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                </View>
+              )}
+          </View>
           <TextInput
             placeholder="Role"
             value={labourRole}
@@ -510,28 +510,111 @@ const DailyReportScreen = () => {
               <X size={24} color="#000" />
             </Pressable>
           </View>
-              <View style={{position: "relative"}} >
+          <View style={{ position: 'relative' }}>
+            <TextInput
+              placeholder="Material Type"
+              value={materialType}
+              onChangeText={text => {
+                setMaterialType(text);
+                setShowDropdownMaterial(true);
+              }}
+              style={[styles.input, { marginBottom: hp('0.8%') }]}
+              placeholderTextColor="black"
+            />
 
+            {showDropdownMaterial &&
+              materialType.length > 0 &&
+              materialNames.filter(item =>
+                item.toLowerCase().includes(materialType.toLowerCase()),
+              ).length > 0 && (
+                <View
+                  style={{
+                    position: 'absolute',
+                    top: 60,
+                    borderRadius: 8,
+                    zIndex: 1000,
+                    opacity: 1,
+                    width: '100%',
+                    backgroundColor: '#fff',
+                    borderWidth: 1,
+                    borderColor: '#ccc',
+                    paddingVertical: wp('0.3%'),
+                    paddingHorizontal: wp('2%'),
+                    marginBottom: hp('0.7%'),
+                    height: 'auto',
+                    overflow: 'scroll',
+                    maxHeight: hp('30%'),
+                  }}
+                >
+                  <ScrollView>
+                    {Array.from(
+                      new Set(
+                        materialNames.filter(item =>
+                          item
+                            .toLowerCase()
+                            .includes(materialType.toLowerCase()),
+                        ),
+                      ),
+                    ).map((item, index, array) => (
+                      <TouchableOpacity
+                        key={index}
+                        onPress={() => {
+                          setMaterialType(item);
+                          setShowDropdownMaterial(false);
+                        }}
+                        style={{
+                          paddingVertical: 10,
+                          borderBottomWidth: index !== array.length - 1 ? 1 : 0,
+                          borderBottomColor: '#ccc',
+                        }}
+                      >
+                        <Text
+                          style={{
+                            fontSize: wp('4%'),
+                            color: 'black',
+                            fontWeight: '700',
+                          }}
+                        >
+                          {item}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                </View>
+              )}
+          </View>
           <TextInput
-            placeholder="Material Type"
-            value={materialType}
-            onChangeText={text => {
-              setMaterialType(text);
-              setShowDropdownMaterial(true);
-            }}
-            style={[styles.input, { marginBottom: hp('0.8%') }]}
+            placeholder="Qty"
+            value={materialQty}
+            onChangeText={setMaterialQty}
+            keyboardType="numeric"
+            style={styles.input}
             placeholderTextColor="black"
           />
+          <View style={{ position: 'relative' }}>
+            <Pressable
+              style={[
+                styles.input,
+                {
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  backgroundColor: '#fff',
+                },
+              ]}
+              onPress={() => setShowDropdown(!showDropdown)}
+            >
+              <Text style={{ color: 'black' }}>
+                {materialUnit || 'Select Unit'}
+              </Text>
+              <ChevronDown color="black" size={20} />
+            </Pressable>
 
-          {showDropdownMaterial &&
-            materialType.length > 0 &&
-            materialNames.filter(item =>
-              item.toLowerCase().includes(materialType.toLowerCase()),
-            ).length > 0 && (
+            {showDropdown && (
               <View
                 style={{
-                  position: "absolute",
-                  top:60,
+                  position: 'absolute',
+                  top: 60,
                   borderRadius: 8,
                   zIndex: 1000,
                   opacity: 1,
@@ -547,103 +630,20 @@ const DailyReportScreen = () => {
                   maxHeight: hp('30%'),
                 }}
               >
-                <ScrollView>
-                  {Array.from(
-                    new Set(
-                      materialNames.filter(item =>
-                        item.toLowerCase().includes(materialType.toLowerCase()),
-                      ),
-                    ),
-                  ).map((item, index, array) => (
-                    <TouchableOpacity
+                <ScrollView nestedScrollEnabled>
+                  {unitOptions.map((unit, index) => (
+                    <Pressable
                       key={index}
-                      onPress={() => {
-                        setMaterialType(item);
-                        setShowDropdownMaterial(false);
-                      }}
-                      style={{
-                        paddingVertical: 10,
-                        borderBottomWidth: index !== array.length - 1 ? 1 : 0,
-                        borderBottomColor: '#ccc',
-                      }}
+                      style={styles.dropdownItem}
+                      onPress={() => handleSelect(unit)}
                     >
-                      <Text
-                        style={{
-                          fontSize: wp('4%'),
-                          color: 'black',
-                          fontWeight: '700',
-                        }}
-                      >
-                        {item}
-                      </Text>
-                    </TouchableOpacity>
+                      <Text style={{ color: 'black' }}>{unit}</Text>
+                    </Pressable>
                   ))}
                 </ScrollView>
               </View>
             )}
-</View>
-          <TextInput
-            placeholder="Qty"
-            value={materialQty}
-            onChangeText={setMaterialQty}
-            keyboardType="numeric"
-            style={styles.input}
-            placeholderTextColor="black"
-          />
-              <View style={{position: "relative"}} >
-
-          <Pressable
-            style={[
-              styles.input,
-              {
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                backgroundColor: '#fff',
-              },
-            ]}
-            onPress={() => setShowDropdown(!showDropdown)}
-          >
-            <Text style={{ color: 'black' }}>
-              {materialUnit || 'Select Unit'}
-            </Text>
-            <ChevronDown color="black" size={20} />
-          </Pressable>
-
-          {showDropdown && (
-            <View
-              style={{
-                  position: "absolute",
-                  top:60,
-                  borderRadius: 8,
-                  zIndex: 1000,
-                  opacity: 1,
-                  width: '100%',
-                  backgroundColor: '#fff',
-                  borderWidth: 1,
-                  borderColor: '#ccc',
-                  paddingVertical: wp('0.3%'),
-                  paddingHorizontal: wp('2%'),
-                  marginBottom: hp('0.7%'),
-                  height: 'auto',
-                  overflow: 'scroll',
-                  maxHeight: hp('30%'),
-              }}
-            >
-              <ScrollView nestedScrollEnabled>
-                {unitOptions.map((unit, index) => (
-                  <Pressable
-                    key={index}
-                    style={styles.dropdownItem}
-                    onPress={() => handleSelect(unit)}
-                  >
-                    <Text style={{ color: 'black' }}>{unit}</Text>
-                  </Pressable>
-                ))}
-              </ScrollView>
-            </View>
-          )}
-</View>
+          </View>
           <Pressable
             style={styles.okButton}
             onPress={() => {
@@ -712,78 +712,77 @@ const DailyReportScreen = () => {
               <X size={24} color="#000" />
             </Pressable>
           </View>
-              <View style={{position: "relative"}} >
+          <View style={{ position: 'relative' }}>
+            <TextInput
+              placeholder="Description"
+              value={plantDesc}
+              onChangeText={text => {
+                setPlantDesc(text);
+                setShowDropdownPlant(true);
+              }}
+              style={[styles.input, { marginBottom: hp('0.8%') }]}
+              placeholderTextColor="black"
+            />
 
-          <TextInput
-            placeholder="Description"
-            value={plantDesc}
-            onChangeText={text => {
-              setPlantDesc(text);
-              setShowDropdownPlant(true);
-            }}
-            style={[styles.input, { marginBottom: hp('0.8%') }]}
-            placeholderTextColor="black"
-          />
-
-          {showDropdownPlant &&
-            plantDesc.length > 0 &&
-            plantNames.filter(item =>
-              item.toLowerCase().includes(plantDesc.toLowerCase()),
-            ).length > 0 && (
-              <View
-                style={{
-                  position: "absolute",
-                  top:60,
-                  borderRadius: 8,
-                  zIndex: 1000,
-                  opacity: 1,
-                  width: '100%',
-                  backgroundColor: '#fff',
-                  borderWidth: 1,
-                  borderColor: '#ccc',
-                  paddingVertical: wp('0.3%'),
-                  paddingHorizontal: wp('2%'),
-                  marginBottom: hp('0.7%'),
-                  height: 'auto',
-                  overflow: 'scroll',
-                  maxHeight: hp('30%'),
-                }}
-              >
-                <ScrollView>
-                  {Array.from(
-                    new Set(
-                      plantNames.filter(item =>
-                        item.toLowerCase().includes(plantDesc.toLowerCase()),
+            {showDropdownPlant &&
+              plantDesc.length > 0 &&
+              plantNames.filter(item =>
+                item.toLowerCase().includes(plantDesc.toLowerCase()),
+              ).length > 0 && (
+                <View
+                  style={{
+                    position: 'absolute',
+                    top: 60,
+                    borderRadius: 8,
+                    zIndex: 1000,
+                    opacity: 1,
+                    width: '100%',
+                    backgroundColor: '#fff',
+                    borderWidth: 1,
+                    borderColor: '#ccc',
+                    paddingVertical: wp('0.3%'),
+                    paddingHorizontal: wp('2%'),
+                    marginBottom: hp('0.7%'),
+                    height: 'auto',
+                    overflow: 'scroll',
+                    maxHeight: hp('30%'),
+                  }}
+                >
+                  <ScrollView>
+                    {Array.from(
+                      new Set(
+                        plantNames.filter(item =>
+                          item.toLowerCase().includes(plantDesc.toLowerCase()),
+                        ),
                       ),
-                    ),
-                  ).map((item, index, array) => (
-                    <TouchableOpacity
-                      key={index}
-                      onPress={() => {
-                        setPlantDesc(item);
-                        setShowDropdownPlant(false);
-                      }}
-                      style={{
-                        paddingVertical: 10,
-                        borderBottomWidth: index !== array.length - 1 ? 1 : 0,
-                        borderBottomColor: '#ccc',
-                      }}
-                    >
-                      <Text
+                    ).map((item, index, array) => (
+                      <TouchableOpacity
+                        key={index}
+                        onPress={() => {
+                          setPlantDesc(item);
+                          setShowDropdownPlant(false);
+                        }}
                         style={{
-                          fontSize: wp('4%'),
-                          color: 'black',
-                          fontWeight: '700',
+                          paddingVertical: 10,
+                          borderBottomWidth: index !== array.length - 1 ? 1 : 0,
+                          borderBottomColor: '#ccc',
                         }}
                       >
-                        {item}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </ScrollView>
-              </View>
-            )}
-</View> 
+                        <Text
+                          style={{
+                            fontSize: wp('4%'),
+                            color: 'black',
+                            fontWeight: '700',
+                          }}
+                        >
+                          {item}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                </View>
+              )}
+          </View>
           <TextInput
             placeholder="Qty"
             value={plantQty}

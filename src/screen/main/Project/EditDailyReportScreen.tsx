@@ -10,6 +10,7 @@ import {
   StatusBar,
   Image,
   ActivityIndicator,
+  TouchableOpacity,
 } from 'react-native';
 import {
   ChevronLeft,
@@ -31,6 +32,7 @@ import {
   useEditDailyReportForm,
 } from '../../../hooks/useEditDailyReportForm';
 import api from '../../../utils/api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function EditDailyReportScreen() {
   const {
@@ -106,6 +108,38 @@ export default function EditDailyReportScreen() {
   const [labourHours, setLabourHours] = useState('');
   const [labourQty, setLabourQty] = useState('');
   const [editingLabourIndex, setEditingLabourIndex] = useState(null);
+
+  const [labourNames, setLabourNames] = useState([]);
+  const [materialNames, setMaterialNames] = useState([]);
+  const [plantNames, setPlantNames] = useState([]);
+
+  const [showDropdownLabour, setShowDropdownLabour] = useState(false);
+  const [showDropdownMaterial, setShowDropdownMaterial] = useState(false);
+  const [showDropdownPlant, setShowDropdownPlant] = useState(false);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const l = await AsyncStorage.getItem('labourNames');
+        const m = await AsyncStorage.getItem('materialNames');
+        const p = await AsyncStorage.getItem('plantNames');
+
+        if (l) setLabourNames(JSON.parse(l));
+        if (m) setMaterialNames(JSON.parse(m));
+        if (p) setPlantNames(JSON.parse(p));
+      } catch (e) {
+        console.log('Error loading data:', e);
+      }
+    };
+
+    loadData();
+  }, []);
+
+  console.log('test', labourNames, materialNames, plantNames);
+
+  useEffect(() => {
+    console.log('Material Names Updated:', materialNames);
+  }, [materialNames]);
 
   const [materialType, setMaterialType] = useState('');
   const [materialUnit, setMaterialUnit] = useState('');
@@ -229,13 +263,71 @@ export default function EditDailyReportScreen() {
             </Pressable>
           </View>
 
-          <TextInput
-            placeholder="Labour Name"
-            value={labour}
-            onChangeText={setLabour}
-            style={styles.input}
-            placeholderTextColor="black"
-          />
+          <View style={{ position: 'relative' }}>
+            <TextInput
+              placeholder="Labour Name"
+              value={labour}
+              onChangeText={text => {
+                setLabour(text);
+                setShowDropdownLabour(true);
+              }}
+              style={[styles.input, { marginBottom: hp('0.7 %') }]}
+              placeholderTextColor="black"
+            />
+            {showDropdownLabour &&
+              labour.length > 0 &&
+              labourNames.filter(item =>
+                item.toLowerCase().includes(labour.toLowerCase()),
+              ).length > 0 && (
+                <View
+                  style={{
+                    position: 'absolute',
+                    top: 60,
+                    borderRadius: 8,
+                    zIndex: 1000,
+                    opacity: 1,
+                    width: '100%',
+                    backgroundColor: '#fff',
+                    borderWidth: 1,
+                    borderColor: '#ccc',
+                    paddingVertical: wp('0.3%'),
+                    paddingHorizontal: wp('2%'),
+                    marginBottom: hp('0.7%'),
+                    height: 'auto',
+                    overflow: 'scroll',
+                    maxHeight: hp('30%'),
+                  }}
+                >
+                  <ScrollView>
+                    {Array.from(
+                      new Set(
+                        labourNames.filter(item =>
+                          item.toLowerCase().includes(labour.toLowerCase()),
+                        ),
+                      ),
+                    ).map((item, index, array) => (
+                      <TouchableOpacity
+                        key={index}
+                        onPress={() => {
+                          setLabour(item);
+                          setShowDropdownLabour(false);
+                        }}
+                        style={{
+                          paddingVertical: 10,
+                          borderBottomWidth: index !== array.length - 1 ? 1 : 0,
+                          borderBottomColor: '#ccc',
+                        }}
+                      >
+                        <Text style={{ fontSize: 16, fontWeight: '700' }}>
+                          {item}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                </View>
+              )}
+          </View>
+
           <TextInput
             placeholder="Role"
             value={labourRole}
@@ -341,13 +433,79 @@ export default function EditDailyReportScreen() {
             </Pressable>
           </View>
 
-          <TextInput
-            placeholder="Material Type"
-            value={materialType}
-            onChangeText={setMaterialType}
-            style={styles.input}
-            placeholderTextColor="black"
-          />
+          <View style={{ position: 'relative' }}>
+            <TextInput
+              placeholder="Material Type"
+              value={materialType}
+              onChangeText={text => {
+                setMaterialType(text);
+                setShowDropdownMaterial(true);
+              }}
+              style={[styles.input, { marginBottom: hp('0.8%') }]}
+              placeholderTextColor="black"
+            />
+
+            {showDropdownMaterial &&
+              materialType.length > 0 &&
+              materialNames.filter(item =>
+                item.toLowerCase().includes(materialType.toLowerCase()),
+              ).length > 0 && (
+                <View
+                  style={{
+                    position: 'absolute',
+                    top: 60,
+                    borderRadius: 8,
+                    zIndex: 1000,
+                    opacity: 1,
+                    width: '100%',
+                    backgroundColor: '#fff',
+                    borderWidth: 1,
+                    borderColor: '#ccc',
+                    paddingVertical: wp('0.3%'),
+                    paddingHorizontal: wp('2%'),
+                    marginBottom: hp('0.7%'),
+                    height: 'auto',
+                    overflow: 'scroll',
+                    maxHeight: hp('30%'),
+                  }}
+                >
+                  <ScrollView>
+                    {Array.from(
+                      new Set(
+                        materialNames.filter(item =>
+                          item
+                            .toLowerCase()
+                            .includes(materialType.toLowerCase()),
+                        ),
+                      ),
+                    ).map((item, index, array) => (
+                      <TouchableOpacity
+                        key={index}
+                        onPress={() => {
+                          setMaterialType(item);
+                          setShowDropdownMaterial(false);
+                        }}
+                        style={{
+                          paddingVertical: 10,
+                          borderBottomWidth: index !== array.length - 1 ? 1 : 0,
+                          borderBottomColor: '#ccc',
+                        }}
+                      >
+                        <Text
+                          style={{
+                            fontSize: wp('4%'),
+                            color: 'black',
+                            fontWeight: '700',
+                          }}
+                        >
+                          {item}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                </View>
+              )}
+          </View>
           <TextInput
             placeholder="Qty"
             value={materialQty}
@@ -480,13 +638,86 @@ export default function EditDailyReportScreen() {
             </Pressable>
           </View>
 
-          <TextInput
+          <View style={{ position: 'relative' }}>
+            <TextInput
+              placeholder="Description"
+              value={plantDescription}
+              onChangeText={text => {
+                setPlantDescription(text);
+                setShowDropdownPlant(true);
+              }}
+              style={[styles.input, { marginBottom: hp('0.8%') }]}
+              placeholderTextColor="black"
+            />
+
+            {showDropdownPlant &&
+              plantDescription.length > 0 &&
+              plantNames.filter(item =>
+                item.toLowerCase().includes(plantDescription.toLowerCase()),
+              ).length > 0 && (
+                <View
+                  style={{
+                    position: 'absolute',
+                    top: 60,
+                    borderRadius: 8,
+                    zIndex: 1000,
+                    opacity: 1,
+                    width: '100%',
+                    backgroundColor: '#fff',
+                    borderWidth: 1,
+                    borderColor: '#ccc',
+                    paddingVertical: wp('0.3%'),
+                    paddingHorizontal: wp('2%'),
+                    marginBottom: hp('0.7%'),
+                    height: 'auto',
+                    overflow: 'scroll',
+                    maxHeight: hp('30%'),
+                  }}
+                >
+                  <ScrollView>
+                    {Array.from(
+                      new Set(
+                        plantNames.filter(item =>
+                          item
+                            .toLowerCase()
+                            .includes(plantDescription.toLowerCase()),
+                        ),
+                      ),
+                    ).map((item, index, array) => (
+                      <TouchableOpacity
+                        key={index}
+                        onPress={() => {
+                          setPlantDescription(item);
+                          setShowDropdownPlant(false);
+                        }}
+                        style={{
+                          paddingVertical: 10,
+                          borderBottomWidth: index !== array.length - 1 ? 1 : 0,
+                          borderBottomColor: '#ccc',
+                        }}
+                      >
+                        <Text
+                          style={{
+                            fontSize: wp('4%'),
+                            color: 'black',
+                            fontWeight: '700',
+                          }}
+                        >
+                          {item}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                </View>
+              )}
+          </View>
+          {/* <TextInput
             placeholder="Description"
             value={plantDescription}
             onChangeText={setPlantDescription}
             style={styles.input}
             placeholderTextColor="black"
-          />
+          /> */}
           <TextInput
             placeholder="Qty"
             value={plantQty}
@@ -588,6 +819,16 @@ export default function EditDailyReportScreen() {
         })),
       ),
     );
+    const oldLabour = await AsyncStorage.getItem('labourNames');
+    let oldLabourNames = oldLabour ? JSON.parse(oldLabour) : [];
+    const newLabourNames = labourEntries.map(i => i.name);
+    const combinedLabourNames = Array.from(
+      new Set([...oldLabourNames, ...newLabourNames]),
+    );
+    await AsyncStorage.setItem(
+      'labourNames',
+      JSON.stringify(combinedLabourNames),
+    );
 
     formData.append(
       'material',
@@ -600,6 +841,17 @@ export default function EditDailyReportScreen() {
       ),
     );
 
+    const oldMaterial = await AsyncStorage.getItem('materialNames');
+    let oldMaterialNames = oldMaterial ? JSON.parse(oldMaterial) : [];
+    const newMaterialNames = materialEntries.map(i => i.type);
+    const combinedMaterialNames = Array.from(
+      new Set([...oldMaterialNames, ...newMaterialNames]),
+    );
+    await AsyncStorage.setItem(
+      'materialNames',
+      JSON.stringify(combinedMaterialNames),
+    );
+
     formData.append(
       'plant',
       JSON.stringify(
@@ -608,6 +860,16 @@ export default function EditDailyReportScreen() {
           qty: parseInt(item.qty),
         })),
       ),
+    );
+    const oldPlant = await AsyncStorage.getItem('plantNames');
+    let oldPlantNames = oldPlant ? JSON.parse(oldPlant) : [];
+    const newPlantNames = plantEntries.map(i => i.desc);
+    const combinedPlantNames = Array.from(
+      new Set([...oldPlantNames, ...newPlantNames]),
+    );
+    await AsyncStorage.setItem(
+      'plantNames',
+      JSON.stringify(combinedPlantNames),
     );
 
     // ✅ Always attach images correctly
