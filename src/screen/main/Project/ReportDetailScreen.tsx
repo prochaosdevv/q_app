@@ -272,156 +272,202 @@ const ReportDetailScreen = () => {
 
         <View style={styles.tableSection}>
           <Text style={styles.sectionTitle}>Labour</Text>
-          <View style={styles.tableWrapper}>
-            {/* Table Header */}
-            <View style={styles.tableRow}>
-              <Text style={[styles.cell, styles.headerCell]}>Name</Text>
-              <Text style={[styles.cell, styles.headerCell]}>Role</Text>
-              <Text
-                style={[
-                  styles.cell,
-                  styles.headerCell,
-                  { textAlign: 'center' },
-                ]}
-              >
-                Hours
-              </Text>
-              <Text
-                style={[
-                  styles.cell,
-                  styles.headerCell,
-                  { textAlign: 'center' },
-                ]}
-              >
-                Qty
-              </Text>
-            </View>
 
-            {/* Table Rows */}
-            {dailyReport.labour?.map((item, index) => (
-              <View
-                key={item._id}
-                style={[
-                  styles.tableRow,
-                  {
-                    // ✅ Hide bottom border on last row
-                    borderBottomWidth:
-                      index !== dailyReport.labour.length - 1 ? 1 : 0,
-                    borderColor: 'rgba(175, 175, 175, 1)',
-                  },
-                ]}
-              >
-                <Text style={[styles.cell]}>{item.name}</Text>
-                <Text style={[styles.cell]}>{item.role}</Text>
-                <Text style={[styles.cell, { textAlign: 'center' }]}>
-                  {item.hours}
+          {dailyReport.labour && dailyReport.labour.length > 0 ? (
+            <View style={styles.tableWrapper}>
+              {/* Table Header */}
+              <View style={styles.tableRow}>
+                <Text style={[styles.cell, styles.headerCell]}>Name</Text>
+                <Text style={[styles.cell, styles.headerCell]}>Role</Text>
+                <Text
+                  style={[
+                    styles.cell,
+                    styles.headerCell,
+                    { textAlign: 'center' },
+                  ]}
+                >
+                  Hours
                 </Text>
-                <Text style={[styles.cell, { textAlign: 'center' }]}>
-                  {item.qty}
+                <Text
+                  style={[
+                    styles.cell,
+                    styles.headerCell,
+                    { textAlign: 'center' },
+                  ]}
+                >
+                  Qty
                 </Text>
               </View>
-            ))}
-          </View>
+
+              {/* Table Rows */}
+              {dailyReport.labour?.map((item, index) => (
+                <View
+                  key={item._id}
+                  style={[
+                    styles.tableRow,
+                    {
+                      // ✅ Hide bottom border on last row
+                      borderBottomWidth:
+                        index !== dailyReport.labour.length - 1 ? 1 : 0,
+                      borderColor: 'rgba(175, 175, 175, 1)',
+                    },
+                  ]}
+                >
+                  <Text style={[styles.cell]}>{item.name}</Text>
+                  <Text style={[styles.cell]}>{item.role}</Text>
+                  <Text style={[styles.cell, { textAlign: 'center' }]}>
+                    {item.hours}
+                  </Text>
+                  <Text style={[styles.cell, { textAlign: 'center' }]}>
+                    {item.qty}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          ) : (
+            <View style={{ marginTop: 2 }}>
+              <Text
+                style={{
+                  fontFamily: 'Inter_18pt-Italic',
+                  fontSize: 12,
+                  color: 'rgba(0, 0, 0, 0.6)',
+                  marginBottom: 5,
+                }}
+              >
+                No labour data added
+              </Text>
+            </View>
+          )}
         </View>
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Material</Text>
-
-          <View style={styles.tableWrapper}>
-            {/* Table Header */}
-            <View style={styles.tableRow}>
-              <Text style={[styles.cell, styles.headerCell]}>
-                Material Type
-              </Text>
-              <Text
-                style={[
-                  styles.cell,
-                  styles.headerCell,
-                  {
-                    textAlign: 'center',
-                  },
-                ]}
-              >
-                Qty
-              </Text>
-              <Text
-                style={[
-                  styles.cell,
-                  styles.headerCell,
-                  {
-                    textAlign: 'center',
-                  },
-                ]}
-              >
-                Unit
-              </Text>
-            </View>
-
-            {/* Table Rows */}
-            {dailyReport.material?.map((item, index) => (
-              <View
-                key={item._id}
-                style={[
-                  styles.tableRow,
-                  {
-                    // ✅ Hide bottom border on last row
-                    borderBottomWidth:
-                      index !== dailyReport.material.length - 1 ? 1 : 0,
-                    borderColor: 'rgba(175, 175, 175, 1)',
-                  },
-                ]}
-              >
-                <Text style={styles.cell}>{item.type}</Text>
-                <Text style={[styles.cell, { textAlign: 'center' }]}>
-                  {item.qty}
+          {dailyReport.material && dailyReport.material.length > 0 ? (
+            <View style={styles.tableWrapper}>
+              {/* Table Header */}
+              <View style={styles.tableRow}>
+                <Text style={[styles.cell, styles.headerCell]}>
+                  Material Type
                 </Text>
-                <Text style={[styles.cell, { textAlign: 'center' }]}>
-                  {item.unit}
+                <Text
+                  style={[
+                    styles.cell,
+                    styles.headerCell,
+                    {
+                      textAlign: 'center',
+                    },
+                  ]}
+                >
+                  Qty
+                </Text>
+                <Text
+                  style={[
+                    styles.cell,
+                    styles.headerCell,
+                    {
+                      textAlign: 'center',
+                    },
+                  ]}
+                >
+                  Unit
                 </Text>
               </View>
-            ))}
-          </View>
+
+              {/* Table Rows */}
+              {dailyReport.material?.map((item, index) => (
+                <View
+                  key={item._id}
+                  style={[
+                    styles.tableRow,
+                    {
+                      // ✅ Hide bottom border on last row
+                      borderBottomWidth:
+                        index !== dailyReport.material.length - 1 ? 1 : 0,
+                      borderColor: 'rgba(175, 175, 175, 1)',
+                    },
+                  ]}
+                >
+                  <Text style={styles.cell}>{item.type}</Text>
+                  <Text style={[styles.cell, { textAlign: 'center' }]}>
+                    {item.qty}
+                  </Text>
+                  <Text style={[styles.cell, { textAlign: 'center' }]}>
+                    {item.unit}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          ) : (
+            <View style={{ marginTop: 2 }}>
+              <Text
+                style={{
+                  fontFamily: 'Inter_18pt-Italic',
+                  fontSize: 12,
+                  color: 'rgba(0, 0, 0, 0.6)',
+                  marginBottom: 5,
+                }}
+              >
+                No material data added
+              </Text>
+            </View>
+          )}
         </View>
         <View style={styles.tableSection}>
           <Text style={styles.sectionTitle}>Plant</Text>
-          <View style={styles.tableWrapper}>
-            {/* Table Header */}
-            <View style={styles.tableRow}>
-              <Text style={[styles.cell, styles.headerCell]}>Desciption</Text>
 
-              <Text
-                style={[
-                  styles.cell,
-                  styles.headerCell,
-                  {
-                    textAlign: 'center',
-                  },
-                ]}
-              >
-                Qty
-              </Text>
-            </View>
+          {dailyReport.plant && dailyReport.plant.length > 0 ? (
+            <View style={styles.tableWrapper}>
+              {/* Table Header */}
+              <View style={styles.tableRow}>
+                <Text style={[styles.cell, styles.headerCell]}>Desciption</Text>
 
-            {/* Table Rows */}
-            {dailyReport.plant?.map((item, index) => (
-              <View
-                key={item._id}
-                style={[
-                  styles.tableRow,
-                  {
-                    borderBottomWidth:
-                      index !== dailyReport.plant.length - 1 ? 1 : 0,
-                    borderColor: 'rgba(175, 175, 175, 1)',
-                  },
-                ]}
-              >
-                <Text style={[styles.cell]}>{item.desc}</Text>
-                <Text style={[styles.cell, { textAlign: 'center' }]}>
-                  {item.qty}
+                <Text
+                  style={[
+                    styles.cell,
+                    styles.headerCell,
+                    {
+                      textAlign: 'center',
+                    },
+                  ]}
+                >
+                  Qty
                 </Text>
               </View>
-            ))}
-          </View>
+
+              {/* Table Rows */}
+              {dailyReport.plant?.map((item, index) => (
+                <View
+                  key={item._id}
+                  style={[
+                    styles.tableRow,
+                    {
+                      borderBottomWidth:
+                        index !== dailyReport.plant.length - 1 ? 1 : 0,
+                      borderColor: 'rgba(175, 175, 175, 1)',
+                    },
+                  ]}
+                >
+                  <Text style={[styles.cell]}>{item.desc}</Text>
+                  <Text style={[styles.cell, { textAlign: 'center' }]}>
+                    {item.qty}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          ) : (
+            <View style={{ marginTop: 2 }}>
+              <Text
+                style={{
+                  fontFamily: 'Inter_18pt-Italic',
+                  fontSize: 12,
+                  color: 'rgba(0, 0, 0, 0.6)',
+                  marginBottom: 5,
+                }}
+              >
+                No plant data added
+              </Text>
+            </View>
+          )}
         </View>
       </ScrollView>
 
