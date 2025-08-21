@@ -103,6 +103,7 @@ export default function EditDailyReportScreen() {
   const [materialEntries, setMaterialEntries] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [errorModal, setErrorModal] = useState('');
 
   const [labour, setLabour] = useState('');
   const [labourRole, setLabourRole] = useState('');
@@ -291,6 +292,7 @@ export default function EditDailyReportScreen() {
               onChangeText={text => {
                 setLabour(text);
                 setShowDropdownLabour(true);
+                setErrorModal('');
               }}
               style={[styles.input, { marginBottom: hp('0.7 %') }]}
               placeholderTextColor="black"
@@ -352,14 +354,20 @@ export default function EditDailyReportScreen() {
           <TextInput
             placeholder="Role"
             value={labourRole}
-            onChangeText={setLabourRole}
+            onChangeText={text => {
+              setLabourRole(text);
+              setErrorModal('');
+            }}
             style={styles.input}
             placeholderTextColor="black"
           />
           <TextInput
             placeholder="Hours"
             value={labourHours}
-            onChangeText={setLabourHours}
+            onChangeText={text => {
+              setLabourHours(text);
+              setErrorModal('');
+            }}
             style={styles.input}
             placeholderTextColor="black"
             keyboardType="numeric"
@@ -367,18 +375,25 @@ export default function EditDailyReportScreen() {
           <TextInput
             placeholder="Qty"
             value={labourQty}
-            onChangeText={setLabourQty}
+            onChangeText={text => {
+              setLabourQty(text);
+              setErrorModal('');
+            }}
             keyboardType="numeric"
             style={styles.input}
             placeholderTextColor="black"
           />
+
+          {errorModal !== '' && (
+            <Text style={styles.errorText}>{errorModal}</Text>
+          )}
           <Pressable
             style={styles.okButton}
             onPress={() => {
-              // if (!labour || !labourRole || !labourHours || !labourQty) {
-              //   setError('All labour fields are required.');
-              //   return;
-              // }
+              if (!labour || !labourRole || !labourHours || !labourQty) {
+                setErrorModal('All labour fields are required.');
+                return;
+              }
 
               if (editingLabourIndex !== null) {
                 const updated = [...labourEntries];
@@ -461,6 +476,7 @@ export default function EditDailyReportScreen() {
               onChangeText={text => {
                 setMaterialType(text);
                 setShowDropdownMaterial(true);
+                setErrorModal('');
               }}
               style={[styles.input, { marginBottom: hp('0.8%') }]}
               placeholderTextColor="black"
@@ -530,7 +546,10 @@ export default function EditDailyReportScreen() {
           <TextInput
             placeholder="Qty"
             value={materialQty}
-            onChangeText={setMaterialQty}
+            onChangeText={text => {
+              setMaterialQty(text);
+              setErrorModal('');
+            }}
             keyboardType="numeric"
             style={styles.input}
             placeholderTextColor="black"
@@ -584,14 +603,17 @@ export default function EditDailyReportScreen() {
               </ScrollView>
             </View>
           )}
+          {errorModal !== '' && (
+            <Text style={styles.errorText}>{errorModal}</Text>
+          )}
 
           <Pressable
             style={styles.okButton}
             onPress={() => {
-              // if (!materialType || !materialQty || !materialUnit) {
-              //   setError('All material fields are required.');
-              //   return;
-              // }
+              if (!materialType || !materialQty || !materialUnit) {
+                setErrorModal('All material fields are required.');
+                return;
+              }
 
               if (editingMaterialIndex !== null) {
                 const updated = [...materialEntries];
@@ -666,6 +688,7 @@ export default function EditDailyReportScreen() {
               onChangeText={text => {
                 setPlantDescription(text);
                 setShowDropdownPlant(true);
+                setErrorModal('');
               }}
               style={[styles.input, { marginBottom: hp('0.8%') }]}
               placeholderTextColor="black"
@@ -742,19 +765,24 @@ export default function EditDailyReportScreen() {
           <TextInput
             placeholder="Qty"
             value={plantQty}
-            onChangeText={setPlantQty}
+            onChangeText={text => {
+              setPlantQty(text);
+              setErrorModal('');
+            }}
             keyboardType="numeric"
             style={styles.input}
             placeholderTextColor="black"
           />
-
+          {errorModal !== '' && (
+            <Text style={styles.errorText}>{errorModal}</Text>
+          )}
           <Pressable
             style={styles.okButton}
             onPress={() => {
-              // if (!plantDescription || !plantQty) {
-              //   setError('All plant fields are required.');
-              //   return;
-              // }
+              if (!plantDescription || !plantQty) {
+                setErrorModal('All plant fields are required.');
+                return;
+              }
 
               if (editingPlantIndex !== null) {
                 const updated = [...plantEntries];
@@ -793,6 +821,7 @@ export default function EditDailyReportScreen() {
   const handleSubmit = async () => {
     setLoading(true);
     setError('');
+    setErrorModal('');
 
     // ✅ Validations remain same
     if (!progressText.trim()) {
@@ -806,16 +835,23 @@ export default function EditDailyReportScreen() {
       return;
     }
 
-    // if (labourEntries.length === 0) {
-    //   setError('Please add at least one labour entry.');
-    //   setLoading(false);
-    //   return;
-    // }
-    // if (materialEntries.length === 0) {
-    //   setError('Please add at least one material entry.');
-    //   setLoading(false);
-    //   return;
-    // }
+    if (labourEntries.length === 0) {
+      setErrorModal('Please add at least one labour entry.');
+      setLoading(false);
+      return;
+    }
+    if (materialEntries.length === 0) {
+      setErrorModal('Please add at least one material entry.');
+      setLoading(false);
+      return;
+    }
+
+    if (plantEntries.length === 0) {
+      setErrorModal('Please add at least one material entry.');
+      setLoading(false);
+      return;
+    }
+
     if (selectedImages.length === 0) {
       setError('Please select at least one photo.');
       setLoading(false);

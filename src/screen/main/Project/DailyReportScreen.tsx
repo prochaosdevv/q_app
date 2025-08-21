@@ -62,6 +62,7 @@ const DailyReportScreen = () => {
   const [materialEntries, setMaterialEntries] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [errorModal, setErrorModal] = useState('');
 
   // Plant Modal
   const [showPlantModal, setShowPlantModal] = useState(false);
@@ -149,6 +150,7 @@ const DailyReportScreen = () => {
   const handleSubmit = async () => {
     setLoading(true);
     setError('');
+    setErrorModal('');
 
     if (!progressText.trim()) {
       setError('Progress report is required.');
@@ -157,6 +159,21 @@ const DailyReportScreen = () => {
     }
     if (!selectedWeather) {
       setError('Weather selection is required.');
+      setLoading(false);
+      return;
+    }
+    if (labourEntries.length === 0) {
+      setErrorModal('Please add at least one labour entry.');
+      setLoading(false);
+      return;
+    }
+    if (materialEntries.length === 0) {
+      setErrorModal('Please add at least one material entry.');
+      setLoading(false);
+      return;
+    }
+    if (plantEntries.length === 0) {
+      setErrorModal('Please add at least one plant entry.');
       setLoading(false);
       return;
     }
@@ -354,6 +371,7 @@ const DailyReportScreen = () => {
               onChangeText={text => {
                 setLabour(text);
                 setShowDropdownLabour(true);
+                setErrorModal('');
               }}
               style={[styles.input, { marginBottom: hp('0.7 %') }]}
               placeholderTextColor="black"
@@ -414,14 +432,20 @@ const DailyReportScreen = () => {
           <TextInput
             placeholder="Role"
             value={labourRole}
-            onChangeText={setLabourRole}
+            onChangeText={text => {
+              setLabourRole(text);
+              setErrorModal('');
+            }}
             style={[styles.input, { marginTop: hp('0.7%') }]}
             placeholderTextColor="black"
           />
           <TextInput
             placeholder="Hours"
             value={labourHours}
-            onChangeText={setLabourHours}
+            onChangeText={text => {
+              setLabourHours(text);
+              setErrorModal('');
+            }}
             keyboardType="numeric"
             style={styles.input}
             placeholderTextColor="black"
@@ -429,14 +453,24 @@ const DailyReportScreen = () => {
           <TextInput
             placeholder="Qty"
             value={labourQty}
-            onChangeText={setLabourQty}
+            onChangeText={text => {
+              setLabourQty(text);
+              setErrorModal('');
+            }}
             keyboardType="numeric"
             style={styles.input}
             placeholderTextColor="black"
           />
+          {errorModal !== '' && (
+            <Text style={styles.errorText}>{errorModal}</Text>
+          )}
           <Pressable
             style={styles.okButton}
             onPress={() => {
+              if (!labour || !labourRole || !labourHours || !labourQty) {
+                setErrorModal('All labour fields are required.');
+                return;
+              }
               if (editingLabourIndex !== null) {
                 const updated = [...labourEntries];
                 updated[editingLabourIndex] = {
@@ -517,6 +551,7 @@ const DailyReportScreen = () => {
               onChangeText={text => {
                 setMaterialType(text);
                 setShowDropdownMaterial(true);
+                setErrorModal('');
               }}
               style={[styles.input, { marginBottom: hp('0.8%') }]}
               placeholderTextColor="black"
@@ -586,7 +621,10 @@ const DailyReportScreen = () => {
           <TextInput
             placeholder="Qty"
             value={materialQty}
-            onChangeText={setMaterialQty}
+            onChangeText={text => {
+              setMaterialQty(text);
+              setErrorModal('');
+            }}
             keyboardType="numeric"
             style={styles.input}
             placeholderTextColor="black"
@@ -644,9 +682,17 @@ const DailyReportScreen = () => {
               </View>
             )}
           </View>
+          {errorModal !== '' && (
+            <Text style={styles.errorText}>{errorModal}</Text>
+          )}
+
           <Pressable
             style={styles.okButton}
             onPress={() => {
+              if (!materialType || !materialUnit || !materialQty) {
+                setErrorModal('All material fields are required.');
+                return;
+              }
               if (editingMaterialIndex !== null) {
                 const updated = [...materialEntries];
                 updated[editingMaterialIndex] = {
@@ -719,6 +765,7 @@ const DailyReportScreen = () => {
               onChangeText={text => {
                 setPlantDesc(text);
                 setShowDropdownPlant(true);
+                setErrorModal('');
               }}
               style={[styles.input, { marginBottom: hp('0.8%') }]}
               placeholderTextColor="black"
@@ -786,15 +833,25 @@ const DailyReportScreen = () => {
           <TextInput
             placeholder="Qty"
             value={plantQty}
-            onChangeText={setPlantQty}
+            onChangeText={text => {
+              setPlantQty(text);
+              setErrorModal('');
+            }}
             keyboardType="numeric"
             style={styles.input}
             placeholderTextColor="black"
           />
 
+          {errorModal !== '' && (
+            <Text style={styles.errorText}>{errorModal}</Text>
+          )}
           <Pressable
             style={styles.okButton}
             onPress={() => {
+              if (!plantDesc || !plantQty) {
+                setErrorModal('Both description and quantity are required.');
+                return;
+              }
               if (editingPlantIndex !== null) {
                 const updated = [...plantEntries];
                 updated[editingPlantIndex] = {
