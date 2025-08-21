@@ -19,6 +19,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import signInWithGoogle from '../../../utils/signInWithGoogle';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuthStore } from '../../../zustand/store/authStore';
+import { Eye, EyeOff } from 'lucide-react-native';
 
 const SignupScreen = () => {
   const [fullname, setFullname] = useState('');
@@ -27,6 +28,7 @@ const SignupScreen = () => {
   const [errors, setErrors] = useState({});
   const { setUser, setToken } = useAuthStore.getState();
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const navigation = useNavigation();
 
@@ -143,17 +145,30 @@ const SignupScreen = () => {
 
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Password</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter your password"
-              placeholderTextColor="#93a5b1"
-              secureTextEntry
-              value={password}
-              onChangeText={text => {
-                setPassword(text);
-                clearFieldError('password');
-              }}
-            />
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <TextInput
+                style={[styles.input, { flex: 1 }]}
+                placeholder="Enter your password"
+                placeholderTextColor="#93a5b1"
+                secureTextEntry={!showPassword}
+                value={password}
+                onChangeText={text => {
+                  setPassword(text);
+                  clearFieldError('password');
+                }}
+              />
+              <Pressable
+                onPress={() => setShowPassword(!showPassword)}
+                style={{ position: 'absolute', right: wp('6%') }}
+              >
+                {showPassword ? (
+                  <EyeOff size={wp('6%')} color="#333" />
+                ) : (
+                  <Eye size={wp('6%')} color="#333" />
+                )}
+              </Pressable>
+            </View>
+
             {errors.password && (
               <Text style={styles.errorText}>{errors.password}</Text>
             )}

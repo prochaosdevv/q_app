@@ -51,6 +51,12 @@ const DailyReportScreen = () => {
     openCamera,
     selectedImages,
     removeImage,
+
+    imageError,
+    setImageError,
+
+    weatherError,
+    setWeatherError,
   } = useDailyReport();
 
   const navigation = useNavigation();
@@ -158,29 +164,30 @@ const DailyReportScreen = () => {
       return;
     }
     if (!selectedWeather) {
-      setError('Weather selection is required.');
+      setWeatherError('Weather selection is required.');
       setLoading(false);
       return;
     }
-    if (labourEntries.length === 0) {
-      setErrorModal('Please add at least one labour entry.');
-      setLoading(false);
-      return;
-    }
-    if (materialEntries.length === 0) {
-      setErrorModal('Please add at least one material entry.');
-      setLoading(false);
-      return;
-    }
-    if (plantEntries.length === 0) {
-      setErrorModal('Please add at least one plant entry.');
-      setLoading(false);
-      return;
-    }
+    // if (labourEntries.length === 0) {
+    //   setErrorModal('Please add at least one labour entry.');
+    //   setLoading(false);
+    //   return;
+    // }
+    // if (materialEntries.length === 0) {
+    //   setErrorModal('Please add at least one material entry.');
+    //   setLoading(false);
+    //   return;
+    // }
+    // if (plantEntries.length === 0) {
+    //   setErrorModal('Please add at least one plant entry.');
+    //   setLoading(false);
+    //   return;
+    // }
 
     if (selectedImages.length === 0) {
-      setError('Please select at least one photo.');
+      setImageError('Please select at least one photo.');
       setLoading(false);
+
       return;
     }
     const formData = new FormData();
@@ -344,6 +351,7 @@ const DailyReportScreen = () => {
             setLabour('');
             setLabourRole('');
             setLabourQty('');
+            setErrorModal('');
           }}
         />
         <View style={styles.modalBox}>
@@ -359,6 +367,7 @@ const DailyReportScreen = () => {
                 setLabour('');
                 setLabourRole('');
                 setLabourQty('');
+                setErrorModal('');
               }}
             >
               <X size={24} color="#000" />
@@ -384,7 +393,7 @@ const DailyReportScreen = () => {
                 <View
                   style={{
                     position: 'absolute',
-                    top: 60,
+                    top: hp('6.4%'),
                     borderRadius: 8,
                     zIndex: 1000,
                     opacity: 1,
@@ -525,6 +534,7 @@ const DailyReportScreen = () => {
             setEditingMaterialIndex(null);
             setMaterialType('');
             setMaterialQty('');
+            setErrorModal('');
           }}
         />
         <View style={styles.modalBox}>
@@ -539,6 +549,7 @@ const DailyReportScreen = () => {
                 setEditingMaterialIndex(null);
                 setMaterialType('');
                 setMaterialQty('');
+                setErrorModal('');
               }}
             >
               <X size={24} color="#000" />
@@ -565,7 +576,7 @@ const DailyReportScreen = () => {
                 <View
                   style={{
                     position: 'absolute',
-                    top: 60,
+                    top: hp('6.4%'),
                     borderRadius: 8,
                     zIndex: 1000,
                     opacity: 1,
@@ -652,7 +663,7 @@ const DailyReportScreen = () => {
               <View
                 style={{
                   position: 'absolute',
-                  top: 60,
+                  top: hp('6.4%'),
                   borderRadius: 8,
                   zIndex: 1000,
                   opacity: 1,
@@ -740,6 +751,7 @@ const DailyReportScreen = () => {
             setEditingPlantIndex(null);
             setPlantDesc('');
             setPlantQty('');
+            setErrorModal('');
           }}
         />
         <View style={styles.modalBox}>
@@ -753,6 +765,7 @@ const DailyReportScreen = () => {
                 setEditingPlantIndex(null);
                 setPlantDesc('');
                 setPlantQty('');
+                setErrorModal('');
               }}
             >
               <X size={24} color="#000" />
@@ -1209,6 +1222,12 @@ const DailyReportScreen = () => {
           </View>
         )}
 
+        {weatherError !== '' && (
+          <Text style={styles.errorText}>{weatherError}</Text>
+        )}
+        {imageError !== '' && (
+          <Text style={styles.errorText}>{imageError}</Text>
+        )}
         {error !== '' && <Text style={styles.errorText}>{error}</Text>}
         {/* Submit Button */}
         <View style={styles.submitContainer}>

@@ -56,6 +56,12 @@ export default function EditDailyReportScreen() {
     selectedImages,
     setSelectedImages,
     removeImage,
+
+    imageError,
+    setImageError,
+
+    weatherError,
+    setWeatherError,
   } = useEditDailyReportForm();
 
   const navigation = useNavigation();
@@ -305,7 +311,7 @@ export default function EditDailyReportScreen() {
                 <View
                   style={{
                     position: 'absolute',
-                    top: 60,
+                    top: hp('6.4%'),
                     borderRadius: 8,
                     zIndex: 1000,
                     opacity: 1,
@@ -490,7 +496,7 @@ export default function EditDailyReportScreen() {
                 <View
                   style={{
                     position: 'absolute',
-                    top: 60,
+                    top: hp('6.4%'),
                     borderRadius: 8,
                     zIndex: 1000,
                     opacity: 1,
@@ -702,7 +708,7 @@ export default function EditDailyReportScreen() {
                 <View
                   style={{
                     position: 'absolute',
-                    top: 60,
+                    top: hp('6.4%'),
                     borderRadius: 8,
                     zIndex: 1000,
                     opacity: 1,
@@ -830,30 +836,13 @@ export default function EditDailyReportScreen() {
       return;
     }
     if (!selectedWeather) {
-      setError('Weather selection is required.');
-      setLoading(false);
-      return;
-    }
-
-    if (labourEntries.length === 0) {
-      setErrorModal('Please add at least one labour entry.');
-      setLoading(false);
-      return;
-    }
-    if (materialEntries.length === 0) {
-      setErrorModal('Please add at least one material entry.');
-      setLoading(false);
-      return;
-    }
-
-    if (plantEntries.length === 0) {
-      setErrorModal('Please add at least one material entry.');
+      setWeatherError('Weather selection is required.');
       setLoading(false);
       return;
     }
 
     if (selectedImages.length === 0) {
-      setError('Please select at least one photo.');
+      setImageError('Please select at least one photo.');
       setLoading(false);
       return;
     }
@@ -1286,6 +1275,12 @@ export default function EditDailyReportScreen() {
               </View>
             ))}
           </View>
+        )}
+        {weatherError !== '' && (
+          <Text style={styles.errorText}>{weatherError}</Text>
+        )}
+        {imageError !== '' && (
+          <Text style={styles.errorText}>{imageError}</Text>
         )}
 
         {error !== '' && <Text style={styles.errorText}>{error}</Text>}

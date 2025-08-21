@@ -9,7 +9,7 @@ import {
   StatusBar,
   ActivityIndicator,
 } from 'react-native';
-import { Check } from 'lucide-react-native';
+import { Check, Eye, EyeOff } from 'lucide-react-native';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
@@ -26,6 +26,7 @@ const LoginScreen = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const navigation = useNavigation();
   const { setUser, setToken } = useAuthStore.getState();
@@ -109,17 +110,29 @@ const LoginScreen = () => {
 
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Password</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter your password"
-              placeholderTextColor="#93a5b1"
-              secureTextEntry
-              value={password}
-              onChangeText={text => {
-                setPassword(text);
-                setErrors(prev => ({ ...prev, password: '' }));
-              }}
-            />
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <TextInput
+                style={[styles.input, { flex: 1 }]}
+                placeholder="Enter your password"
+                placeholderTextColor="#93a5b1"
+                secureTextEntry={!showPassword} // 👈 show/hide control
+                value={password}
+                onChangeText={text => {
+                  setPassword(text);
+                  setErrors(prev => ({ ...prev, password: '' }));
+                }}
+              />
+              <Pressable
+                onPress={() => setShowPassword(!showPassword)}
+                style={{ position: 'absolute', right: wp('6%') }}
+              >
+                {showPassword ? (
+                  <EyeOff size={wp('6%')} color="#333" />
+                ) : (
+                  <Eye size={wp('6%')} color="#333" />
+                )}
+              </Pressable>
+            </View>
             {errors.password && (
               <Text style={styles.errorText}>{errors.password}</Text>
             )}

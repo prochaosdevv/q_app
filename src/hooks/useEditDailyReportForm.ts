@@ -19,6 +19,9 @@ export const useEditDailyReportForm = () => {
   const [showPhotoModal, setShowPhotoModal] = useState(false);
   const [selectedImages, setSelectedImages] = useState([]);
 
+  const [imageError, setImageError] = useState('');
+  const [weatherError, setWeatherError] = useState('');
+
   const imagePickerOptions = {
     mediaType: 'photo',
     quality: 1,
@@ -29,6 +32,7 @@ export const useEditDailyReportForm = () => {
     launchImageLibrary(imagePickerOptions, response => {
       if (response?.assets?.length > 0) {
         setSelectedImages(prev => [...prev, ...response.assets]);
+        setImageError('');
         setShowPhotoModal(false);
       }
     });
@@ -38,6 +42,7 @@ export const useEditDailyReportForm = () => {
     launchCamera(imagePickerOptions, response => {
       if (response?.assets?.length > 0) {
         setSelectedImages(prev => [...prev, ...response.assets]);
+        setImageError('');
         setShowPhotoModal(false);
       }
     });
@@ -56,6 +61,7 @@ export const useEditDailyReportForm = () => {
     setSelectedWeather,
     handleWeatherSelect: value => {
       setSelectedWeather(value);
+      setWeatherError('');
       setShowWeatherDropdown(false);
     },
     selectedDealy,
@@ -68,5 +74,11 @@ export const useEditDailyReportForm = () => {
     selectedImages,
     setSelectedImages,
     removeImage,
+
+    imageError,
+    setImageError,
+
+    weatherError,
+    setWeatherError,
   };
 };

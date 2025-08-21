@@ -19,6 +19,9 @@ export const useDailyReport = () => {
   const [showPhotoModal, setShowPhotoModal] = useState(false);
   const [selectedImages, setSelectedImages] = useState([]);
 
+  const [imageError, setImageError] = useState('');
+  const [weatherError, setWeatherError] = useState('');
+
   const imagePickerOptions = {
     mediaType: 'photo',
     quality: 1,
@@ -29,6 +32,7 @@ export const useDailyReport = () => {
     launchImageLibrary(imagePickerOptions, response => {
       if (response?.assets?.length > 0) {
         setSelectedImages(prev => [...prev, ...response.assets]);
+        setImageError('');
         setShowPhotoModal(false);
       }
     });
@@ -38,6 +42,7 @@ export const useDailyReport = () => {
     launchCamera(imagePickerOptions, response => {
       if (response?.assets?.length > 0) {
         setSelectedImages(prev => [...prev, ...response.assets]);
+        setImageError('');
         setShowPhotoModal(false);
       }
     });
@@ -57,6 +62,7 @@ export const useDailyReport = () => {
     handleWeatherSelect: value => {
       setSelectedWeather(value);
       setShowWeatherDropdown(false);
+      setWeatherError('');
     },
     selectedDelay,
     setSelectedDelay,
@@ -68,5 +74,11 @@ export const useDailyReport = () => {
     selectedImages,
     setSelectedImages,
     removeImage,
+    
+    imageError,
+    setImageError,
+
+    weatherError,
+    setWeatherError,
   };
 };
