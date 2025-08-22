@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { use, useState } from 'react';
 import {
   View,
   Text,
@@ -23,6 +23,10 @@ export default function ChangePasswordScreen() {
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+
+  const { user } = useAuthStore.getState();
+  const provider = user?.provider;
+  console.log('Welcome', provider);
 
   const [showOldPassword, setShowOldPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -94,7 +98,12 @@ export default function ChangePasswordScreen() {
         {/* Password Input */}
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Enter Old Password</Text>
-          <View style={styles.passwordContainer}>
+          <View
+            style={[
+              styles.passwordContainer,
+              provider && { backgroundColor: '#d3d3d3' }, // gray if provider
+            ]}
+          >
             <TextInput
               placeholder="********"
               value={oldPassword}
@@ -105,9 +114,11 @@ export default function ChangePasswordScreen() {
               secureTextEntry={!showOldPassword}
               placeholderTextColor="#999"
               style={styles.input}
+              editable={!provider}
             />
             <TouchableOpacity
               onPress={() => setShowOldPassword(!showOldPassword)}
+              disabled={!!provider}
             >
               {showOldPassword ? (
                 <Eye color="#2E2E2E" size={22} />
@@ -120,7 +131,12 @@ export default function ChangePasswordScreen() {
 
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Enter New Password</Text>
-          <View style={styles.passwordContainer}>
+          <View
+            style={[
+              styles.passwordContainer,
+              provider && { backgroundColor: '#d3d3d3' }, // gray if provider
+            ]}
+          >
             <TextInput
               placeholder="********"
               value={newPassword}
@@ -131,9 +147,11 @@ export default function ChangePasswordScreen() {
               secureTextEntry={!showNewPassword}
               placeholderTextColor="#999"
               style={styles.input}
+              editable={!provider}
             />
             <TouchableOpacity
               onPress={() => setShowNewPassword(!showNewPassword)}
+              disabled={!!provider}
             >
               {showNewPassword ? (
                 <Eye color="#2E2E2E" size={22} />
@@ -146,7 +164,12 @@ export default function ChangePasswordScreen() {
 
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Confirm New Password</Text>
-          <View style={styles.passwordContainer}>
+          <View
+            style={[
+              styles.passwordContainer,
+              provider && { backgroundColor: '#d3d3d3' }, // gray if provider
+            ]}
+          >
             <TextInput
               placeholder="Re-enter your password"
               value={confirmPassword}
@@ -157,9 +180,11 @@ export default function ChangePasswordScreen() {
               secureTextEntry={!showConfirmPassword}
               placeholderTextColor="#999"
               style={styles.input}
+              editable={!provider}
             />
             <TouchableOpacity
               onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+              disabled={!!provider}
             >
               {showConfirmPassword ? (
                 <Eye color="#2E2E2E" size={22} />
@@ -190,7 +215,13 @@ export default function ChangePasswordScreen() {
         </Text>
 
         {/* Submit Button */}
-        <Pressable style={styles.submitButton} onPress={handleChangePassword}>
+        <Pressable
+          style={[
+            styles.submitButton,
+            provider && { backgroundColor: 'gray' }, // disable color
+          ]}
+          onPress={!provider ? handleChangePassword : undefined}
+        >
           <Text style={styles.submitButtonText}>Submit new password</Text>
         </Pressable>
       </View>
