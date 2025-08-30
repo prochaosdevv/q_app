@@ -1,4 +1,4 @@
-package com.q_app
+package com.q_surv
 
 import android.app.Application
 import com.facebook.react.PackageList

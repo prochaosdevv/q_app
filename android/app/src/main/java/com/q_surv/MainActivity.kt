@@ -1,4 +1,4 @@
-package com.q_app
+package com.q_surv
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
